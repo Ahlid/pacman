@@ -1,0 +1,20 @@
+Final Report:
+  Students should prepare a final report describing the developed solution (max. 6 pages).  In this report, students should follow the typical approach of a technical paper, first describing the problem they are going to solve, the proposed solutions, and the relative advantages of each solution.  However, please avoid including in the report any information included in this project description.  The report should include an explanation of the algorithms used andjustifications for the design decisions.  The project’s final report should also include some qualitative and quantitative evaluation of the implementation. The quantitative evaluation should focus on the following metrics
+    •Maximum throughput achievable by the system while varying the number of playersand server replicas involved in a gaming session.
+    •Fault-tolerance features.
+    •Other optimisations.
+  This should motivate a brief discussion on the overall quality of the protocols developed.The final reports should be written using LATEX.  A template of the paper format will beprovided to the students.
+
+ Must have:
+   ☐ max 6 pages
+   ☐ Relative advantages of each solution
+   ☐ Information from the description is mostly not included in the report
+   ☐ explanation of the algorithms
+   ☐ Justifications for the design decisions
+   ☐ Qualitative evaluation of the implementation
+   ☐ Quantitative evaluation of the implementation
+       ☐ Maximum throughput achievable by the system while varying the number of playersand server replicas involved in a gaming session.
+       ☐ Fault-tolerance features.
+       ☐ Other optimisations
+
+

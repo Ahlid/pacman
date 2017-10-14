@@ -1,0 +1,38 @@
+
+To simplify project testing, students shall also develop an additional centralised component, called PuppetMaster. The role of the PuppetMaster process is to provide a single console from where it is possible to control experiments.  The actual specification of the experiment is defined via a, so called, plot file: the PuppetMaster reads the plot file and accordingly steers the distributed computation, by activating clients/servers and orchestrating their execution. Each physical machine used in the system will also execute a process, called PCS (Process Creation Service), which  the  PuppetMaster  can  use  to  launch  client/server  processes on remote machines. For simplicity, the activation  of  the  PuppetMasters  and  of  the  process creation service  will  be  performed  manually. The PCS on each machine should expose a service at an URL on port 11000 for  requesting the creation of node replicas on the local machine. This service can be used by the PuppetMaster to create new replicas. For simplicity, we assume that the PuppetMaster knows the URLs of the entire set of process creation services. This information can be provided via configuration file or command line. The first part of each plot file defines the set of processes that should be started by the PuppetMaster via the PCSs.
+
+PuppetMaster:
+ ☐ StartClient PID PCS_URL CLIENT_URL MSEC_PER_ROUND NUM_PLAYERS[filename]:  
+ Activates a client with a unique identifierPID(of type String) via the PCS listening at the url: PCS_URL. The client shall expose its services at the address CLIENT_URL. If the optional parameter file name is specified, the client shall feed its actions from the specified trace file.  Else, commands are read from keyboard.  The parameters MSEC_PER_ROUND and NUM_PLAYERS specify  the  time  duration  of  a  round  in  msecs  and  the  number of players in each game
+ ☐ StartServer PID PCSURL SERVERURL MSECPERROUND NUMPLAYERS: 
+ Activates a server with a unique identifier PID(of type String) via the PCS listening at the url: PCS_URL.The server shall expose its services  at  the  address SERVER_URL.  The  parameters MSEC_PER_ROUND and NUM_PLAYERS specify the time duration of a round in msecs and the number of players in each game
+ Additional commands:
+ ☐ GlobalStatus:
+    This command makes all processes in the system print their currentstatus.  The status command should present brief information about the state of the system (who is present, which nodes are presumed failed, etc...).  Status informationcan be printed on each nodes’ and does not need to be centralized at the PuppetMaster.
+ ☐ Crash PID:
+   This command is used to force a process to crash
+ ☐ Freeze PID:
+   This command is used to simulate a delay in the process.  After receivinga  freeze,  the  process  continues  receiving  messages  but  stops  processing  them  untilthe PuppetMaster “unfreezes” it.  The goal of this command is to simulate networkpartitions that prevent the successful delivery of message to frozen processes:  thereforefrozen process cannot explicitly send back any reply (including exceptions)
+ ☐ Unfreeze PID:
+   This  command  is  used  to  put  a  process  back  to  normal  operation.Pending messages that were received while the process was frozen, should be processedwhen this command is received
+ ☐ InjectDelay src_PID dst_PID:
+   This command forces the introduction of a communi-cation delay from on the channel connecting src_PID to dst_PID. This delay should be injected artificially at the sender side.
+ ☐ LocalState PID round_id:
+   This command obtains a textual representation of the status of the game at a client or server process having identifier PID for round round_id.The various Pacmans shall be identified with a different integer value (starting from 1),monsters with a M, walls with a W and coins with a C, as illustrated in the example below. The goal is to allow the use of the “diff” tool to compare automatically the local states gathered across different processes.  The output of this command shall be visualizable in the PuppetMaster console as well as saved into a file (in the Puppet-Master’s filesystem) called LocalState-PID-roundid. The state of the game should be output as a list of coordinates of all entities including all monsters, all players (indicating whether they are still playing or have lost with the P or L character respectfully) and all visible coins, as in the example below.
+
+   M, 45, 50
+   M, 120, 60
+   P1, L, 130, 80
+   P2, P, 50, 200
+   C, 40, 40C, 40, 80
+
+   Script file:
+     The  PuppetMaster  should  have  a  simple  console  where  a  human  operator  may  typecommands when running experiments with the system.  Also, to further automate testing,the PuppetMaster can also read a sequence of such commands from ascriptfile.  A scriptfile can have an additional command that controls the behaviour of the PuppetMaster itself.
+     ☐ Wait x_ms 
+       This  command  instructs  the  pupper  master  to  sleep  for x milliseconds before reading and executing the following command in the script file. For instance, the following sequence in a script file will force broker broker0 to freeze 100ms.
+
+         Freeze PID 
+         Wait 100 
+         Unfreeze PID
+
+        All  PuppetMaster  commands  should  be  executed  asynchronously  except  for  the Wait command.

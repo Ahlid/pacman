@@ -1,0 +1,15 @@
+Fault Tolerance:
+  Given the distributed nature of the DAD-OGP platform, it is of paramount importance that the occurrence of failures/network asynchrony is masked away (as much as possible) from clients. Given the real-time nature of the considered application, it is in particular desirable to maximize performance predictability in presence of such abnormal events, e.g.,by favouring fault-tolerant solutions that minimize the fail-over latency. Further, DAD-OGP shall include mechanisms aimed at ensuring that a gaming session can continue as long as there is at least one connected  client, i.e., the game shall not be aborted or blocked if a subset of clients disconnect or are suspected to have crashed.  It is up to the students to define, and justify, the policy to employ in case clients are (falsely)suspected to have crashed.The students are free to use the replication technique they feel more appropriate to solve the problem at hand. Depending on the selected fault-tolerance strategy, the students shall state how many faulty replicas, f, can be  tolerated out of the  total  number  of  available ones, replication factor, as well as what are the assumptions on the synchrony model (e.g., synchronous, partially synchronous, asynchronous) of the system. Throughout the project, students can assume that processes can be subject to crash failures, but do not otherwise deviate from their expected behaviour.
+
+
+Assumptions:
+  . As long as one client is connected, the game session continues
+  . Processes can be subject to crash failures, but do not otherwise deviate from their expected behaviour
+
+  Check list:
+   ☐ Define a policy to employ in case clients are suspected to have crashed.
+   ☐ Define the replication technique to solve the problem.
+   ☐ Calculate how man faulty replicas, f, can be tolerated ou of the total number of available replicas.
+   ☐ Calculate the replication factor
+   ☐ Describe the assumptions on the synchrony model(e.g. synchronous, partially synchronous, asynchronous) of the system
+   ☐ Optional(Ricardo sugestion) - Real-time system should make predictions about the client input in case of latency and correct when the connection is reestablished. This approach is used in multiplayer video games.
