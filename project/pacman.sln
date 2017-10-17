@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pacman", "pacman\pacman.csproj", "{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{6C4D30B0-B237-4B3A-86D9-53C5027AA465}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{BC02D5AD-D42E-48B9-AF41-FE2482047445}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4D30B0-B237-4B3A-86D9-53C5027AA465}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4D30B0-B237-4B3A-86D9-53C5027AA465}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4D30B0-B237-4B3A-86D9-53C5027AA465}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4D30B0-B237-4B3A-86D9-53C5027AA465}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC02D5AD-D42E-48B9-AF41-FE2482047445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC02D5AD-D42E-48B9-AF41-FE2482047445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC02D5AD-D42E-48B9-AF41-FE2482047445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC02D5AD-D42E-48B9-AF41-FE2482047445}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

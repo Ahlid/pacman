@@ -5,4 +5,39 @@ Server Module:
 
   ☐ Decide if the server should be done in console or in Windows forms
 
-  
+
+
+
+  -------------- ✄ -----------------------
+
+Draft Start Algorithm for the Server
+initialize(MSEC_PER_ROUND, NUM_PLAYERS) {
+  this.MSEC_PER_ROUND = MSEC_PER_ROUND;
+  this.NUM_PLAYERS = NUM_PLAYERS;
+  buildMonsters();
+  buildCoins();
+  buildPlayers();
+  loop until NUM_PLAYERS connected to the server
+  server.startGame();
+}
+
+
+
+Draft Tick Algorithm for the Server
+
+//We assume that all the clients have connected and the game has started
+loop every MSEC_PER_ROUND msec
+  recalculatePositions(); //go through the movements for this round and calculate the positions of the players. Also move the monsters.
+  for every player in server.getAlivePlayers()
+    player.doColisionDetectionWithCoins(); //Removes the coins and adds to the score
+    player.doColisionDetectionWithMonsters(); //Test if the player colides with a monster, if it does mark him as dead
+    player.doColisionDetectionWithWalls(); //Test if the player colides with a wall, if it does mark him as dead
+
+  if(server.allPlayerDead()) {
+    server.gameOver();
+  } else {
+    server.nextRound();
+  }
+
+
+

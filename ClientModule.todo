@@ -1,1 +1,59 @@
 Client Module:
+
+
+
+We have to have attention on the order that the movements are processed. If two players move to grab the same coin, how do we choose which player should grab the coin? 
+>we should compute the colision detection for the first packet that arives?
+
+
+
+  -------------- ✄ -----------------------
+
+Draft Tick Algorithm for the Client
+
+
+//optimize for x to be within msec_per_round
+//The timer starts when a connection to the server is established
+//we assume the trace file is loaded(in case it is using a trace file)
+loop every x msec
+  if(!this.isConnected) {
+    this.retryConnection();
+    return;
+  } 
+
+  if(!this.gameStarted) {
+    //The client doesn't know the game has started, yet the server has started and we assume all the data about monsters, coins and players are there
+    if(server.hasStarted()) {
+      //Gets the server information about the monsters, coins and players and displays them for the first time
+      this.buildMonsters(server);
+      this.buildCoins(server);
+      this.buildPlayers(server);
+      this.gameStarted = true; //client now know that the game has indeed started
+      return;
+    }
+
+  } else {
+    let currentRound = server.getCurrentRound();
+    //Set the Round movement, even if it was already set.
+    //we need to send our choice
+    //We assume the server takes care of selecting the latest movement inside the round. 
+    //When the round is closed the latest movement set to the round will be applied.
+    //the latestMovement() method retrieves the latest pressed key or null in case no key was pressed or the key for this round(in case of a trace file)
+    //we assume that the server knows who this client is
+    //Still not sure the currentRound should go alon
+    server.setRoundMovement(currentRound, this.latestMovement());
+
+    if(this.round == currentRound) {
+      return;
+    }
+    
+    //the currentRound is a new round
+    this.updatePositions(server); //Updates every image position
+    this.updateImages(server); //Updates de image for the pacmans (left, right, up, down)
+    this.updateScore(server); //Updates the user score  
+    this.round = currentRound;
+
+  }
+
+
+
