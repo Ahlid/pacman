@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface IMonster
+    public interface IMonster : IStageObject
     {
-        Point Position { get; set; }
+        Point Speed { get; set; }
+        void step(IStage stage);
     }
 }

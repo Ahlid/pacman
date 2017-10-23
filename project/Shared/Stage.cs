@@ -10,6 +10,9 @@ namespace Server
     [Serializable]
     public class Stage :  IStage
     {
+        public const int WIDTH = 600;
+        public const int HEIGHT = 400;
+
         private List<IMonster> monsters;
         private List<ICoin> coins;
         private List<IPlayer> players;

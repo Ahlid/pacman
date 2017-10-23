@@ -11,6 +11,9 @@ namespace Server
     [Serializable]
     public class Coin :  ICoin
     {
+        public const int WIDTH = 20;
+        public const int HEIGHT = 18;
+
         public Point Position { get; set; }
     }
 }

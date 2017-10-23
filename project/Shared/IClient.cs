@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    public interface IClient
+    public interface IClient 
     { 
         string Address { get; set; }
         //Sends a immutable stage. The round is used to identify the round. 

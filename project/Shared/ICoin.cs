@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface ICoin
+    public interface ICoin : IStageObject
     {
-        Point Position { get; set; }
+        
     }
 }

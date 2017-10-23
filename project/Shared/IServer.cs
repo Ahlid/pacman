@@ -13,6 +13,6 @@ namespace Shared
 
         void run(int roundMsec);
 
-        void setPlay(Play play, int round);
+        void setPlay(String address, Play play, int round);
     }
 }
