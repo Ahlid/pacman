@@ -8,15 +8,17 @@ namespace Shared
 {
     public interface IStage
     {
-        List<IMonster> getMonsters();
-        void addMonster(IMonster monster);
+        void BuildInitStage(int numPlayers);
 
-        List<ICoin> getCoins();
-        void addCoin(ICoin coin);
-        void removeCoin(ICoin coin);
+        List<IMonster> GetMonsters();
+        void AddMonster(IMonster monster);
 
-        List<IPlayer> getPlayers();
-        void addPlayer(IPlayer player);
-        void removePlayer(IPlayer player);
+        List<ICoin> GetCoins();
+        void AddCoin(ICoin coin);
+        void RemoveCoin(ICoin coin);
+
+        List<IPlayer> GetPlayers();
+        void AddPlayer(IPlayer player);
+        void RemovePlayer(IPlayer player);
     }
 }

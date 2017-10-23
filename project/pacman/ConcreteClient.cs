@@ -5,19 +5,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Server;
 
 namespace pacman
 {
     class ConcreteClient : MarshalByRefObject, IClient
     {
-        public static FormStage stageForm;
+        public static FormStage StageForm;
         public string Address { get; set; }
-        private int round;
-        private bool gameStart;
+        public int Round { get; set; }
+        private bool hasGameStarted;
 
-        public void sendRoundStage(IStage stage, int round)
+
+        public ConcreteClient()
         {
-            if (!gameStart)
+            this.Round = 0;
+            this.hasGameStarted = false;
+        }
+
+        public void SendRoundStage(IStage stage, int round)
+        {
+            if (!hasGameStarted)
             {
                 MessageBox.Show("Something went wrong.");
                 return;
@@ -27,12 +35,12 @@ namespace pacman
             buildMonsters(stage);
             buildCoins(stage);
             buildPlayers(stage);
-            this.round = round;
+            this.Round = round;
         }
 
-        public void start(IStage stage)
+        public void Start(IStage stage)
         {
-            if(gameStart)
+            if(hasGameStarted)
             {
                 MessageBox.Show("Game has already started.");
                 return;
@@ -41,12 +49,28 @@ namespace pacman
             buildMonsters(stage);
             buildCoins(stage);
             buildPlayers(stage);
-            gameStart = true;
-            round = 0;
+            hasGameStarted = true;
+            //round = 0;
         }
 
         private void buildPlayers(IStage stage)
         {
+            PictureBox newPlayer;
+            foreach (IPlayer player in stage.GetPlayers())
+            {
+                newPlayer = new PictureBox();
+                newPlayer.BackColor = System.Drawing.Color.Transparent;
+                newPlayer.Image = global::pacman.Properties.Resources.Left;
+                newPlayer.Location = new System.Drawing.Point(player.Position.X - Player.WIDTH / 2, player.Position.Y - Player.HEIGHT / 2); 
+                newPlayer.Margin = new System.Windows.Forms.Padding(0);
+                newPlayer.Name = "pacman";
+                newPlayer.Size = new System.Drawing.Size(Player.WIDTH, Player.HEIGHT);
+                newPlayer.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+                newPlayer.TabIndex = 4;
+                newPlayer.TabStop = false;
+            }
+            
+
             throw new NotImplementedException();
         }
 

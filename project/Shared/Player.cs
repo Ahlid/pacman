@@ -9,7 +9,7 @@ using System.Drawing;
 namespace Server
 {
     [Serializable]
-    public class Player : IPlayer
+    public class Player : RigidObject, IPlayer
     {
         public const int WIDTH = 34;
         public const int HEIGHT = 32;
@@ -17,8 +17,17 @@ namespace Server
 
         public Point Position { get; set; }
         public string Address { get; set; }
+        public int Score { get; set; }
+        public bool Alive { get; set; }
 
-        public void move(Play play)
+        public Player() { }
+
+        public Player(int x, int y)
+        {
+            this.Position = new Point(x, y);
+        }
+
+        public void Move(Play play)
         {
             switch (play)
             {
@@ -65,7 +74,6 @@ namespace Server
                     }
 
                     break;
-
             }
         }
     }

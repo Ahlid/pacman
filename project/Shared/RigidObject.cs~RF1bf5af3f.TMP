@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Shared
+{
+    public class RigidObject : IStageObject
+    {
+        public Point Position { get; set; }
+
+        public bool isColliding(Point centerA, int widthA, int heightA, Point centerB, int widthB, int heightB)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

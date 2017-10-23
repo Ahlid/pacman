@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Server
 {
     [Serializable]
-    public class MonsterHorizontal : IMonster
+    public class MonsterHorizontal : RigidObject, IMonster
     {
         public const int WIDTH = 40;
         public const int HEIGHT = 36;
@@ -18,7 +18,12 @@ namespace Server
         public Point Position { get; set; } 
         public Point Speed { get; set; }
 
-        public void step(IStage stage)
+        public MonsterHorizontal(int x, int y)
+        {
+            this.Position = new Point(x, y);
+        }
+
+        public void Step(IStage stage)
         {
             Position = new Point(Position.X + SPEED, Position.Y);
         }

@@ -19,14 +19,23 @@ namespace pacman {
 
         private IServer server;
 
+        Play play = Play.NONE;
+
+        private bool isConnected;
+
+        public ClientManager clientManager { get; set; }
+
+
+        // to remove
+        IClient client;
+
+        #region TO REMOVE
 
         // direction player is moving in. Only one will be 
         bool goup;
         bool godown;
         bool goleft;
         bool goright;
-
-        Play play = Play.NONE;
 
         int boardRight = 320;
         int boardBottom = 320;
@@ -45,13 +54,24 @@ namespace pacman {
         int ghost3x = 5;
         int ghost3y = 5;
 
+        #endregion
 
 
-        private bool isConnected;
+        
 
         public FormStage() {
             InitializeComponent();
+
+            // to remove
             label2.Visible = false;
+
+
+
+
+
+
+
+            // to remove
 
             //todo: case of two clients in the same port
             int port = 8081;
@@ -63,7 +83,7 @@ namespace pacman {
                 "Client",
                 WellKnownObjectMode.Singleton);
 
-            IClient client = (IClient)Activator.GetObject(
+            client = (IClient)Activator.GetObject(
                 typeof(IClient),
                 "tcp://localhost:" + port + "/Client");
 
@@ -73,9 +93,10 @@ namespace pacman {
                 typeof(IServer),
                 "tcp://localhost:8086/Server");
 
-            server.join(client.Address);
+            server.Join(client.Address);
             ///MessageBox.Show("Server has joined");
-
+            ///
+            this.isConnected = true;
         }
 
         private void keyisdown(object sender, KeyEventArgs e) {
@@ -134,7 +155,8 @@ namespace pacman {
 
             if(play != Play.NONE)
             {
-                server.setPlay(play, 4);
+                // este round não vai ser actualizado, porque nao é o do concrete client, devia ser do concrete client!!!!
+                server.SetPlay(this.client.Address, play, this.client.Round);
             }
 
 

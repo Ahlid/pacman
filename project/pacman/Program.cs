@@ -14,7 +14,8 @@ namespace pacman {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormStage());
+            //Application.Run(new FormStage());
+            Application.Run(new FormWelcome());
         }
     }
 }

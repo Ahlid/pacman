@@ -11,20 +11,15 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
+        public const int NUM_PLAYERS = 1;
 
         private Dictionary<IPlayer, Play> playerMoves;
         private Dictionary<string, IPlayer> playersAddressMap;
-
         private List<IClient> clients;
-        private IStage stage
+        private IStage stage;
+        private int round = 0;
 
-        public const int NUM_PLAYERS = 1;
-
-
-
-
-        public int round = 0;
-        public Timer timer;
+        private Timer timer;
         
 
         public ConcreteServer()
@@ -33,27 +28,46 @@ namespace Server
             playerMoves = new Dictionary<IPlayer, Play>();
             playersAddressMap = new Dictionary<string, IPlayer>();
             stage = new Stage();
-            ICoin coin = new Coin();
-            coin.Position = new Point(2, 4);
-            stage.addCoin(coin);
             System.Console.WriteLine("Constructor done");
         }
 
-        public void run(int roundIntervalMsec)
+        public void Run(int roundIntervalMsec)
         {
             timer = new Timer(new TimerCallback(Tick), null, 0, roundIntervalMsec);
         }
 
         private void Tick(Object parameters)
         {
-            buildStage();
-            round++;
-            broadcastStart();
+            if (!hasGameEnded())
+            {
+                buildStage();
+                round++;
+                broadcastStart();
+            }
         }
 
+        /// <summary>
+        /// Determines if the game has ended, by checking if all the pacmans are dead,
+        /// or if all the coins have been collected.
+        /// </summary>
+        /// <returns></returns>
+        private bool hasGameEnded()
+        {
+            return this.stage.GetPlayers().Count(p => p.Alive) > 0 || this.stage.GetCoins().Count() == 0;
+        }
 
+        /// <summary>
+        /// Returns the player with the most coins collected.
+        /// </summary>
+        /// <returns>Player that won the game.</returns>
+        private IPlayer getWinner()
+        {
+            int maxScore = this.stage.GetPlayers().Max(p => p.Score);
+            // check if this cast doesn't present a problem; at first it should be a problem.
+            return (IPlayer) this.stage.GetPlayers().Where(p => p.Score == maxScore);
+        }
 
-        public bool join(string address)
+        public bool Join(string address)
         {
             if (NUM_PLAYERS == clients.Count)
             {
@@ -67,12 +81,14 @@ namespace Server
             clients.Add(client);
             IPlayer player = new Player();
             player.Address = address;
-            player.Position = new Point(4, 4);
+            //player.Position = new Point(4, 4);
             playersAddressMap.Add(address, player);
-            stage.addPlayer(player);
+            stage.AddPlayer(player);
 
             if (NUM_PLAYERS == clients.Count)
             {
+                // build game stage
+                stage.BuildInitStage(NUM_PLAYERS);
                 Thread thread = new Thread(delegate ()
                 {
                     broadcastStart();
@@ -91,10 +107,10 @@ namespace Server
                 {
                     if(round == 0)
                     {
-                        clients.ElementAt(i).start(stage);
+                        clients.ElementAt(i).Start(stage);
                     } else
                     {
-                        clients.ElementAt(i).sendRoundStage(stage, round);
+                        clients.ElementAt(i).SendRoundStage(stage, round);
                     }
                     
                 }
@@ -105,7 +121,7 @@ namespace Server
             }
         }
 
-        public void setPlay(string address, Play play, int round)
+        public void SetPlay(string address, Play play, int round)
         {
             Console.WriteLine("Round: {0} Play: {1}", play, round);
             IPlayer player = playersAddressMap[address];
@@ -122,12 +138,13 @@ namespace Server
 
         private void computeGhost()
         {
-            foreach(IMonster monster in stage.getMonsters())
+            foreach(IMonster monster in stage.GetMonsters())
             {
-                monster.step();
+                //monster.Step();
             }
 
 
+            /*
             //move ghosts
             redGhost.Left += ghost1;
             yellowGhost.Left += ghost2;
@@ -146,61 +163,20 @@ namespace Server
             else if (yellowGhost.Bounds.IntersectsWith(pictureBox4.Bounds))
                 ghost2 = -ghost2;
             //moving ghosts and bumping with the walls end
-
-
-
+*/
         }
-            int xA1 = centerA.X - widthA / 2;
-
-        private bool isColliding(Point centerA, int widthA, int heightA, 
-                                 Point centerB, int widthB, int heightB)
-        {
-            int xA2 = centerA.X + widthA / 2;
-
-            int xB1 = centerB.X - widthB / 2;
-            int xB2 = centerB.X + widthB / 2;
-
-            int yA1 = centerA.Y - heightA / 2;
-            int yA2 = centerA.Y + heightA / 2;
-
-            int yB1 = centerB.Y - heightB / 2;
-            int yB2 = centerB.Y + heightB / 2;
-
-            //Check if there is a gap between the two AABB's in the X axis
-            if (xA2 < xB1 || xB2 < xA1) {
-                return false;
-            }
-
-            if (xA2 < xB1 || xB2 < xA1)
-            {
-                return false;
-            }
-
-            //Check if there is a gap between the two AABB's in the Y axis
-            if (yA2 < yB1 || yB2 < yA1)
-            {
-                return false;
-            }
-
-            if (yA2 < yB1 || yB2 < yA1)
-            {
-                return false;
-            }
 
 
-            // We have an overlap
-            return true;
-        }
 
         private void computeMovement()
         {
-            computeGhost();
+            //computeGhost();
 
             //Assume that the playerMoves has a play for every play, with default Play.NONE
-            foreach (Player player in stage.getPlayers())
+            foreach (Player player in stage.GetPlayers())
             {
                 Play play = playerMoves[player];
-                player.move(play);
+                player.Move(play);
             }
 
             /*

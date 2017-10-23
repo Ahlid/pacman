@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface IMonster : IStageObject, ICollide
+    public interface ICollide
     {
-        Point Speed { get; set; }
-
-        void Step(IStage stage);
-
+        bool IsColliding(Point centerA, int widthA, int heightA,
+                         Point centerB, int widthB, int heightB);
     }
 }

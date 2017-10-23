@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface IWall : IStageObject
+    public interface IWall : IStageObject, ICollide
     {
 
     }

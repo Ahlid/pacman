@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface IPlayer : IStageObject
+    public interface IPlayer : IStageObject, ICollide
     {
+        int Score { get; set; }
+
+        bool Alive { get; set; }
+
         string Address { get; set; }
-        void move(Play play);
+
+        void Move(Play play);
     }
 }

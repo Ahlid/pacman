@@ -9,10 +9,10 @@ namespace Shared
     public interface IServer
     { 
         //returns true if the client was accepted
-        bool join(string address);
+        bool Join(string address);
 
-        void run(int roundMsec);
+        void Run(int roundMsec);
 
-        void setPlay(String address, Play play, int round);
+        void SetPlay(String address, Play play, int round);
     }
 }
