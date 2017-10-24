@@ -28,11 +28,11 @@ namespace pacman
         {
             if (!hasGameStarted)
             {
-                MessageBox.Show("Something went wrong.");
                 return;
             }
             //Construir o form através dos objetos que estão no stage
             //MessageBox.Show(string.Format("Stage number {0} received from the server.", round));
+            StageForm.Invoke(new Action(() => StageForm.Controls.Clear()));
             buildMonsters(stage);
             buildCoins(stage);
             buildPlayers(stage);
@@ -41,16 +41,16 @@ namespace pacman
 
         public void Start(IStage stage)
         {
-            MessageBox.Show("Game has already started.");
             if (hasGameStarted)
-            { 
-                MessageBox.Show("Game has already started.");
+            {
                 return;
             }
             //MessageBox.Show("The game has started(signal received from the server).");
-            buildMonsters(stage);
+            buildWalls(stage);
             buildCoins(stage);
+            buildMonsters(stage);
             buildPlayers(stage);
+            
             hasGameStarted = true;
             Round = 0;
         }
@@ -59,7 +59,6 @@ namespace pacman
         {
             PictureBox pictureBox = new PictureBox();
             pictureBox.BackColor = System.Drawing.Color.Transparent;
-            pictureBox.Image = global::pacman.Properties.Resources.Left;
             pictureBox.Location = new System.Drawing.Point(position.X - width / 2, position.Y - height / 2);
             pictureBox.Margin = new System.Windows.Forms.Padding(0);
             pictureBox.Name = name;
@@ -70,6 +69,19 @@ namespace pacman
             return pictureBox;
         }
 
+        private void buildWalls(IStage stage)
+        {
+            PictureBox newWall;
+            int i = 1;
+            foreach (IWall wall in stage.GetWalls())
+            {
+                newWall = createControl("wall" + i++, wall.Position, Wall.WIDTH, Wall.HEIGHT);
+                newWall.BackColor = Color.Blue;
+                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newWall)));
+            }
+
+        }
+
         private void buildPlayers(IStage stage)
         {
             PictureBox newPlayer;
@@ -78,7 +90,8 @@ namespace pacman
             { 
                 newPlayer = createControl("pacman"+i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
-                StageForm.PanelGame.Controls.Add(newPlayer);
+                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newPlayer)));
+                //MessageBox.Show(String.Format("Point({0}, {1})", player.Position.X, player.Position.Y));
             }
 
         }
@@ -91,7 +104,7 @@ namespace pacman
             {
                 newCoin = createControl("coin" + i++, coin.Position, Coin.WIDTH, Coin.HEIGHT);
                 newCoin.Image = global::pacman.Properties.Resources.coin;
-                StageForm.PanelGame.Controls.Add(newCoin);
+                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newCoin)));
             }
         }
 
@@ -114,8 +127,9 @@ namespace pacman
                 {
                     newMonster.Image = global::pacman.Properties.Resources.yellow_guy;
                 }
+
+                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newMonster)));
                 
-                StageForm.PanelGame.Controls.Add(newMonster);
             }
         }
     }

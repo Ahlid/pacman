@@ -13,7 +13,7 @@ namespace Server
     {
         public const int WIDTH = 34;
         public const int HEIGHT = 32;
-        public const int SPEED = 5;
+        public const int SPEED = 20;
 
         public Point Position { get; set; }
         public string Address { get; set; }
@@ -32,7 +32,7 @@ namespace Server
             switch (play)
             {
                 case Play.LEFT:
-                    if (this.Position.X + Player.SPEED + Player.WIDTH / 2 > 0)
+                    if (this.Position.X - Player.SPEED - Player.WIDTH / 2 < 0)
                     {
                         this.Position = new Point(Player.WIDTH / 2, this.Position.Y);
                     }
@@ -43,9 +43,9 @@ namespace Server
                     break;
                 case Play.RIGHT:
 
-                    if (this.Position.X + Player.SPEED + Player.WIDTH / 2 < Stage.WIDTH)
+                    if (this.Position.X + Player.SPEED + Player.WIDTH / 2 > Stage.WIDTH)
                     {
-                        this.Position = new Point(Stage.WIDTH - Player.WIDTH / 2, this.Position.Y);
+                        this.Position = new Point(Stage.WIDTH + Player.WIDTH / 2, this.Position.Y);
                     }
                     else
                     {
@@ -54,7 +54,7 @@ namespace Server
                     break;
                 case Play.UP:
                     //The Y axis grows downwards
-                    if (this.Position.Y - Player.SPEED - Player.HEIGHT / 2 > 0)
+                    if (this.Position.Y - Player.SPEED - Player.HEIGHT / 2 < 0)
                     {
                         this.Position = new Point(this.Position.X, Player.HEIGHT / 2);
                     }
@@ -64,7 +64,7 @@ namespace Server
                     }
                     break;
                 case Play.DOWN:
-                    if (this.Position.Y + Player.SPEED + Player.HEIGHT / 2 < Stage.HEIGHT)
+                    if (this.Position.Y + Player.SPEED + Player.HEIGHT / 2 > Stage.HEIGHT)
                     {
                         this.Position = new Point(this.Position.X, Stage.HEIGHT- Player.HEIGHT / 2);
                     }

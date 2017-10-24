@@ -28,6 +28,7 @@ namespace pacman {
             }
         }
 
+
         // to remove
         IClient client;
 
@@ -67,7 +68,7 @@ namespace pacman {
             // to remove
             label2.Visible = false;
 
-
+            ConcreteClient.StageForm = this;
 
 
 
@@ -94,7 +95,7 @@ namespace pacman {
                 "tcp://localhost:8086/Server");
 
             server.Join(client.Address);
-            ///MessageBox.Show("Server has joined");
+
             ///
             this.isConnected = true;
         }

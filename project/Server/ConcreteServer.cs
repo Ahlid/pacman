@@ -20,7 +20,9 @@ namespace Server
         private int round = 0;
 
         private Timer timer;
-        
+        private int roundIntervalMsec;
+
+
 
         public ConcreteServer()
         {
@@ -33,17 +35,30 @@ namespace Server
 
         public void Run(int roundIntervalMsec)
         {
-            timer = new Timer(new TimerCallback(Tick), null, 0, roundIntervalMsec);
+            this.roundIntervalMsec = roundIntervalMsec;
         }
 
         private void Tick(Object parameters)
         {
+            
             if (!hasGameEnded())
             {
-                buildStage();
-                round++;
-                broadcastStart();
+                Console.WriteLine("{0}", this.round);
+                this.buildStage();
+                this.round++;
+                this.broadcastStart();
+
+                // how to block threads
+                // clean players moves
+
+                    foreach(IPlayer player in this.stage.GetPlayers()) {
+                        playerMoves[player] = Play.NONE;
+                    }
+
             }
+
+            timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+            
         }
 
         /// <summary>
@@ -53,7 +68,8 @@ namespace Server
         /// <returns></returns>
         private bool hasGameEnded()
         {
-            return this.stage.GetPlayers().Count(p => p.Alive) > 0 || this.stage.GetCoins().Count() == 0;
+            //return this.stage.GetPlayers().Count(p => p.Alive) > 0 || this.stage.GetCoins().Count() == 0;
+            return false;
         }
 
         /// <summary>
@@ -81,6 +97,7 @@ namespace Server
             clients.Add(client);
             IPlayer player = new Player();
             player.Address = address;
+            playerMoves[player] = Play.NONE;
             playersAddressMap.Add(address, player);
             stage.AddPlayer(player);
 
@@ -88,11 +105,9 @@ namespace Server
             {
                 // build game stage
                 stage.BuildInitStage(NUM_PLAYERS);
-                Thread thread = new Thread(delegate ()
-                {
-                    broadcastStart();
-                });
-                thread.Start();
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+
+
             }
 
             return true;
@@ -104,7 +119,8 @@ namespace Server
             {
                 try
                 {
-                    if(round == 0)
+                    Console.WriteLine("Round number: {0}", this.round);
+                    if(round == 1)
                     {
                         clients.ElementAt(i).Start(stage);
                     } else
@@ -113,7 +129,6 @@ namespace Server
                     }
 
                     // real simple approach now
-                    this.round++;
                 }
                 catch (Exception)
                 {
@@ -126,13 +141,13 @@ namespace Server
         {
             Console.WriteLine("Round: {0} Play: {1}", play, round);
             IPlayer player = playersAddressMap[address];
-            playerMoves[player] = play;
-
+            
+             playerMoves[player] = play;
+           
             //compute position of players, monsters, scores, 
 
             // should have a timer controlling this
             // send to all the new stage
-            broadcastStart();
         }
 
         private void buildStage()
@@ -140,7 +155,6 @@ namespace Server
             computeGhost();
             computeMovement();
 
-            throw new NotImplementedException();
         }
 
         private void computeGhost()
@@ -184,8 +198,9 @@ namespace Server
             {
                 Play play = playerMoves[player];
                 player.Move(play);
+                Console.WriteLine("Position player: {0}", player.Position);
             }
-
+            
             /*
              * 
              * 

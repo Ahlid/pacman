@@ -64,6 +64,7 @@ namespace Server
             while(coinsBuilt != COINS)
             {
                 ICoin ic = new Coin(x, y);
+                coins.Add(ic);
                 coinsBuilt++;
                 x += space;
                 if(x > Stage.HEIGHT)
@@ -155,6 +156,16 @@ namespace Server
         public void RemovePlayer(IPlayer player)
         {
             players.Remove(player);
+        }
+
+        public List<IWall> GetWalls()
+        {
+            return this.walls;
+        }
+
+        public void AddWall(IWall wall)
+        {
+            this.walls.Add(wall);
         }
     }
 }

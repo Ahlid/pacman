@@ -20,5 +20,8 @@ namespace Shared
         List<IPlayer> GetPlayers();
         void AddPlayer(IPlayer player);
         void RemovePlayer(IPlayer player);
+
+        List<IWall> GetWalls();
+        void AddWall(IWall wall);
     }
 }

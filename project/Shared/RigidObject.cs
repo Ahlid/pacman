@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
+    [Serializable]
     public class RigidObject : ICollide
     {
 

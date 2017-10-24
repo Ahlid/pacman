@@ -28,7 +28,7 @@ namespace Server
                 typeof(IServer),
                 "tcp://localhost:8086/Server");
 
-            server.Run(2000);
+            server.Run(200);
 
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();
