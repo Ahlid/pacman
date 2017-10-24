@@ -32,9 +32,9 @@ namespace Server
             switch (play)
             {
                 case Play.LEFT:
-                    if (this.Position.X + Player.SPEED + Player.HEIGHT / 2 > 0)
+                    if (this.Position.X + Player.SPEED + Player.WIDTH / 2 > 0)
                     {
-                        this.Position = new Point(this.Position.X - Player.SPEED - Player.WIDTH / 2, this.Position.Y);
+                        this.Position = new Point(Player.WIDTH / 2, this.Position.Y);
                     }
                     else
                     {
@@ -43,9 +43,9 @@ namespace Server
                     break;
                 case Play.RIGHT:
 
-                    if (this.Position.X + Player.SPEED + Player.HEIGHT / 2 < Stage.WIDTH)
+                    if (this.Position.X + Player.SPEED + Player.WIDTH / 2 < Stage.WIDTH)
                     {
-                        this.Position = new Point(this.Position.X + Player.SPEED + Player.WIDTH / 2, this.Position.Y);
+                        this.Position = new Point(Stage.WIDTH - Player.WIDTH / 2, this.Position.Y);
                     }
                     else
                     {
@@ -56,7 +56,7 @@ namespace Server
                     //The Y axis grows downwards
                     if (this.Position.Y - Player.SPEED - Player.HEIGHT / 2 > 0)
                     {
-                        this.Position = new Point(this.Position.X, this.Position.Y - Player.SPEED - Player.HEIGHT / 2);
+                        this.Position = new Point(this.Position.X, Player.HEIGHT / 2);
                     }
                     else
                     {
@@ -66,7 +66,7 @@ namespace Server
                 case Play.DOWN:
                     if (this.Position.Y + Player.SPEED + Player.HEIGHT / 2 < Stage.HEIGHT)
                     {
-                        this.Position = new Point(this.Position.X, this.Position.Y + Player.SPEED + Player.HEIGHT / 2);
+                        this.Position = new Point(this.Position.X, Stage.HEIGHT- Player.HEIGHT / 2);
                     }
                     else
                     {
