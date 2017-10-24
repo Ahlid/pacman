@@ -12,6 +12,8 @@ namespace pacman
 {
     public partial class FormWelcome : Form
     {
+        public ClientManager clientManager;
+
         public FormWelcome()
         {
             InitializeComponent();

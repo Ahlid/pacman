@@ -81,7 +81,6 @@ namespace Server
             clients.Add(client);
             IPlayer player = new Player();
             player.Address = address;
-            //player.Position = new Point(4, 4);
             playersAddressMap.Add(address, player);
             stage.AddPlayer(player);
 
@@ -112,7 +111,9 @@ namespace Server
                     {
                         clients.ElementAt(i).SendRoundStage(stage, round);
                     }
-                    
+
+                    // real simple approach now
+                    this.round++;
                 }
                 catch (Exception)
                 {
@@ -126,6 +127,12 @@ namespace Server
             Console.WriteLine("Round: {0} Play: {1}", play, round);
             IPlayer player = playersAddressMap[address];
             playerMoves[player] = play;
+
+            //compute position of players, monsters, scores, 
+
+            // should have a timer controlling this
+            // send to all the new stage
+            broadcastStart();
         }
 
         private void buildStage()

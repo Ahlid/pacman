@@ -40,8 +40,11 @@ namespace pacman
 
         public void Start(IStage stage)
         {
-            if(hasGameStarted)
+            MessageBox.Show("Game has already started.");
+            if (hasGameStarted)
             {
+
+
                 MessageBox.Show("Game has already started.");
                 return;
             }

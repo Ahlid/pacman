@@ -69,8 +69,6 @@ namespace pacman {
 
 
 
-
-
             // to remove
 
             //todo: case of two clients in the same port
@@ -121,7 +119,7 @@ namespace pacman {
                 pacman.Image = Properties.Resources.down;
             }
             if (e.KeyCode == Keys.Enter) {
-                    tbMsg.Enabled = true; tbMsg.Focus();
+                    //tbMsg.Enabled = true; tbMsg.Focus();
                }
         }
 
@@ -171,7 +169,7 @@ namespace pacman {
 
         private void tbMsg_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
-                tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
+                //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
         }
     }

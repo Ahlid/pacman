@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace Server
 {
@@ -12,6 +13,7 @@ namespace Server
     {
         public const int WIDTH = 600;
         public const int HEIGHT = 400;
+        public const int COINS = 30;
 
         private List<IMonster> monsters;
         private List<ICoin> coins;
@@ -31,31 +33,43 @@ namespace Server
 
         public void BuildInitStage(int numPlayers)
         {
-            buildPlayers(numPlayers);
+            // build static elements
             buildWalls();
+            buildCoins();
+            
+            // build dynamic elements
             buildInitMonsters();
-            //buildCoins();
+            buildPlayers(numPlayers);
+            
+            
         }
 
         /// <summary>
-        /// Set position of the players in the initial stage.
+        /// Set positions of the walls in the inital stage.
         /// </summary>
-        /// <param name="num">Number of players in the stage.</param>
-        private void buildPlayers(int num)
+        private void buildWalls()
         {
-            /////// ler enunciado quanto a posicao do player no tabuleiro
+            this.walls.Add(new Wall(117, 49));
+            this.walls.Add(new Wall(331, 49));
+            this.walls.Add(new Wall(171, 295));
+            this.walls.Add(new Wall(384, 295));
+        }
 
-            int initX = 11, initY = 49, space = 4;
+        // todo: check if overlapping walls
+        private void buildCoins()
+        {
+            int coinsBuilt = 0;
+            int initX = 12, initY = 12, space = 35;
             int x = initX, y = initY;
-
-            for (int i = 0; i < num; i++)
+            while(coinsBuilt != COINS)
             {
-                this.players.Add(new Player(x, y));
-                y += space;
-                if(y >= Stage.HEIGHT)
+                ICoin ic = new Coin(x, y);
+                coinsBuilt++;
+                x += space;
+                if(x > Stage.HEIGHT)
                 {
-                    x = initX + space;
-                    y = initY;
+                    x = initX;
+                    y += space;
                 }
             }
         }
@@ -74,15 +88,33 @@ namespace Server
         }
 
         /// <summary>
-        /// Set positions of the walls in the inital stage.
+        /// Set position of the players in the initial stage.
         /// </summary>
-        private void buildWalls()
+        /// <param name="num">Number of players in the stage.</param>
+        private void buildPlayers(int num)
         {
-            this.walls.Add(new Wall(117, 49));
-            this.walls.Add(new Wall(331, 49));
-            this.walls.Add(new Wall(171, 295));
-            this.walls.Add(new Wall(384, 295));
+            // not checking if player position is overlapping a wall, coin or monster
+
+            int initX = 8, initY = 8, space = 40;
+            int x = initX, y = initY;
+
+            for (int i = 0; i < num; i++)
+            {
+                IPlayer player = this.players[i];
+                player.Alive = true;
+                player.Position = new Point(x, y);
+
+                y *= space;
+                if(y >= Stage.HEIGHT)
+                {
+                    x = initX + space;
+                    y = initY;
+                }
+            }
         }
+
+
+        
 
         
         public void AddCoin(ICoin coin)

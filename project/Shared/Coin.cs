@@ -15,5 +15,10 @@ namespace Server
         public const int HEIGHT = 18;
 
         public Point Position { get; set; }
+
+        public Coin(int x, int y)
+        {
+            this.Position = new Point(x, y);
+        }
     }
 }
