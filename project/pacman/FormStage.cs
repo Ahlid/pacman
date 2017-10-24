@@ -18,13 +18,15 @@ namespace pacman {
     public partial class FormStage : Form {
 
         private IServer server;
-
-        Play play = Play.NONE;
-
+        private Play play = Play.NONE;
         private bool isConnected;
-
         public ClientManager clientManager { get; set; }
-
+        public Panel PanelGame {
+            get
+            {
+                return panelGame;
+            }
+        }
 
         // to remove
         IClient client;
@@ -171,6 +173,11 @@ namespace pacman {
             if (e.KeyCode == Keys.Enter) {
                 //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
+        }
+
+        private void FormStage_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

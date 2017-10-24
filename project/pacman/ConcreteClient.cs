@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Server;
+using System.Drawing;
 
 namespace pacman
 {
@@ -35,16 +36,14 @@ namespace pacman
             buildMonsters(stage);
             buildCoins(stage);
             buildPlayers(stage);
-            this.Round = round;
+            Round = round;
         }
 
         public void Start(IStage stage)
         {
             MessageBox.Show("Game has already started.");
             if (hasGameStarted)
-            {
-
-
+            { 
                 MessageBox.Show("Game has already started.");
                 return;
             }
@@ -53,38 +52,71 @@ namespace pacman
             buildCoins(stage);
             buildPlayers(stage);
             hasGameStarted = true;
-            //round = 0;
+            Round = 0;
+        }
+
+        private PictureBox createControl(string name, Point position, int width, int height)
+        {
+            PictureBox pictureBox = new PictureBox();
+            pictureBox.BackColor = System.Drawing.Color.Transparent;
+            pictureBox.Image = global::pacman.Properties.Resources.Left;
+            pictureBox.Location = new System.Drawing.Point(position.X - width / 2, position.Y - height / 2);
+            pictureBox.Margin = new System.Windows.Forms.Padding(0);
+            pictureBox.Name = name;
+            pictureBox.Size = new System.Drawing.Size(width, height);
+            pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            pictureBox.TabIndex = 4;
+            pictureBox.TabStop = false;
+            return pictureBox;
         }
 
         private void buildPlayers(IStage stage)
         {
             PictureBox newPlayer;
+            int i = 1;
             foreach (IPlayer player in stage.GetPlayers())
-            {
-                newPlayer = new PictureBox();
-                newPlayer.BackColor = System.Drawing.Color.Transparent;
+            { 
+                newPlayer = createControl("pacman"+i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
-                newPlayer.Location = new System.Drawing.Point(player.Position.X - Player.WIDTH / 2, player.Position.Y - Player.HEIGHT / 2); 
-                newPlayer.Margin = new System.Windows.Forms.Padding(0);
-                newPlayer.Name = "pacman";
-                newPlayer.Size = new System.Drawing.Size(Player.WIDTH, Player.HEIGHT);
-                newPlayer.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-                newPlayer.TabIndex = 4;
-                newPlayer.TabStop = false;
+                StageForm.PanelGame.Controls.Add(newPlayer);
             }
-            
 
-            throw new NotImplementedException();
         }
 
         private void buildCoins(IStage stage)
         {
-            throw new NotImplementedException();
+            PictureBox newCoin;
+            int i = 1;
+            foreach (ICoin coin in stage.GetCoins())
+            {
+                newCoin = createControl("coin" + i++, coin.Position, Coin.WIDTH, Coin.HEIGHT);
+                newCoin.Image = global::pacman.Properties.Resources.coin;
+                StageForm.PanelGame.Controls.Add(newCoin);
+            }
         }
 
         private void buildMonsters(IStage stage)
         {
-            throw new NotImplementedException();
+            PictureBox newMonster;
+            int i = 1;
+            foreach (IMonster monster in stage.GetMonsters())
+            {
+                newMonster = createControl("monster" + i++, monster.Position, MonsterAware.WIDTH, MonsterAware.HEIGHT);
+                if(i % 3 == 0)
+                {
+                    newMonster.Image = global::pacman.Properties.Resources.pink_guy;
+                } 
+                else if (i % 3 == 1)
+                {
+                    newMonster.Image = global::pacman.Properties.Resources.red_guy;
+                }
+                else if (i % 3 == 2)
+                {
+                    newMonster.Image = global::pacman.Properties.Resources.yellow_guy;
+                }
+                
+                StageForm.PanelGame.Controls.Add(newMonster);
+            }
         }
     }
 }
