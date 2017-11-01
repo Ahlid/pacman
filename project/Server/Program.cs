@@ -15,7 +15,7 @@ namespace Server
         static void Main(string[] args)
         {
 
-            int port = 8086;
+            /*int port = 8086;
             TcpChannel channel = new TcpChannel(port);
             ChannelServices.RegisterChannel(channel, true);
 
@@ -27,8 +27,10 @@ namespace Server
             IServer server = (IServer)Activator.GetObject(
                 typeof(IServer),
                 "tcp://localhost:8086/Server");
-
-            server.Run(200);
+            */
+            ServerManager serverManager = new ServerManager(8086);
+            serverManager.createChannel();
+            serverManager.server.Run(200);
 
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();

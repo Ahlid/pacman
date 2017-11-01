@@ -1,10 +1,16 @@
-﻿namespace Shared
+﻿using System.Collections.Generic;
+
+namespace Shared
 {
     /// <summary>
     /// Interface that Client will have to implement
     /// </summary>
     public interface IClient 
-    { 
+    {
+        /// <summary>
+        /// Structure to make clients reachables by the client, without needing a server
+        /// </summary>
+        Dictionary<string, IClient> Clients { get; set; }
         /// <summary>
         /// Channel address of the client.
         /// </summary>
@@ -30,5 +36,10 @@
         /// </summary>
         /// <param name="stage">Stage representation.</param>
         void Start(IStage stage);
+        /// <summary>
+        /// Signals the client that the game has ended and sends the winner.
+        /// </summary>
+        /// <param name="player"></param>
+        void End(IPlayer player);
     }
 }

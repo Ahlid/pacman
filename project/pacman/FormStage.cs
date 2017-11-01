@@ -17,10 +17,12 @@ using System.Windows.Forms;
 namespace pacman {
     public partial class FormStage : Form {
 
-        private IServer server;
+        //private ClientManager clienteManager;
+
+        //private IServer server;
         private Play play = Play.NONE;
-        private bool isConnected;
-        public ClientManager clientManager { get; set; }
+        //private bool isConnected;
+        public ClientManager ClientManager { get; set; }
         public Panel PanelGame {
             get
             {
@@ -30,7 +32,7 @@ namespace pacman {
 
 
         // to remove
-        IClient client;
+        //IClient client;
 
         #region TO REMOVE
 
@@ -62,20 +64,21 @@ namespace pacman {
 
         
 
-        public FormStage() {
+        public FormStage(ClientManager cm) {
             InitializeComponent();
+            this.ClientManager = cm;
 
             // to remove
             label2.Visible = false;
 
-            ConcreteClient.StageForm = this;
+            //ConcreteClient.StageForm = this;
 
 
 
             // to remove
 
             //todo: case of two clients in the same port
-            int port = 8081;
+            /*int port = 8081;
             TcpChannel channel = new TcpChannel(port);
             ChannelServices.RegisterChannel(channel, true);
 
@@ -94,10 +97,14 @@ namespace pacman {
                 typeof(IServer),
                 "tcp://localhost:8086/Server");
 
-            server.Join(client.Address);
+            string username = "abc";
+            server.Join(username, client.Address);
+            */
+
+
 
             ///
-            this.isConnected = true;
+            //this.isConnected = true;
         }
 
         private void keyisdown(object sender, KeyEventArgs e) {
@@ -148,7 +155,7 @@ namespace pacman {
         //Running every 20 ms
         private void timer1_Tick(object sender, EventArgs e) {
 
-            if(!isConnected)
+            if(!this.ClientManager.Connected)
             {
                 retryConnection();
                 return;
@@ -157,11 +164,8 @@ namespace pacman {
             if(play != Play.NONE)
             {
                 // este round não vai ser actualizado, porque nao é o do concrete client, devia ser do concrete client!!!!
-                server.SetPlay(this.client.Address, play, this.client.Round);
+                this.ClientManager.server.SetPlay(this.ClientManager.client.Address, play, this.ClientManager.client.Round);
             }
-
-
-
 
         }
 
@@ -174,11 +178,6 @@ namespace pacman {
             if (e.KeyCode == Keys.Enter) {
                 //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
-        }
-
-        private void FormStage_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -13,10 +13,28 @@ namespace Server
     {
         public const int NUM_PLAYERS = 1;
 
+        /*
+         * Ao registar os clientes ficam numa lista de espera, como clientes
+         * quando existem condicoes para começar um jogo entao estes passam daquela lista
+         * para uma nosta lista como jogadores
+         * 
+         */
+        public Dictionary<string, IClient> waitingQueue;
+        public Dictionary<string, IPlayer> players;
         private Dictionary<IPlayer, Play> playerMoves;
+
+
+
+        // to remove
+        private List<IClient> clients; 
         private Dictionary<string, IPlayer> playersAddressMap;
-        private List<IClient> clients;
+        
+
+
         private IStage stage;
+        /// <summary>
+        /// Scalar timestamp to identify each round
+        /// </summary>
         private int round = 0;
 
         private Timer timer;
@@ -30,7 +48,7 @@ namespace Server
             playerMoves = new Dictionary<IPlayer, Play>();
             playersAddressMap = new Dictionary<string, IPlayer>();
             stage = new Stage();
-            System.Console.WriteLine("Constructor done");
+            Console.WriteLine("Server initiated.");
         }
 
         public void Run(int roundIntervalMsec)
@@ -40,25 +58,29 @@ namespace Server
 
         private void Tick(Object parameters)
         {
-            
+            Console.WriteLine("hehe: " + hasGameEnded());
             if (!hasGameEnded())
             {
                 Console.WriteLine("{0}", this.round);
                 this.buildStage();
                 this.round++;
-                this.broadcastStart();
+                this.broadcastStart();  //todo: fazer o broadcast no inicio!!!
 
                 // how to block threads
                 // clean players moves
 
-                    foreach(IPlayer player in this.stage.GetPlayers()) {
-                        playerMoves[player] = Play.NONE;
-                    }
+                foreach(IPlayer player in this.stage.GetPlayers()) {
+                    playerMoves[player] = Play.NONE;
+                }
 
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
             }
-
-            timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
-            
+            else
+            {
+                // clear variables
+                // get ready for a next game
+                // clear timer
+            }
         }
 
         /// <summary>
@@ -83,7 +105,10 @@ namespace Server
             return (IPlayer) this.stage.GetPlayers().Where(p => p.Score == maxScore);
         }
 
-        public bool Join(string address)
+
+        // adiciona os jogadores na lista de espera. quando a lista de espera atingir o numero minimo de jogadores entao passa-os para outra lista, limpa a lista de espera
+        // e inicia o jogo
+        public bool Join(string username, string address)
         {
             if (NUM_PLAYERS == clients.Count)
             {
@@ -97,9 +122,11 @@ namespace Server
             clients.Add(client);
             IPlayer player = new Player();
             player.Address = address;
+            player.Username = username;
             playerMoves[player] = Play.NONE;
             playersAddressMap.Add(address, player);
             stage.AddPlayer(player);
+            Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
 
             if (NUM_PLAYERS == clients.Count)
             {
@@ -111,6 +138,12 @@ namespace Server
             }
 
             return true;
+        }
+
+        public void Quit(string address)
+        {
+            Console.WriteLine(String.Format("Client [name] at {0} is disconnecting.", address));
+            //remover player da lista
         }
 
         private void broadcastStart()
@@ -264,6 +297,11 @@ namespace Server
         private void computeCollisionsPlayerMonster()
         {
             
+        }
+
+        public int NextAvailablePort(string address)
+        {
+            throw new NotImplementedException();
         }
     }
 }

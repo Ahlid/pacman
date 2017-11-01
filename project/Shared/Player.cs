@@ -15,6 +15,7 @@ namespace Server
         public const int HEIGHT = 32;
         public const int SPEED = 20;
 
+        public string Username { get; set; }
         public Point Position { get; set; }
         public string Address { get; set; }
         public int Score { get; set; }

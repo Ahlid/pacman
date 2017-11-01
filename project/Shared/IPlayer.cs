@@ -9,6 +9,8 @@ namespace Shared
 {
     public interface IPlayer : IStageObject, ICollide
     {
+        string Username { get; set; }
+
         int Score { get; set; }
 
         bool Alive { get; set; }
