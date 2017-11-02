@@ -37,11 +37,11 @@ namespace pacman
             // check if game has already started
             if (!hasGameStarted)
             {
-                return; 
+                return;
             }
             //Construir o form através dos objetos que estão no stage
             //MessageBox.Show(string.Format("Stage number {0} received from the server.", round));
-            
+
             // REMOVE THIS INSTRUCTIONS, WRONG APPROACH
             StageForm.Invoke(new Action(() => StageForm.Controls.Clear()));
 
@@ -57,16 +57,18 @@ namespace pacman
         /// <param name="stage">stage</param>
         public void Start(IStage stage)
         {
-            MessageBox.Show("GAME about to begin!");
             // this check prevents some server to restart the game
             if (hasGameStarted)
             {
                 return;
-            }else // create the inital stage of the game
+            }
+            else // create the inital stage of the game
             {
-                // asking the thread creator of the welcome form to hide it
+
+                // create a new thread, the current one is too busy
                 Thread t = new Thread(delegate ()
                 {
+                    // asking the thread creator of the welcome form to hide it
                     WelcomeForm.Invoke(new Action(() => WelcomeForm.Hide()));   // With invoke -> app waits until the action is done
 
 
@@ -93,7 +95,23 @@ namespace pacman
 
         public void End(IPlayer player)
         {
+            // make it appear a button saying: play again?
+            // close stage form.
+            // do something else
+        }
 
+        public void LobbyInfo(string message)
+        {
+            // Create threats is expensive, a great ideia is do have a pool of threads and assign work to them
+            Thread t = new Thread(delegate ()
+                        {
+                            WelcomeForm.Invoke(new Action(() =>
+                            {
+                                WelcomeForm.LabelError.Text = message;
+                                WelcomeForm.LabelError.Visible = true;
+                            }));
+                        });
+            t.Start();
         }
 
         private PictureBox createControl(string name, Point position, int width, int height)
@@ -130,8 +148,8 @@ namespace pacman
             PictureBox newPlayer;
             int i = 1;
             foreach (IPlayer player in stage.GetPlayers())
-            { 
-                newPlayer = createControl("pacman"+i++, player.Position, Player.WIDTH, Player.HEIGHT);
+            {
+                newPlayer = createControl("pacman" + i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
                 StageForm.Invoke(new Action(() => StageForm.Controls.Add(newPlayer)));
                 //MessageBox.Show(String.Format("Point({0}, {1})", player.Position.X, player.Position.Y));
@@ -158,10 +176,10 @@ namespace pacman
             foreach (IMonster monster in stage.GetMonsters())
             {
                 newMonster = createControl("monster" + i++, monster.Position, MonsterAware.WIDTH, MonsterAware.HEIGHT);
-                if(i % 3 == 0)
+                if (i % 3 == 0)
                 {
                     newMonster.Image = global::pacman.Properties.Resources.pink_guy;
-                } 
+                }
                 else if (i % 3 == 1)
                 {
                     newMonster.Image = global::pacman.Properties.Resources.red_guy;
@@ -172,7 +190,7 @@ namespace pacman
                 }
 
                 StageForm.Invoke(new Action(() => StageForm.Controls.Add(newMonster)));
-                
+
             }
         }
 

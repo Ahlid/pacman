@@ -36,14 +36,20 @@ namespace Shared
         /// <param name="round">Round number.</param>
         void SendRoundStage(IStage stage, int round);
         /// <summary>
-        /// Signals the client that the hame has started.
+        /// Client receives indication that the hame has started.
         /// </summary>
         /// <param name="stage">Stage representation.</param>
         void Start(IStage stage);
         /// <summary>
-        /// Signals the client that the game has ended and sends the winner.
+        /// Client receives information that the game has ended and receives also the winner.
         /// </summary>
         /// <param name="player"></param>
         void End(IPlayer player);
+        /// <summary>
+        /// Client received indication if he is waiting for other players or he is queued for
+        /// the next game.
+        /// </summary>
+        /// <param name="message">info</param>
+        void LobbyInfo(string message);
     }
 }

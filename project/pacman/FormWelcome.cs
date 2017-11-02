@@ -16,6 +16,7 @@ namespace pacman
     public partial class FormWelcome : Form
     {
         private ClientManager clientManager;
+        public Label LabelError { get { return this.labelError; } set { this.labelError = value; } }
 
         public FormWelcome()
         {
@@ -49,7 +50,7 @@ namespace pacman
                         if(this.clientManager != null)
                         {
                             this.clientManager.Username = username;
-                            this.clientManager.Port = port;
+                            //this.clientManager.Port = port;
                         }else
                         {
                             //1st time 
@@ -59,6 +60,10 @@ namespace pacman
                             ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
 
                             this.clientManager.createConnectionToServer();
+                            if (this.clientManager.Connected)
+                            {
+                                this.textBoxClientPort.Enabled = false; // user no longer can update the port 
+                            }
                         }
                         // todo: should this call be async?
                         bool result = this.clientManager.server.Join(username, this.clientManager.client.Address);
@@ -93,6 +98,7 @@ namespace pacman
 
         private void textBoxUsername_OnFocus(object sender, EventArgs e)
         {
+            this.labelError.Visible = false;
             textBoxOnFocus(this.textBoxUsername, "Username");
         }
 

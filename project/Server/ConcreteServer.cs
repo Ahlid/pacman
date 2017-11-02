@@ -41,11 +41,11 @@ namespace Server
 
         private Timer timer;
 
-        
+
         // to remove
         //private List<IClient> clients;
         //private Dictionary<string, IPlayer> playersAddressMap;
-        
+
         public ConcreteServer()
         {
             this.clients = new List<IClient>();
@@ -133,11 +133,12 @@ namespace Server
         // e inicia o jogo
         public bool Join(string username, string address)
         {
-            if(this.playersInGame.Exists(c => c.Username == username) || this.waitingQueue.Exists(c => c.Username == username))
+            if (this.playersInGame.Exists(c => c.Username == username) || this.waitingQueue.Exists(c => c.Username == username))
             {
                 // lancar excepcao, nome ja em uso
                 return false; // already exists a player with that username
-            }else
+            }
+            else
             {
                 // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
                 IClient client = (IClient)Activator.GetObject(
@@ -149,6 +150,8 @@ namespace Server
                 {
                     this.waitingQueue.Add(client);
                     // send waiting signal - for the game to end
+                    Console.WriteLine(String.Format("Sending to client '{0}' that he has just been queued", client.Username));
+                    client.LobbyInfo("Queued for the next game...");
                 }
 
                 IPlayer player = new Player();
@@ -168,10 +171,12 @@ namespace Server
                     stage.BuildInitStage(NUM_PLAYERS);
                     timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
                     this.broadcastStartSignal();
-                }else
+                }
+                else
                 {
                     // send waiting signal - for the game to start 
-
+                    Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
+                    client.LobbyInfo("Waiting for other players to join...");
                 }
                 return true;
             }
@@ -181,11 +186,11 @@ namespace Server
         {
             Console.WriteLine(String.Format("Client [name] at {0} is disconnecting.", address));
             int indexOfWaitingClient = this.waitingQueue.FindIndex(c => c.Address == address);
-            
-            if(indexOfWaitingClient == -1)
+
+            if (indexOfWaitingClient == -1)
             {
                 int indexPlayer = this.playersInGame.FindIndex(c => c.Address == address);
-                if(indexPlayer != -1)
+                if (indexPlayer != -1)
                 {
                     this.playersInGame.RemoveAt(indexPlayer);
                     // remove the player from the stage 
@@ -237,7 +242,7 @@ namespace Server
                 }
             }
         }
-        
+
         public void SetPlay(string address, Play play, int round)
         {
             IPlayer player = this.playersInGame.FirstOrDefault(c => c.Address == address);

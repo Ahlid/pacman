@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -28,6 +29,7 @@ namespace pacman
         {
             this.Username = username;
             this.resource = "Client";
+            this.Connected = false;
             //this.concretClient = new ConcreteClient();
         }
 
@@ -35,30 +37,36 @@ namespace pacman
         //todo: catch exceptions
         public void createConnectionToServer()
         {
-            if (!Connected)
+            if (!this.Connected)
             {
-                //this.Port = this.server.NextAvailablePort(this.Address); // when this function is working on the server side is just to uncommment in this side.
-                channel = new TcpChannel(this.Port);
-                ChannelServices.RegisterChannel(channel, true);
-                
-                RemotingConfiguration.RegisterWellKnownServiceType(
-                    typeof(ConcreteClient),
-                    this.resource,
-                WellKnownObjectMode.Singleton);                
+                try
+                {
+                    //this.Port = this.server.NextAvailablePort(this.Address); // when this function is working on the server side is just to uncommment in this side.
+                    channel = new TcpChannel(this.Port);
+                    ChannelServices.RegisterChannel(channel, true);
 
-                string address = String.Format("tcp://localhost:{0}/{1}", this.Port, this.resource);
-                client = (IClient)Activator.GetObject(
-                    typeof(IClient),
-                    address);
+                    RemotingConfiguration.RegisterWellKnownServiceType(
+                        typeof(ConcreteClient),
+                        this.resource,
+                    WellKnownObjectMode.Singleton);
 
-                this.client.Address = address;
+                    string address = String.Format("tcp://localhost:{0}/{1}", this.Port, this.resource);
+                    client = (IClient)Activator.GetObject(
+                        typeof(IClient),
+                        address);
 
-                server = (IServer)Activator.GetObject(
-                    typeof(IServer),
-                    "tcp://localhost:8086/Server");
+                    this.client.Address = address;
 
-                this.Connected = true;
-                
+                    server = (IServer)Activator.GetObject(
+                        typeof(IServer),
+                        "tcp://localhost:8086/Server");
+
+                    this.Connected = true;
+                }
+                catch (Exception)
+                {
+                    this.Connected = false;
+                }
             }
         }
     }
