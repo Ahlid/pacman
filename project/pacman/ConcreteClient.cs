@@ -17,7 +17,7 @@ namespace pacman
         public static FormWelcome WelcomeForm;
         public FormStage StageForm;
 
-        public Dictionary<string, IClient> Clients { get; set; }
+        public List<IClient> Clients { get; set; }
         public string Username { get; set; }
         public string Address { get; set; }
         public int Round { get; set; }
@@ -30,6 +30,7 @@ namespace pacman
         {
             this.Round = 0;
             this.hasGameStarted = false;
+            this.Clients = new List<IClient>();
         }
 
         public void SendRoundStage(IStage stage, int round)
@@ -194,6 +195,26 @@ namespace pacman
             }
         }
 
+        public void sendPlayersOnGame(Dictionary<string, string> clients)
+        {
+            foreach (KeyValuePair<string, string> entry in clients)
+            {
+                IClient client = (IClient)Activator.GetObject(
+                    typeof(IClient),
+                    entry.Value);
+                client.Username = entry.Key;
+                this.Clients.Add(client);
+            }
+        }
 
+        public void sendNewPlayer(string username, string address)
+        {
+            IClient client = (IClient)Activator.GetObject(
+                    typeof(IClient),
+                    address);
+            client.Username = username;
+            this.Clients.Add(client); 
+        }
+       
     }
 }

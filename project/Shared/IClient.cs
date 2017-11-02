@@ -10,7 +10,7 @@ namespace Shared
         /// <summary>
         /// Structure to make clients reachables by the client, without needing a server
         /// </summary>
-        Dictionary<string, IClient> Clients { get; set; }
+        List<IClient> Clients { get; set; }
         /// <summary>
         /// Unique identifiable name of a client
         /// </summary>
@@ -51,5 +51,17 @@ namespace Shared
         /// </summary>
         /// <param name="message">info</param>
         void LobbyInfo(string message);
+        /// <summary>
+        /// Client receives a map of clients usernames and adresses in the game.
+        /// </summary>
+        /// <param name="clients">clients</param>
+        void sendPlayersOnGame(Dictionary<string, string> clients);
+        /// <summary>
+        /// Client receives the recent player that joined the game.
+        /// </summary>
+        /// <param name="username">new player username</param>
+        /// <param name="address">new player address</param>
+        void sendNewPlayer(string username, string address);
+
     }
 }

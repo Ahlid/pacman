@@ -16,8 +16,8 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Re
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Release\Shared.pdb
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.FormStage.resources
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.FormWelcome.resources
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.Properties.Resources.resources
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.csproj.GenerateResource.Cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.pdb
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Release\pacman.FormWelcome.resources

@@ -11,7 +11,7 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 2;
+        public const int NUM_PLAYERS = 3;
         private int roundIntervalMsec;
 
         /// <summary>
@@ -145,15 +145,15 @@ namespace Server
                     typeof(IClient),
                     address);
                 client.Username = username;
-                this.clients.Add(client);
+                
                 if (hasGameStarted)
                 {
-                    this.waitingQueue.Add(client);
+                    this.waitingQueue.Add(client); // on enqueued, remove it on this list and change it to the clients list
                     // send waiting signal - for the game to end
                     Console.WriteLine(String.Format("Sending to client '{0}' that he has just been queued", client.Username));
                     client.LobbyInfo("Queued for the next game...");
                 }
-
+                this.clients.Add(client); 
                 IPlayer player = new Player();
                 player.Address = address;
                 player.Username = username;
@@ -177,6 +177,8 @@ namespace Server
                     // send waiting signal - for the game to start 
                     Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
                     client.LobbyInfo("Waiting for other players to join...");
+                    sendClientsReadyToPlay(client);
+                    sendNewClientReadyToPlay(client);
                 }
                 return true;
             }
@@ -201,6 +203,59 @@ namespace Server
             else
             {
                 this.waitingQueue.RemoveAt(indexOfWaitingClient);
+            }
+        }
+
+        private void sendClientsReadyToPlay(IClient client)
+        {
+            Dictionary<string, string> _clients = new Dictionary<string, string>();
+            IPlayer player;
+            
+            for (int i = this.playersInGame.Count - 1; i >= 0; i--)
+            {
+                player = this.playersInGame[i];
+                if(player.Username != client.Username)
+                {
+                    _clients.Add(player.Username, player.Address);
+                }
+            }
+            for (int k = this.clients.Count - 1; k >= 0; k--)
+            {
+                try
+                {
+                    if(this.clients[k].Username != client.Username)
+                    {
+                        this.clients.ElementAt(k).sendPlayersOnGame(_clients);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("error: \n" + e.StackTrace);
+                    this.clients.RemoveAt(k);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
+            }
+            Console.WriteLine("done");
+        }
+
+        public void sendNewClientReadyToPlay(IClient client)
+        {
+            IPlayer player;
+            for (int k = this.playersInGame.Count - 1; k >= 0; k--)
+            {
+                try
+                {
+                    player = this.playersInGame[k];
+                    if (player.Username != client.Username)
+                    {
+                        this.clients.ElementAt(k).sendNewPlayer(player.Username, player.Address);
+                    }
+                }
+                catch (Exception)
+                {
+                    this.clients.RemoveAt(k);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
             }
         }
 
