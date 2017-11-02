@@ -11,7 +11,7 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 3;
+        public const int NUM_PLAYERS = 1;
         private int roundIntervalMsec;
 
         /// <summary>
@@ -152,35 +152,39 @@ namespace Server
                     // send waiting signal - for the game to end
                     Console.WriteLine(String.Format("Sending to client '{0}' that he has just been queued", client.Username));
                     client.LobbyInfo("Queued for the next game...");
-                }
-                this.clients.Add(client); 
-                IPlayer player = new Player();
-                player.Address = address;
-                player.Username = username;
-                this.playersInGame.Add(player);
-                playerMoves[player] = Play.NONE;
-
-                stage.AddPlayer(player);
-                Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
-
-
-                if (NUM_PLAYERS == this.playersInGame.Count)
+                    return true;
+                }else
                 {
-                    // minimum numbers of players required to start the game has been reached. Simple strategy
-                    // build game stage
-                    stage.BuildInitStage(NUM_PLAYERS);
-                    timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
-                    this.broadcastStartSignal();
+                    this.clients.Add(client);
+                    IPlayer player = new Player();
+                    player.Address = address;
+                    player.Username = username;
+                    this.playersInGame.Add(player);
+                    playerMoves[player] = Play.NONE;
+
+                    stage.AddPlayer(player);
+                    Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
+
+
+                    if (NUM_PLAYERS == this.playersInGame.Count)
+                    {
+                        // minimum numbers of players required to start the game has been reached. Simple strategy
+                        // build game stage
+                        stage.BuildInitStage(NUM_PLAYERS);
+                        timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                        this.broadcastStartSignal();
+                        this.hasGameStarted = true;
+                    }
+                    else
+                    {
+                        // send waiting signal - for the game to start 
+                        Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
+                        client.LobbyInfo("Waiting for other players to join...");
+                        sendClientsReadyToPlay(client);
+                        sendNewClientReadyToPlay(client);
+                    }
+                    return true;
                 }
-                else
-                {
-                    // send waiting signal - for the game to start 
-                    Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
-                    client.LobbyInfo("Waiting for other players to join...");
-                    sendClientsReadyToPlay(client);
-                    sendNewClientReadyToPlay(client);
-                }
-                return true;
             }
         }
 
