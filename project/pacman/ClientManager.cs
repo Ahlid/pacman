@@ -12,10 +12,11 @@ namespace pacman
 {
     public class ClientManager
     {
-        public string username { get; set; }
+        public string Username { get; set; }
         public int Port { get; set; }
         public string Server { get; set; }
         public bool Connected { get; private set; }
+        public bool Joined { get; set; }
         public IServer server { get; private set; }
         public IClient client { get; private set; } // Client ServicesClientManager
         private TcpChannel channel;
@@ -25,7 +26,7 @@ namespace pacman
 
         public ClientManager(string username)
         {
-            this.username = username;
+            this.Username = username;
             this.resource = "Client";
             //this.concretClient = new ConcreteClient();
         }

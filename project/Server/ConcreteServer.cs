@@ -11,25 +11,27 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 1;
+        public const int NUM_PLAYERS = 2;
+        private int roundIntervalMsec;
 
-        /*
-         * Ao registar os clientes ficam numa lista de espera, como clientes
-         * quando existem condicoes para começar um jogo entao estes passam daquela lista
-         * para uma nosta lista como jogadores
-         * 
-         */
-        public Dictionary<string, IClient> waitingQueue;
-        public Dictionary<string, IPlayer> players;
+        /// <summary>
+        /// Contains information of all clients registered at the moment.
+        /// </summary>
+        private List<IClient> clients;
+        /// <summary>
+        /// Contain information of the clients that are waiting.
+        /// </summary>
+        private List<IClient> waitingQueue;
+        /// <summary>
+        /// Players on the game or ready to enter the game.
+        /// </summary>
+        private List<IPlayer> playersInGame;
+        /// <summary>
+        /// Map between players in the game and theirs current move.
+        /// </summary>
         private Dictionary<IPlayer, Play> playerMoves;
 
-
-
-        // to remove
-        private List<IClient> clients; 
-        private Dictionary<string, IPlayer> playersAddressMap;
-        
-
+        private bool hasGameStarted;
 
         private IStage stage;
         /// <summary>
@@ -38,17 +40,25 @@ namespace Server
         private int round = 0;
 
         private Timer timer;
-        private int roundIntervalMsec;
 
-
-
+        
+        // to remove
+        //private List<IClient> clients;
+        //private Dictionary<string, IPlayer> playersAddressMap;
+        
         public ConcreteServer()
         {
-            clients = new List<IClient>();
-            playerMoves = new Dictionary<IPlayer, Play>();
-            playersAddressMap = new Dictionary<string, IPlayer>();
+            this.clients = new List<IClient>();
+            this.waitingQueue = new List<IClient>();
+            this.playersInGame = new List<IPlayer>();
+            this.playerMoves = new Dictionary<IPlayer, Play>();
             stage = new Stage();
             Console.WriteLine("Server initiated.");
+
+
+            // to remove
+            //clients = new List<IClient>();
+            //playersAddressMap = new Dictionary<string, IPlayer>();
         }
 
         public void Run(int roundIntervalMsec)
@@ -58,18 +68,20 @@ namespace Server
 
         private void Tick(Object parameters)
         {
-            Console.WriteLine("hehe: " + hasGameEnded());
+            Console.WriteLine("Has game ended: " + this.hasGameEnded());
             if (!hasGameEnded())
             {
-                Console.WriteLine("{0}", this.round);
+                Console.WriteLine("TICK: Round {0}", this.round);
                 this.buildStage();
                 this.round++;
-                this.broadcastStart();  //todo: fazer o broadcast no inicio!!!
+                //this.broadcastStart();  //todo: fazer o broadcast no inicio!!!
+                this.broadcastRound();
 
                 // how to block threads
                 // clean players moves
 
-                foreach(IPlayer player in this.stage.GetPlayers()) {
+                foreach (IPlayer player in this.stage.GetPlayers())
+                {
                     playerMoves[player] = Play.NONE;
                 }
 
@@ -90,8 +102,17 @@ namespace Server
         /// <returns></returns>
         private bool hasGameEnded()
         {
-            //return this.stage.GetPlayers().Count(p => p.Alive) > 0 || this.stage.GetCoins().Count() == 0;
             return false;
+            /*
+            if(this.stage.GetPlayers().Count > 0) // if players exist on the game 
+            {
+                // check if there are any player alive or if the all the coins have been captured.
+                return !(this.stage.GetPlayers().Count(p => p.Alive) > 0) || !(this.stage.GetCoins().Count > 0);
+            }else
+            {
+                Console.Write("no players in the stage?");
+                return true; // there are not players on the game, they all quit or crashed. 
+            }*/
         }
 
         /// <summary>
@@ -102,83 +123,129 @@ namespace Server
         {
             int maxScore = this.stage.GetPlayers().Max(p => p.Score);
             // check if this cast doesn't present a problem; at first it should be a problem.
-            return (IPlayer) this.stage.GetPlayers().Where(p => p.Score == maxScore);
+            return (IPlayer)this.stage.GetPlayers().Where(p => p.Score == maxScore);
         }
 
+
+        // TODO: What happens if a lot of players try to join at the same time? The method probably isn't thread safe.
 
         // adiciona os jogadores na lista de espera. quando a lista de espera atingir o numero minimo de jogadores entao passa-os para outra lista, limpa a lista de espera
         // e inicia o jogo
         public bool Join(string username, string address)
         {
-            if (NUM_PLAYERS == clients.Count)
+            if(this.playersInGame.Exists(c => c.Username == username) || this.waitingQueue.Exists(c => c.Username == username))
             {
-                //Either queue the client or simply reject it
-                return false;
-            }
-            IClient client = (IClient)Activator.GetObject(
-                typeof(IClient),
-                address);
-
-            clients.Add(client);
-            IPlayer player = new Player();
-            player.Address = address;
-            player.Username = username;
-            playerMoves[player] = Play.NONE;
-            playersAddressMap.Add(address, player);
-            stage.AddPlayer(player);
-            Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
-
-            if (NUM_PLAYERS == clients.Count)
+                // lancar excepcao, nome ja em uso
+                return false; // already exists a player with that username
+            }else
             {
-                // build game stage
-                stage.BuildInitStage(NUM_PLAYERS);
-                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
+                IClient client = (IClient)Activator.GetObject(
+                    typeof(IClient),
+                    address);
+                client.Username = username;
+                this.clients.Add(client);
+                if (hasGameStarted)
+                {
+                    this.waitingQueue.Add(client);
+                    // send waiting signal - for the game to end
+                }
+
+                IPlayer player = new Player();
+                player.Address = address;
+                player.Username = username;
+                this.playersInGame.Add(player);
+                playerMoves[player] = Play.NONE;
+
+                stage.AddPlayer(player);
+                Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
 
 
+                if (NUM_PLAYERS == this.playersInGame.Count)
+                {
+                    // minimum numbers of players required to start the game has been reached. Simple strategy
+                    // build game stage
+                    stage.BuildInitStage(NUM_PLAYERS);
+                    timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                    this.broadcastStartSignal();
+                }else
+                {
+                    // send waiting signal - for the game to start 
+
+                }
+                return true;
             }
-
-            return true;
         }
 
         public void Quit(string address)
         {
             Console.WriteLine(String.Format("Client [name] at {0} is disconnecting.", address));
-            //remover player da lista
+            int indexOfWaitingClient = this.waitingQueue.FindIndex(c => c.Address == address);
+            
+            if(indexOfWaitingClient == -1)
+            {
+                int indexPlayer = this.playersInGame.FindIndex(c => c.Address == address);
+                if(indexPlayer != -1)
+                {
+                    this.playersInGame.RemoveAt(indexPlayer);
+                    // remove the player from the stage 
+                    IPlayer p = this.stage.GetPlayers().FirstOrDefault(c => c.Address == address);
+                    this.stage.RemovePlayer(p);
+                }
+            }
+            else
+            {
+                this.waitingQueue.RemoveAt(indexOfWaitingClient);
+            }
         }
 
-        private void broadcastStart()
+        private void broadcastStartSignal()
         {
-            for (int i = clients.Count - 1; i >= 0; i--)
+            IClient client;
+            for (int i = this.clients.Count - 1; i >= 0; i--)
             {
                 try
                 {
-                    Console.WriteLine("Round number: {0}", this.round);
-                    if(round == 1)
-                    {
-                        clients.ElementAt(i).Start(stage);
-                    } else
-                    {
-                        clients.ElementAt(i).SendRoundStage(stage, round);
-                    }
-
-                    // real simple approach now
+                    client = this.clients.ElementAt(i);
+                    Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
+                    client.Start(stage);
                 }
                 catch (Exception)
                 {
-                    clients.RemoveAt(i);
+                    this.clients.RemoveAt(i);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
             }
         }
 
+        private void broadcastRound()
+        {
+            IClient client;
+            for (int i = this.clients.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    client = this.clients.ElementAt(i);
+                    Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
+                    Console.WriteLine(String.Format("Round Nº{0}", this.round));
+                    client.SendRoundStage(this.stage, this.round);
+                }
+                catch (Exception)
+                {
+                    this.clients.RemoveAt(i);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
+            }
+        }
+        
         public void SetPlay(string address, Play play, int round)
         {
-            Console.WriteLine("Round: {0} Play: {1}", play, round);
-            IPlayer player = playersAddressMap[address];
-            
-             playerMoves[player] = play;
-           
-            //compute position of players, monsters, scores, 
+            IPlayer player = this.playersInGame.FirstOrDefault(c => c.Address == address);
+            Console.WriteLine("Round: {0} Play: {1}, by: {2}", play, round, player.Username);
+            playerMoves[player] = play;
 
+            //todo:
+            //compute position of players, monsters, scores, 
             // should have a timer controlling this
             // send to all the new stage
         }
@@ -192,7 +259,7 @@ namespace Server
 
         private void computeGhost()
         {
-            foreach(IMonster monster in stage.GetMonsters())
+            foreach (IMonster monster in stage.GetMonsters())
             {
                 //monster.Step();
             }
@@ -233,7 +300,7 @@ namespace Server
                 player.Move(play);
                 Console.WriteLine("Position player: {0}", player.Position);
             }
-            
+
             /*
              * 
              * 
@@ -296,7 +363,7 @@ namespace Server
 
         private void computeCollisionsPlayerMonster()
         {
-            
+
         }
 
         public int NextAvailablePort(string address)

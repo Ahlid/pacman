@@ -22,10 +22,12 @@ namespace pacman
             InitializeComponent();
             this.MaximizeBox = false; // disable the maximize button 
             this.labelError.Visible = false;
+            this.textBoxUsername.Select();
         }
 
         private void buttonJoin_Click(object sender, EventArgs e)
         {
+            this.labelError.Visible = false;
             try
             {
                 int port = Int32.Parse(textBoxClientPort.Text);
@@ -43,15 +45,31 @@ namespace pacman
                     else
                     {
                         labelError.Text = port.ToString();
-                        string username = textBoxUsername.Text;
-                        this.clientManager = new ClientManager(username);
-                        this.clientManager.Port = port;
-                        ConcreteClient.WelcomeForm = this;
-                        ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
+                        string username = textBoxUsername.Text.Trim();
+                        if(this.clientManager != null)
+                        {
+                            this.clientManager.Username = username;
+                            this.clientManager.Port = port;
+                        }else
+                        {
+                            //1st time 
+                            this.clientManager = new ClientManager(username);
+                            this.clientManager.Port = port;
+                            ConcreteClient.WelcomeForm = this;
+                            ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
 
-                        this.clientManager.createConnectionToServer();
-                    
-                        this.clientManager.server.Join(username, this.clientManager.client.Address);
+                            this.clientManager.createConnectionToServer();
+                        }
+                        // todo: should this call be async?
+                        bool result = this.clientManager.server.Join(username, this.clientManager.client.Address);
+                        if(result)
+                        {
+                            this.clientManager.Joined = true;
+                        }else
+                        {
+                            this.labelError.Visible = true;
+                            this.labelError.Text = "Username already in use";
+                        }
                     }
                 }
             }
@@ -86,6 +104,7 @@ namespace pacman
         private void buttonQuit_Click(object sender, EventArgs e)
         {
             disconnetFromServer();
+            this.Close();
         }
 
         private void formWelcome_OnClosing(object sender, FormClosingEventArgs e)

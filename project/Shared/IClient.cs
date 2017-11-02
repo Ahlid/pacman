@@ -12,6 +12,10 @@ namespace Shared
         /// </summary>
         Dictionary<string, IClient> Clients { get; set; }
         /// <summary>
+        /// Unique identifiable name of a client
+        /// </summary>
+        string Username { get; set; }
+        /// <summary>
         /// Channel address of the client.
         /// </summary>
         string Address { get; set; }

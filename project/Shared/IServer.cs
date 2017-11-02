@@ -7,13 +7,8 @@ using System.Threading.Tasks;
 namespace Shared
 {
     public interface IServer
-    { 
+    {
 
-        /*
-         * difference between register and join game!!!
-         */
-
-        //returns true if the client was accepted
         bool Join(string username, string address);
 
         void Run(int roundMsec);

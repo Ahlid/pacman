@@ -18,6 +18,7 @@ namespace pacman
         public FormStage StageForm;
 
         public Dictionary<string, IClient> Clients { get; set; }
+        public string Username { get; set; }
         public string Address { get; set; }
         public int Round { get; set; }
 
@@ -56,6 +57,7 @@ namespace pacman
         /// <param name="stage">stage</param>
         public void Start(IStage stage)
         {
+            MessageBox.Show("GAME about to begin!");
             // this check prevents some server to restart the game
             if (hasGameStarted)
             {
@@ -63,22 +65,25 @@ namespace pacman
             }else // create the inital stage of the game
             {
                 // asking the thread creator of the welcome form to hide it
-                WelcomeForm.Invoke(new Action(() => WelcomeForm.Hide()));   // With invoke -> app waits until the action is done
-
-
-                // create the form responsible for the game, Welcome form has the main thread has to be responsible to create the new form
-                WelcomeForm.Invoke((Action)delegate    // with begin invoke 
+                Thread t = new Thread(delegate ()
                 {
-                    
-                    this.StageForm = new FormStage(ClientManager);
-                    //StageForm.Closed += (s, args) => WelcomeForm.Show(); // show the welcome windown on closing the stage form window.  //.Close();
-                    this.StageForm.Show();
-                }); 
-                
-                //buildWalls(stage);
-                //buildCoins(stage);
-                //buildMonsters(stage);
-                //buildPlayers(stage);
+                    WelcomeForm.Invoke(new Action(() => WelcomeForm.Hide()));   // With invoke -> app waits until the action is done
+
+
+                    // create the form responsible for the game, Welcome form has the main thread has to be responsible to create the new form
+                    WelcomeForm.Invoke((Action)delegate    // with begin invoke 
+                    {
+
+                        this.StageForm = new FormStage(ClientManager);
+                        //StageForm.Closed += (s, args) => WelcomeForm.Show(); // show the welcome windown on closing the stage form window.  //.Close();
+                        this.StageForm.Show();
+                    });
+                    buildWalls(stage);
+                    buildCoins(stage);
+                    buildMonsters(stage);
+                    buildPlayers(stage);
+                });
+                t.Start();
 
                 hasGameStarted = true;
                 Round = 0;

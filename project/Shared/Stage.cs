@@ -40,8 +40,7 @@ namespace Server
             // build dynamic elements
             buildInitMonsters();
             buildPlayers(numPlayers);
-            
-            
+                        
         }
 
         /// <summary>

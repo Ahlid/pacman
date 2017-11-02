@@ -15,6 +15,7 @@ namespace Shared
 
         bool Alive { get; set; }
 
+        // necessário aqui?
         string Address { get; set; }
 
         void Move(Play play);
