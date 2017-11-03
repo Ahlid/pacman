@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface ICollide
+    public interface ICollide : IStageObject
     {
         bool IsColliding(Point centerA, int widthA, int heightA,
                          Point centerB, int widthB, int heightB);

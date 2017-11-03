@@ -15,7 +15,6 @@ namespace Server
         public const int HEIGHT = 36;
         public const int SPEED = 3;
 
-        public Point Position { get; set; } 
         public Point Speed { get; set; }
 
         public MonsterHorizontal(int x, int y)

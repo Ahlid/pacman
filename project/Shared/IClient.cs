@@ -34,7 +34,7 @@ namespace Shared
         /// </summary>
         /// <param name="stage">Stage representation.</param>
         /// <param name="round">Round number.</param>
-        void SendRoundStage(IStage stage, int round);
+        void SendRoundStage(List<Action> actions, int score, int round);
         /// <summary>
         /// Client receives indication that the hame has started.
         /// </summary>

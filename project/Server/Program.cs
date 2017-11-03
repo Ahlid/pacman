@@ -14,23 +14,9 @@ namespace Server
     {
         static void Main(string[] args)
         {
-
-            /*int port = 8086;
-            TcpChannel channel = new TcpChannel(port);
-            ChannelServices.RegisterChannel(channel, true);
-
-            RemotingConfiguration.RegisterWellKnownServiceType(
-               typeof(ConcreteServer),
-               "Server",
-               WellKnownObjectMode.Singleton);
-
-            IServer server = (IServer)Activator.GetObject(
-                typeof(IServer),
-                "tcp://localhost:8086/Server");
-            */
             ServerManager serverManager = new ServerManager(8086);
             serverManager.createChannel();
-            serverManager.server.Run(200);
+            serverManager.server.Run(160);
 
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();

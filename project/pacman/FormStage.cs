@@ -17,8 +17,6 @@ using System.Windows.Forms;
 namespace pacman {
     public partial class FormStage : Form {
 
-        //private ClientManager clienteManager;
-
         //private IServer server;
         private Play play = Play.NONE;
         //private bool isConnected;
@@ -61,50 +59,11 @@ namespace pacman {
 
         #endregion
 
-
-        
-
         public FormStage(ClientManager cm) {
+
             InitializeComponent();
             this.ClientManager = cm;
-
-            // to remove
             label2.Visible = false;
-
-            //ConcreteClient.StageForm = this;
-
-
-
-            // to remove
-
-            //todo: case of two clients in the same port
-            /*int port = 8081;
-            TcpChannel channel = new TcpChannel(port);
-            ChannelServices.RegisterChannel(channel, true);
-
-            RemotingConfiguration.RegisterWellKnownServiceType(
-                typeof(ConcreteClient),
-                "Client",
-                WellKnownObjectMode.Singleton);
-
-            client = (IClient)Activator.GetObject(
-                typeof(IClient),
-                "tcp://localhost:" + port + "/Client");
-
-            client.Address = "tcp://localhost:" + port + "/Client";
-
-            server = (IServer)Activator.GetObject(
-                typeof(IServer),
-                "tcp://localhost:8086/Server");
-
-            string username = "abc";
-            server.Join(username, client.Address);
-            */
-
-
-
-            ///
-            //this.isConnected = true;
         }
 
         private void keyisdown(object sender, KeyEventArgs e) {

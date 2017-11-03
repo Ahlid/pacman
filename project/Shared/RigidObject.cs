@@ -10,6 +10,10 @@ namespace Shared
     [Serializable]
     public class RigidObject : ICollide
     {
+        public int ID { get; set; }
+
+        public Point Position { get; set; }
+        
 
         public bool IsColliding(Point centerA, int widthA, int heightA,
                          Point centerB, int widthB, int heightB)

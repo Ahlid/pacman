@@ -30,3 +30,4 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\De
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.csproj.GenerateResource.Cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.FormWelcome.resources

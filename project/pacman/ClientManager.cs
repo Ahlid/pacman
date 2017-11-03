@@ -19,9 +19,8 @@ namespace pacman
         public bool Connected { get; private set; }
         public bool Joined { get; set; }
         public IServer server { get; private set; }
-        public IClient client { get; private set; } // Client ServicesClientManager
+        public IClient client { get; private set; }
         private TcpChannel channel;
-        private ConcreteClient concretClient;
         private string resource;
 
 
@@ -30,7 +29,6 @@ namespace pacman
             this.Username = username;
             this.resource = "Client";
             this.Connected = false;
-            //this.concretClient = new ConcreteClient();
         }
 
 
@@ -50,7 +48,7 @@ namespace pacman
                         this.resource,
                     WellKnownObjectMode.Singleton);
 
-                    string address = String.Format("tcp://localhost:{0}/{1}", this.Port, this.resource);
+                    string address = string.Format("tcp://localhost:{0}/{1}", this.Port, this.resource);
                     client = (IClient)Activator.GetObject(
                         typeof(IClient),
                         address);
@@ -63,7 +61,7 @@ namespace pacman
 
                     this.Connected = true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     this.Connected = false;
                 }

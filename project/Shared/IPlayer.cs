@@ -17,6 +17,7 @@ namespace Shared
 
         string Address { get; set; }
 
-        void Move(Play play);
+        Action Move(Play play);
+
     }
 }

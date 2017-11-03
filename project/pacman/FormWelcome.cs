@@ -36,47 +36,48 @@ namespace pacman
                 {
                     labelError.Text = "Invalid port number, should be in rage [0, 65536]";
                     labelError.Visible = true;
+                    return;
+                }
+
+                if(this.textBoxUsername.Text == null || this.textBoxUsername.Text == "") {
+                    labelError.Text = "Invalid user number";
+                    labelError.Visible = true;
+                    return;
+                }
+
+                labelError.Text = port.ToString();
+                string username = textBoxUsername.Text.Trim();
+                if(this.clientManager == null)
+                {
+                    //1st time 
+                    this.clientManager = new ClientManager(username);
+                    this.clientManager.Port = port;
+                    ConcreteClient.WelcomeForm = this;
+                    ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
+
+                    this.clientManager.createConnectionToServer();
+                    if (this.clientManager.Connected)
+                    {
+                        this.textBoxClientPort.Enabled = false; // user no longer can update the port 
+                    }
+                }
+
+                clientManager.Username = username;
+                //this.clientManager.Port = port;
+
+                // todo: should this call be async?
+                bool result = this.clientManager.server.Join(username, this.clientManager.client.Address);
+                if(result)
+                {
+                    this.clientManager.Joined = true;
                 }
                 else
                 {
-                    if(this.textBoxUsername.Text == null || this.textBoxUsername.Text == "") {
-                        labelError.Text = "Invalid user number";
-                        labelError.Visible = true;
-                    }
-                    else
-                    {
-                        labelError.Text = port.ToString();
-                        string username = textBoxUsername.Text.Trim();
-                        if(this.clientManager != null)
-                        {
-                            this.clientManager.Username = username;
-                            //this.clientManager.Port = port;
-                        }else
-                        {
-                            //1st time 
-                            this.clientManager = new ClientManager(username);
-                            this.clientManager.Port = port;
-                            ConcreteClient.WelcomeForm = this;
-                            ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
-
-                            this.clientManager.createConnectionToServer();
-                            if (this.clientManager.Connected)
-                            {
-                                this.textBoxClientPort.Enabled = false; // user no longer can update the port 
-                            }
-                        }
-                        // todo: should this call be async?
-                        bool result = this.clientManager.server.Join(username, this.clientManager.client.Address);
-                        if(result)
-                        {
-                            this.clientManager.Joined = true;
-                        }else
-                        {
-                            this.labelError.Visible = true;
-                            this.labelError.Text = "Username already in use";
-                        }
-                    }
+                    this.labelError.Visible = true;
+                    this.labelError.Text = "Username already in use";
                 }
+                
+                
             }
             catch (FormatException)
             {
@@ -117,7 +118,6 @@ namespace pacman
         {
             disconnetFromServer();
         }
-
 
         // todo: Adicionar este código a um delegate e depois chamar quando fechar a janela do jogo directamente.
         private void disconnetFromServer()

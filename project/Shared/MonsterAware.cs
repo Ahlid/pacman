@@ -15,8 +15,6 @@ namespace Server
         public const int HEIGHT = 36;
         public const int SPEED = 3;
         public Point direction { get; set; }
-
-        public Point Position { get; set; } 
         public Point Speed { get; set; }
 
         public MonsterAware(int x, int y)

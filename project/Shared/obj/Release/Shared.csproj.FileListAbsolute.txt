@@ -2,7 +2,6 @@ C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Release\Shared.dll
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Release\Shared.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Release\Shared.dll
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Release\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Release\Shared.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.dll
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.pdb
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Release\Shared.dll

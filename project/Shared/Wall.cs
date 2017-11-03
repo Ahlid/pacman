@@ -21,11 +21,7 @@ namespace Shared
         /// Height of the wall.
         /// </summary>
         public const int HEIGHT = 120;
-        /// <summary>
-        /// 2D Position of the wall.
-        /// </summary>
-        public Point Position { get; set; }
-       
+
 
         /// <summary>
         /// Wall constructor that receives its 2D position.

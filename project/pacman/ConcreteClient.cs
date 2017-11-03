@@ -22,77 +22,102 @@ namespace pacman
         public string Address { get; set; }
         public int Round { get; set; }
 
-        private bool hasGameStarted;
+        private Dictionary<int, PictureBox> stageObjects;
+        private Dictionary<int, string> stageObjectsType;
 
-        // check if is 1st round
+        private bool hasGameStarted;
+        static volatile Mutex mutex = new Mutex(false);
 
         public ConcreteClient()
         {
-            this.Round = 0;
-            this.hasGameStarted = false;
-            this.Clients = new List<IClient>();
+            Round = 0;
+            hasGameStarted = false;
+            Clients = new List<IClient>();
         }
 
-        public void SendRoundStage(IStage stage, int round)
-        {
-            // check if game has already started
-            if (!hasGameStarted)
-            {
-                return;
-            }
-            //Construir o form através dos objetos que estão no stage
-            //MessageBox.Show(string.Format("Stage number {0} received from the server.", round));
-
-            // REMOVE THIS INSTRUCTIONS, WRONG APPROACH
-            StageForm.Invoke(new Action(() => StageForm.Controls.Clear()));
-
-            buildMonsters(stage);
-            buildCoins(stage);
-            buildPlayers(stage);
-            Round = round;
-        }
-
-        /// <summary>
-        /// Builds the initial stage of the game. This method initiates the game on the client side.
-        /// </summary>
-        /// <param name="stage">stage</param>
         public void Start(IStage stage)
         {
             // this check prevents some server to restart the game
             if (hasGameStarted)
-            {
                 return;
-            }
-            else // create the inital stage of the game
+
+            stageObjects = new Dictionary<int, PictureBox>();
+            stageObjectsType = new Dictionary<int, string>();
+
+            new Thread(() =>
             {
-
-                // create a new thread, the current one is too busy
-                Thread t = new Thread(delegate ()
-                {
-                    // asking the thread creator of the welcome form to hide it
-                    WelcomeForm.Invoke(new Action(() => WelcomeForm.Hide()));   // With invoke -> app waits until the action is done
-
-
-                    // create the form responsible for the game, Welcome form has the main thread has to be responsible to create the new form
-                    WelcomeForm.Invoke((Action)delegate    // with begin invoke 
-                    {
-
-                        this.StageForm = new FormStage(ClientManager);
-                        //StageForm.Closed += (s, args) => WelcomeForm.Show(); // show the welcome windown on closing the stage form window.  //.Close();
-                        this.StageForm.Show();
-                    });
+                WelcomeForm.Invoke(new System.Action(() => {
+                    mutex.WaitOne();
+                    WelcomeForm.Hide();
+                    StageForm = new FormStage(ClientManager);
+                    StageForm.Show();
                     buildWalls(stage);
                     buildCoins(stage);
                     buildMonsters(stage);
                     buildPlayers(stage);
-                });
-                t.Start();
+                    mutex.ReleaseMutex();
+                }));
+                
+                
+            }).Start();
 
-                hasGameStarted = true;
-                Round = 0;
-            }
-            //MessageBox.Show("The game has started(signal received from the server).");
+            hasGameStarted = true;
+
         }
+
+        public void SendRoundStage(List<Shared.Action> actions, int score, int round)
+        {
+            //check if game has already started
+            if (!hasGameStarted)
+                return;
+
+            mutex.WaitOne();
+            foreach (Shared.Action action in actions)
+            {
+                PictureBox pictureBox;
+                switch (action.action)
+                {
+                    case Shared.Action.ActionTaken.MOVE:
+                        pictureBox = stageObjects[action.ID];
+                        int x = pictureBox.Location.X + action.displacement.X;
+                        int y = pictureBox.Location.Y + action.displacement.Y;
+                        StageForm.Invoke(new System.Action(() =>
+                        {
+                            if(stageObjectsType[action.ID] == "player")
+                            {
+                                switch(action.direction)
+                                {
+                                    case Shared.Action.Direction.DOWN:
+                                        pictureBox.Image = global::pacman.Properties.Resources.down;
+                                        break;
+                                    case Shared.Action.Direction.LEFT:
+                                        pictureBox.Image = global::pacman.Properties.Resources.Left;
+                                        break;
+                                    case Shared.Action.Direction.UP:
+                                        pictureBox.Image = global::pacman.Properties.Resources.Up;
+                                        break;
+                                    case Shared.Action.Direction.RIGHT:
+                                        pictureBox.Image = global::pacman.Properties.Resources.Right;
+                                        break;
+                                }
+                               
+                            }
+                                
+                            pictureBox.Location = new Point(x, y);
+                        }));
+                        break;
+                    case Shared.Action.ActionTaken.REMOVE:
+                        pictureBox = stageObjects[action.ID];
+                        StageForm.Invoke(new System.Action(() => StageForm.Controls.Remove(pictureBox)));
+                        break;
+
+                }
+            }
+            //todo: score update
+            Round = round;
+            mutex.ReleaseMutex();
+        }
+
 
         public void End(IPlayer player)
         {
@@ -106,7 +131,7 @@ namespace pacman
             // Create threats is expensive, a great ideia is do have a pool of threads and assign work to them
             Thread t = new Thread(delegate ()
                         {
-                            WelcomeForm.Invoke(new Action(() =>
+                            WelcomeForm.Invoke(new System.Action(() =>
                             {
                                 WelcomeForm.LabelError.Text = message;
                                 WelcomeForm.LabelError.Visible = true;
@@ -115,15 +140,17 @@ namespace pacman
             t.Start();
         }
 
+//PRIVATE:
+
         private PictureBox createControl(string name, Point position, int width, int height)
         {
             PictureBox pictureBox = new PictureBox();
-            pictureBox.BackColor = System.Drawing.Color.Transparent;
-            pictureBox.Location = new System.Drawing.Point(position.X - width / 2, position.Y - height / 2);
-            pictureBox.Margin = new System.Windows.Forms.Padding(0);
+            pictureBox.BackColor = Color.Transparent;
+            pictureBox.Location = new Point(position.X - width / 2, position.Y - height / 2);
+            pictureBox.Margin = new Padding(0);
             pictureBox.Name = name;
-            pictureBox.Size = new System.Drawing.Size(width, height);
-            pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            pictureBox.Size = new Size(width, height);
+            pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox.TabIndex = 4;
             pictureBox.TabStop = false;
             return pictureBox;
@@ -137,13 +164,12 @@ namespace pacman
             {
                 newWall = createControl("wall" + i++, wall.Position, Wall.WIDTH, Wall.HEIGHT);
                 newWall.BackColor = Color.Blue;
-                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newWall)));
+                stageObjects.Add(wall.ID, newWall);
+                stageObjectsType.Add(wall.ID, "wall");
+                StageForm.Invoke(new System.Action(() =>  StageForm.PanelGame.Controls.Add(newWall)));
             }
-
         }
 
-
-        // pacmans need 
         private void buildPlayers(IStage stage)
         {
             PictureBox newPlayer;
@@ -152,10 +178,14 @@ namespace pacman
             {
                 newPlayer = createControl("pacman" + i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
-                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newPlayer)));
-                //MessageBox.Show(String.Format("Point({0}, {1})", player.Position.X, player.Position.Y));
+                stageObjects.Add(player.ID, newPlayer);
+                stageObjectsType.Add(player.ID, "player");
+                StageForm.Invoke(new System.Action(() => {
+                    StageForm.PanelGame.Controls.Add(newPlayer);
+                    StageForm.PanelGame.Controls.SetChildIndex(newPlayer, 0);
+               }));
+                
             }
-
         }
 
         private void buildCoins(IStage stage)
@@ -166,7 +196,9 @@ namespace pacman
             {
                 newCoin = createControl("coin" + i++, coin.Position, Coin.WIDTH, Coin.HEIGHT);
                 newCoin.Image = global::pacman.Properties.Resources.coin;
-                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newCoin)));
+                stageObjects.Add(coin.ID, newCoin);
+                stageObjectsType.Add(coin.ID, "coin");
+                StageForm.Invoke(new System.Action(() => StageForm.PanelGame.Controls.Add(newCoin)));
             }
         }
 
@@ -189,8 +221,9 @@ namespace pacman
                 {
                     newMonster.Image = global::pacman.Properties.Resources.yellow_guy;
                 }
-
-                StageForm.Invoke(new Action(() => StageForm.Controls.Add(newMonster)));
+                stageObjects.Add(monster.ID, newMonster);
+                stageObjectsType.Add(monster.ID, "monster");
+                StageForm.Invoke(new System.Action(() => StageForm.PanelGame.Controls.Add(newMonster)));
 
             }
         }
@@ -213,8 +246,8 @@ namespace pacman
                     typeof(IClient),
                     address);
             client.Username = username;
-            this.Clients.Add(client); 
+            this.Clients.Add(client);
         }
-       
+
     }
 }

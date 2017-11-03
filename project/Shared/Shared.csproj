@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Coin.cs" />
+    <Compile Include="Action.cs" />
     <Compile Include="ICollide.cs" />
     <Compile Include="MonsterAware.cs" />
     <Compile Include="IClient.cs" />

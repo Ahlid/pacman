@@ -11,8 +11,10 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 1;
+        public const int NUM_PLAYERS = 3;
         private int roundIntervalMsec;
+
+        private int lastID = 1;
 
         /// <summary>
         /// Contains information of all clients registered at the moment.
@@ -41,6 +43,9 @@ namespace Server
 
         private Timer timer;
 
+        List<Shared.Action> actions;
+
+
 
         // to remove
         //private List<IClient> clients;
@@ -54,7 +59,7 @@ namespace Server
             this.playerMoves = new Dictionary<IPlayer, Play>();
             stage = new Stage();
             Console.WriteLine("Server initiated.");
-
+            actions = new List<Shared.Action>();
 
             // to remove
             //clients = new List<IClient>();
@@ -95,11 +100,7 @@ namespace Server
             }
         }
 
-        /// <summary>
-        /// Determines if the game has ended, by checking if all the pacmans are dead,
-        /// or if all the coins have been collected.
-        /// </summary>
-        /// <returns></returns>
+
         private bool hasGameEnded()
         {
             return false;
@@ -133,59 +134,58 @@ namespace Server
         // e inicia o jogo
         public bool Join(string username, string address)
         {
-            if (this.playersInGame.Exists(c => c.Username == username) || this.waitingQueue.Exists(c => c.Username == username))
+            if (this.playersInGame.Exists(c => c.Username == username) || 
+                this.waitingQueue.Exists(c => c.Username == username))
             {
                 // lancar excepcao, nome ja em uso
                 return false; // already exists a player with that username
             }
+
+            // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
+            IClient client = (IClient)Activator.GetObject(
+                typeof(IClient),
+                address);
+            client.Username = username;
+                
+            if (hasGameStarted)
+            {
+                this.waitingQueue.Add(client); // on enqueued, remove it on this list and change it to the clients list
+                // send waiting signal - for the game to end
+                Console.WriteLine(String.Format("Sending to client '{0}' that he has just been queued", client.Username));
+                client.LobbyInfo("Queued for the next game...");
+                return true;
+            }
+
+            this.clients.Add(client);
+            IPlayer player = new Player();
+            player.Address = address;
+            player.Username = username;
+            this.playersInGame.Add(player);
+            playerMoves[player] = Play.NONE;
+
+            stage.AddPlayer(player);
+            Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
+
+            if (NUM_PLAYERS == this.playersInGame.Count)
+            {
+                // minimum numbers of players required to start the game has been reached. Simple strategy
+                // build game stage
+                stage.BuildInitStage(NUM_PLAYERS);
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                this.broadcastStartSignal();
+                this.hasGameStarted = true;
+            }
             else
             {
-                // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
-                IClient client = (IClient)Activator.GetObject(
-                    typeof(IClient),
-                    address);
-                client.Username = username;
-                
-                if (hasGameStarted)
-                {
-                    this.waitingQueue.Add(client); // on enqueued, remove it on this list and change it to the clients list
-                    // send waiting signal - for the game to end
-                    Console.WriteLine(String.Format("Sending to client '{0}' that he has just been queued", client.Username));
-                    client.LobbyInfo("Queued for the next game...");
-                    return true;
-                }else
-                {
-                    this.clients.Add(client);
-                    IPlayer player = new Player();
-                    player.Address = address;
-                    player.Username = username;
-                    this.playersInGame.Add(player);
-                    playerMoves[player] = Play.NONE;
-
-                    stage.AddPlayer(player);
-                    Console.WriteLine(String.Format("User '{0}' was registered, with the address: {1}", username, address));
-
-
-                    if (NUM_PLAYERS == this.playersInGame.Count)
-                    {
-                        // minimum numbers of players required to start the game has been reached. Simple strategy
-                        // build game stage
-                        stage.BuildInitStage(NUM_PLAYERS);
-                        timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
-                        this.broadcastStartSignal();
-                        this.hasGameStarted = true;
-                    }
-                    else
-                    {
-                        // send waiting signal - for the game to start 
-                        Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
-                        client.LobbyInfo("Waiting for other players to join...");
-                        sendClientsReadyToPlay(client);
-                        sendNewClientReadyToPlay(client);
-                    }
-                    return true;
-                }
+                // send waiting signal - for the game to start 
+                Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
+                client.LobbyInfo("Waiting for other players to join...");
+                //sendClientsReadyToPlay(client);
+                //sendNewClientReadyToPlay(client);
             }
+
+            return true;
+
         }
 
         public void Quit(string address)
@@ -209,6 +209,9 @@ namespace Server
                 this.waitingQueue.RemoveAt(indexOfWaitingClient);
             }
         }
+
+
+
 
         private void sendClientsReadyToPlay(IClient client)
         {
@@ -244,6 +247,7 @@ namespace Server
 
         public void sendNewClientReadyToPlay(IClient client)
         {
+            //broadcast to all besides client
             IPlayer player;
             for (int k = this.playersInGame.Count - 1; k >= 0; k--)
             {
@@ -262,6 +266,9 @@ namespace Server
                 }
             }
         }
+
+
+
 
         private void broadcastStartSignal()
         {
@@ -292,7 +299,8 @@ namespace Server
                     client = this.clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
                     Console.WriteLine(String.Format("Round Nº{0}", this.round));
-                    client.SendRoundStage(this.stage, this.round);
+                    //todo change score
+                    client.SendRoundStage(this.actions, -9999, this.round);
                 }
                 catch (Exception)
                 {
@@ -300,11 +308,12 @@ namespace Server
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
             }
+            this.actions = new List<Shared.Action>();
         }
 
         public void SetPlay(string address, Play play, int round)
         {
-            IPlayer player = this.playersInGame.FirstOrDefault(c => c.Address == address);
+            IPlayer player = this.playersInGame.FirstOrDefault(p => p.Address == address);
             Console.WriteLine("Round: {0} Play: {1}, by: {2}", play, round, player.Username);
             playerMoves[player] = play;
 
@@ -351,8 +360,6 @@ namespace Server
 */
         }
 
-
-
         private void computeMovement()
         {
             //computeGhost();
@@ -361,7 +368,9 @@ namespace Server
             foreach (Player player in stage.GetPlayers())
             {
                 Play play = playerMoves[player];
-                player.Move(play);
+                Shared.Action action = player.Move(play);
+                if(action != null)
+                    actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
             }
 

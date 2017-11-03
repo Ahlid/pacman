@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 namespace Server
 {
     [Serializable]
-    public class Coin :  ICoin
+    public class Coin : ICoin
     {
         public const int WIDTH = 20;
         public const int HEIGHT = 18;
 
+        public int ID { get; set; }
         public Point Position { get; set; }
 
         public Coin(int x, int y)

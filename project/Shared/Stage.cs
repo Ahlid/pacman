@@ -15,14 +15,14 @@ namespace Server
         public const int HEIGHT = 400;
         public const int COINS = 30;
 
+        private int lastID = 1;
+        private int initX = 8, initY = 8, space = 40;
+
         private List<IMonster> monsters;
         private List<ICoin> coins;
         private List<IPlayer> players;
         private List<IWall> walls;
 
-        /// <summary>
-        /// Empty constructor, for remoting
-        /// </summary>
         public Stage()
         {
             monsters = new List<IMonster>();
@@ -39,19 +39,18 @@ namespace Server
             
             // build dynamic elements
             buildInitMonsters();
-            buildPlayers(numPlayers);
+            //players must be added because we need their addresses
+            //buildPlayers(numPlayers);
                         
         }
 
-        /// <summary>
-        /// Set positions of the walls in the inital stage.
-        /// </summary>
+
         private void buildWalls()
         {
-            this.walls.Add(new Wall(117, 49));
-            this.walls.Add(new Wall(331, 49));
-            this.walls.Add(new Wall(171, 295));
-            this.walls.Add(new Wall(384, 295));
+            AddWall(new Wall(117, 49));
+            AddWall(new Wall(331, 49));
+            AddWall(new Wall(171, 295));
+            AddWall(new Wall(384, 295));
         }
 
         // todo: check if overlapping walls
@@ -63,7 +62,7 @@ namespace Server
             while(coinsBuilt != COINS)
             {
                 ICoin ic = new Coin(x, y);
-                coins.Add(ic);
+                AddCoin(ic);
                 coinsBuilt++;
                 x += space;
                 if(x > Stage.HEIGHT)
@@ -74,62 +73,50 @@ namespace Server
             }
         }
 
-        /// <summary>
-        /// Set positions of the monsters in the initial stage.
-        /// </summary>
         private void buildInitMonsters()
         {
             // red monster 
-            this.monsters.Add(new MonsterHorizontal(240, 90));
+            AddMonster(new MonsterHorizontal(240, 90));
             // yellow monster
-            this.monsters.Add(new MonsterHorizontal(295, 336));
+            AddMonster(new MonsterHorizontal(295, 336));
             // pink monster
-            this.monsters.Add(new MonsterAware(401, 89));
+            AddMonster(new MonsterAware(401, 89));
         }
 
-        /// <summary>
-        /// Set position of the players in the initial stage.
-        /// </summary>
-        /// <param name="num">Number of players in the stage.</param>
-        private void buildPlayers(int num)
-        {
-            // not checking if player position is overlapping a wall, coin or monster
-
-            int initX = 8, initY = 8, space = 40;
-            int x = initX, y = initY;
-
-            for (int i = 0; i < num; i++)
-            {
-                IPlayer player = this.players[i];
-                player.Alive = true;
-                player.Position = new Point(x, y);
-
-                y *= space;
-                if(y >= Stage.HEIGHT)
-                {
-                    x = initX + space;
-                    y = initY;
-                }
-            }
-        }
-
-
-        
-
-        
         public void AddCoin(ICoin coin)
         {
+            coin.ID = lastID++;
             coins.Add(coin);
         }
 
         public void AddMonster(IMonster monster)
         {
+            monster.ID = lastID++;
             monsters.Add(monster);
         }
 
         public void AddPlayer(IPlayer player)
         {
+            player.ID = lastID++;
+            int x = initX, y = initY;
+
+            player.Alive = true;
+            player.Position = new Point(x, y);
+
+            y *= space;
+            if (y >= Stage.HEIGHT)
+            {
+                x = initX + space;
+                y = initY;
+            }
+      
             players.Add(player);
+        }
+
+        public void AddWall(IWall wall)
+        {
+            wall.ID = lastID++;
+            this.walls.Add(wall);
         }
 
         public List<ICoin> GetCoins()
@@ -162,9 +149,5 @@ namespace Server
             return this.walls;
         }
 
-        public void AddWall(IWall wall)
-        {
-            this.walls.Add(wall);
-        }
     }
 }

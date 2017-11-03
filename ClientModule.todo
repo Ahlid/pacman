@@ -4,6 +4,7 @@ Client Module:
 
 We have to have attention on the order that the movements are processed. If two players move to grab the same coin, how do we choose which player should grab the coin? 
 >we should compute the colision detection for the first packet that arives?
+The professor says it does not matter
 
 
 
