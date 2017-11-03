@@ -11,7 +11,7 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 3;
+        public const int NUM_PLAYERS = 1;
         private int roundIntervalMsec;
 
         private int lastID = 1;
@@ -77,7 +77,7 @@ namespace Server
             if (!hasGameEnded())
             {
                 Console.WriteLine("TICK: Round {0}", this.round);
-                this.buildStage();
+                this.computeChanges();
                 this.round++;
                 //this.broadcastStart();  //todo: fazer o broadcast no inicio!!!
                 this.broadcastRound();
@@ -323,47 +323,14 @@ namespace Server
             // send to all the new stage
         }
 
-        private void buildStage()
+        private void computeChanges()
         {
-            computeGhost();
             computeMovement();
-
-        }
-
-        private void computeGhost()
-        {
-            foreach (IMonster monster in stage.GetMonsters())
-            {
-                //monster.Step();
-            }
-
-
-            /*
-            //move ghosts
-            redGhost.Left += ghost1;
-            yellowGhost.Left += ghost2;
-
-
-            // if the red ghost hits the picture box 4 then wereverse the speed
-            if (redGhost.Bounds.IntersectsWith(pictureBox1.Bounds))
-                ghost1 = -ghost1;
-            // if the red ghost hits the picture box 3 we reverse the speed
-            else if (redGhost.Bounds.IntersectsWith(pictureBox2.Bounds))
-                ghost1 = -ghost1;
-            // if the yellow ghost hits the picture box 1 then wereverse the speed
-            if (yellowGhost.Bounds.IntersectsWith(pictureBox3.Bounds))
-                ghost2 = -ghost2;
-            // if the yellow chost hits the picture box 2 then wereverse the speed
-            else if (yellowGhost.Bounds.IntersectsWith(pictureBox4.Bounds))
-                ghost2 = -ghost2;
-            //moving ghosts and bumping with the walls end
-*/
+            detectCollisions();
         }
 
         private void computeMovement()
         {
-            //computeGhost();
-
             //Assume that the playerMoves has a play for every play, with default Play.NONE
             foreach (Player player in stage.GetPlayers())
             {
@@ -374,71 +341,90 @@ namespace Server
                 Console.WriteLine("Position player: {0}", player.Position);
             }
 
-            /*
-             * 
-             * 
-             * 
-                 
-
-            //for loop to check walls, ghosts and points
-            foreach (Control x in this.Controls) {
-                // checking if the player hits the wall or the ghost, then game is over
-                if (x is PictureBox && x.Tag == "wall" || x.Tag == "ghost") {
-                    if (((PictureBox)x).Bounds.IntersectsWith(pacman.Bounds)) {
-                        pacman.Left = 0;
-                        pacman.Top = 25;
-                        label2.Text = "GAME OVER";
-                        label2.Visible = true;
-                        timer1.Stop();
-                    }
-                }
-                if (x is PictureBox && x.Tag == "coin") {
-                    if (((PictureBox)x).Bounds.IntersectsWith(pacman.Bounds)) {
-                        this.Controls.Remove(x);
-                        score++;
-                        //TODO check if all coins where "eaten"
-                        if (score == total_coins) {
-                            //pacman.Left = 0;
-                            //pacman.Top = 25;
-                            label2.Text = "GAME WON!";
-                            label2.Visible = true;
-                            timer1.Stop();
-                            }
-                    }
-                }
+            //Monsters movement
+            foreach (IMonster monster in stage.GetMonsters())
+            {
+                //monster.Step(stage);
             }
-                pinkGhost.Left += ghost3x;
-                pinkGhost.Top += ghost3y;
+        }
 
-                if (pinkGhost.Left < boardLeft ||
-                    pinkGhost.Left > boardRight ||
-                    (pinkGhost.Bounds.IntersectsWith(pictureBox1.Bounds)) ||
-                    (pinkGhost.Bounds.IntersectsWith(pictureBox2.Bounds)) ||
-                    (pinkGhost.Bounds.IntersectsWith(pictureBox3.Bounds)) ||
-                    (pinkGhost.Bounds.IntersectsWith(pictureBox4.Bounds))) {
-                    ghost3x = -ghost3x;
-                }
-                if (pinkGhost.Top < boardTop || pinkGhost.Top + pinkGhost.Height > boardBottom - 2) {
-                    ghost3y = -ghost3y;
-                }
-                */
+        private void detectCollisions()
+        {
+            computeCollisionsPlayerCoin();
+            computeCollisionsPlayerWall();
+            computeCollisionsPlayerMonster();
         }
 
         private void computeCollisionsPlayerCoin()
         {
+            foreach(Player player in stage.GetPlayers())
+            {
+                foreach(Coin coin in stage.GetCoins())
+                {
+                    bool colliding =player.IsColliding(Player.WIDTH, Player.HEIGHT, 
+                        coin, Coin.WIDTH, Coin.HEIGHT);
 
+                    if(colliding)
+                    {
+                        player.Score++;
+                        stage.RemoveCoin(coin);
+                        actions.Add(new Shared.Action()
+                        {
+                            action=Shared.Action.ActionTaken.REMOVE,
+                            ID = coin.ID                            
+                        });
+                    }
+                }
+            }
         }
 
         private void computeCollisionsPlayerWall()
         {
+            foreach (Player player in stage.GetPlayers())
+            {
+                foreach (Wall wall in stage.GetWalls())
+                {
+                    bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
+                        wall, Wall.WIDTH, Wall.HEIGHT);
 
+                    if (colliding)
+                    {
+                        //TODO: the player gets a gameover and is removed from the list
+                        actions.Add(new Shared.Action()
+                        {
+                            action = Shared.Action.ActionTaken.REMOVE,
+                            ID = player.ID
+                        });
+                    }
+                }
+            }
         }
 
         private void computeCollisionsPlayerMonster()
         {
+            foreach (Player player in stage.GetPlayers())
+            {
+                foreach (IMonster monster in stage.GetMonsters())
+                {
+                    bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
+                        monster, MonsterAware.WIDTH, MonsterAware.HEIGHT);//using MonsterAware for WIDTH needs a better solution
 
+                    if (colliding)
+                    {
+                        //TODO: the player gets a gameover and is removed from the list
+                        Console.WriteLine("Player  {0}: REMOVED", player.Username);
+                        actions.Add(new Shared.Action()
+                        {
+                            action = Shared.Action.ActionTaken.REMOVE,
+                            ID = player.ID
+                        });
+                    }
+                }
+            }
         }
 
+
+        //todo
         public int NextAvailablePort(string address)
         {
             throw new NotImplementedException();

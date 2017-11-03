@@ -9,7 +9,7 @@ namespace Shared
 {
     public interface ICollide : IStageObject
     {
-        bool IsColliding(Point centerA, int widthA, int heightA,
-                         Point centerB, int widthB, int heightB);
+        bool IsColliding(int widthA, int heightA,
+                         IStageObject stageObject, int widthB, int heightB);
     }
 }

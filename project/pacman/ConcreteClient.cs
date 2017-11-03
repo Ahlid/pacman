@@ -108,7 +108,7 @@ namespace pacman
                         break;
                     case Shared.Action.ActionTaken.REMOVE:
                         pictureBox = stageObjects[action.ID];
-                        StageForm.Invoke(new System.Action(() => StageForm.Controls.Remove(pictureBox)));
+                        StageForm.Invoke(new System.Action(() => StageForm.PanelGame.Controls.Remove(pictureBox)));
                         break;
 
                 }
