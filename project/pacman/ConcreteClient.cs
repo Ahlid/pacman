@@ -129,6 +129,11 @@ namespace pacman
             // do something else
         }
 
+        public void GameOver()
+        {
+
+        }
+
         public void LobbyInfo(string message)
         {
             // Create threats is expensive, a great ideia is do have a pool of threads and assign work to them

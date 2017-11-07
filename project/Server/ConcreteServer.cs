@@ -94,6 +94,8 @@ namespace Server
             }
             else
             {
+                this.hasGameStarted = false; // clear value
+                this.broadcastEndGame();
                 // clear variables
                 // get ready for a next game
                 // clear timer
@@ -103,17 +105,21 @@ namespace Server
 
         private bool hasGameEnded()
         {
-            return false;
-            /*
-            if(this.stage.GetPlayers().Count > 0) // if players exist on the game 
+            //return false;
+            Console.WriteLine("Number of players > 0?: " + (this.stage.GetPlayers().Count > 0));
+            Console.WriteLine("Number of players alive >0?: " + (this.stage.GetPlayers().Count(p => p.Alive) > 0));
+            Console.WriteLine("Number of coins >0?: " + (this.stage.GetCoins().Count > 0));
+
+            if (this.stage.GetPlayers().Count > 0) // if players exist on the game 
             {
                 // check if there are any player alive or if the all the coins have been captured.
                 return !(this.stage.GetPlayers().Count(p => p.Alive) > 0) || !(this.stage.GetCoins().Count > 0);
-            }else
+            }
+            else
             {
                 Console.Write("no players in the stage?");
                 return true; // there are not players on the game, they all quit or crashed. 
-            }*/
+            }
         }
 
         /// <summary>
@@ -282,7 +288,7 @@ namespace Server
         }
 
 
-
+        // todo: verificar se os broadcasts sao feitos apenas para quem e devido.
 
         private void broadcastStartSignal()
         {
@@ -323,6 +329,38 @@ namespace Server
                 }
             }
             this.actions = new List<Shared.Action>();
+        }
+
+        private void broadcastEndGame()
+        {
+            IClient client;
+            for (int i = 0; i < this.clients.Count; i++)
+            {
+                try
+                {
+                    client = this.clients.ElementAt(i);
+                    Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
+                    client.End(getWinningPlayer());
+                }
+                catch (Exception)
+                {
+                    this.clients.RemoveAt(i);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
+            }
+        }
+
+        private IPlayer getWinningPlayer()
+        {
+            if (this.stage.GetPlayers().Count(p => p.Alive) == 1) // if only 1 player alive
+            {
+                return this.stage.GetPlayers().FirstOrDefault(s => s.Alive);
+            }
+            else
+            { // return player with the highest score among the players alive
+                List<IPlayer> list = this.stage.GetPlayers().Where(s => s.Alive).ToList();
+                return list.OrderByDescending(s => s.Score).First(); 
+            }
         }
 
         public void SetPlay(string address, Play play, int round)
@@ -392,6 +430,9 @@ namespace Server
             }
         }
 
+
+        // todo: check if player is alive, if is alive then do calculus. 
+        // if died after computing then send message to him saying: game over
         private void computeCollisionsPlayerWall()
         {
             foreach (Player player in stage.GetPlayers())
@@ -404,6 +445,7 @@ namespace Server
                     if (colliding)
                     {
                         //TODO: the player gets a gameover and is removed from the list
+                        player.Alive = false;
                         actions.Add(new Shared.Action()
                         {
                             action = Shared.Action.ActionTaken.REMOVE,
@@ -426,6 +468,7 @@ namespace Server
                     if (colliding)
                     {
                         //TODO: the player gets a gameover and is removed from the list
+                        player.Alive = false;
                         Console.WriteLine("Player  {0}: REMOVED", player.Username);
                         actions.Add(new Shared.Action()
                         {

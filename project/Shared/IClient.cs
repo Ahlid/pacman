@@ -64,5 +64,6 @@ namespace Shared
         /// <param name="address">new player address</param>
         void sendNewPlayer(string username, string address);
 
+        void GameOver();
     }
 }
