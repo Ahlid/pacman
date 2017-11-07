@@ -11,12 +11,15 @@ using System.Threading;
 
 namespace pacman
 {
-    class ConcreteClient : MarshalByRefObject, IClient
+
+
+    public class ConcreteClient : MarshalByRefObject, IClient
     {
         public static ClientManager ClientManager;
         public static FormWelcome WelcomeForm;
         public FormStage StageForm;
 
+        public List<string> messages;
         public List<IClient> Clients { get; set; }
         public string Username { get; set; }
         public string Address { get; set; }
@@ -30,9 +33,10 @@ namespace pacman
 
         public ConcreteClient()
         {
-            Round = 0;
-            hasGameStarted = false;
-            Clients = new List<IClient>();
+            this.Round = 0;
+            this.hasGameStarted = false;
+            this.Clients = new List<IClient>();
+            this.messages = new List<string>();
         }
 
         public void Start(IStage stage)
@@ -117,7 +121,6 @@ namespace pacman
             Round = round;
             mutex.ReleaseMutex();
         }
-
 
         public void End(IPlayer player)
         {
@@ -249,5 +252,73 @@ namespace pacman
             this.Clients.Add(client);
         }
 
+
+        // make it thread safe
+        public void SendTextMessage(string username, string message)
+        {
+            //string msg = username + ": " + message;
+            this.messages.Add(username + ": " + message);
+            IClient client;
+            for (int i = 0; i < this.Clients.Count; i++)
+            {
+                try
+                {
+                    client = this.Clients[i];
+                    //if (client.Username != username)
+                    //{
+                        client.MessageToAnotherPeer(this.messages[this.messages.Count - 1]);
+                   // }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to send message to another peer. Removing client from my list. " + e.Message);
+                    this.Clients.RemoveAt(i);
+                }
+
+            }
+            //new Thread(broadcastMessage).Start(username);
+        }
+
+        // delete?
+        private void broadcastMessage(object obj)
+        {
+            string messageToSend;
+            int messageIndex = this.messages.Count - 1; // last message
+            string username = (string)obj;
+            mutex.WaitOne();
+            messageToSend = this.messages[messageIndex];
+            mutex.ReleaseMutex();
+            // create a thread to send the messages
+            IClient client;
+            for (int i = 0; i < this.Clients.Count; i++)
+            {
+                try
+                {
+                    client = this.Clients[i];
+                    if (client.Username != username)
+                    {
+                        client.MessageToAnotherPeer(messageToSend);
+                    }
+                }catch(Exception e)
+                {
+                    Console.WriteLine("Failed to send message to another peer. Removing client from my list. " + e.Message);
+                    this.Clients.RemoveAt(i);
+                }
+                
+            }
+        }
+
+        public void MessageToAnotherPeer(string message)
+        {
+            new Thread(() =>
+            {
+                StageForm.Invoke(new System.Action(() => {
+                    mutex.WaitOne();
+
+                    StageForm.TextBoxChatHistory.AppendText("\r\n" + message);
+                    mutex.ReleaseMutex();
+                }));
+            }).Start();
+        }
     }
 }

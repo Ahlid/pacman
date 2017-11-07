@@ -2,10 +2,11 @@
 
 namespace Shared
 {
+
     /// <summary>
     /// Interface that Client will have to implement
     /// </summary>
-    public interface IClient 
+    public interface IClient : IChat
     {
         /// <summary>
         /// Structure to make clients reachables by the client, without needing a server

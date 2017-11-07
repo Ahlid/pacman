@@ -27,7 +27,10 @@ namespace pacman {
                 return panelGame;
             }
         }
-
+        public TextBox TextBoxChatHistory
+        {
+            get { return textBoxChatHistory; }
+        }
 
         // to remove
         //IClient client;
@@ -63,6 +66,9 @@ namespace pacman {
 
             InitializeComponent();
             this.ClientManager = cm;
+            this.textBoxMessage.Enabled = false;
+
+            // remove
             label2.Visible = false;
         }
 
@@ -88,7 +94,10 @@ namespace pacman {
                 pacman.Image = Properties.Resources.down;
             }
             if (e.KeyCode == Keys.Enter) {
-                    //tbMsg.Enabled = true; tbMsg.Focus();
+                //tbMsg.Enabled = true; tbMsg.Focus();
+                this.textBoxMessage.Enabled = true;
+                this.textBoxMessage.Focus();
+                this.textBoxMessage.Select();
                }
         }
 
@@ -133,9 +142,22 @@ namespace pacman {
             throw new NotImplementedException();
         }
 
+
         private void tbMsg_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
                 //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
+            }
+        }
+
+        private void textBoxMessage_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                this.ClientManager.client.SendTextMessage(this.ClientManager.Username, this.textBoxMessage.Text);
+                this.textBoxMessage.Clear(); // clear text
+                this.textBoxMessage.Enabled = false;
+                //this.Focus();
+                this.Select();
             }
         }
     }

@@ -11,7 +11,7 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 1;
+        public const int NUM_PLAYERS = 2;
         private int roundIntervalMsec;
 
         private int lastID = 1;
@@ -134,7 +134,7 @@ namespace Server
         // e inicia o jogo
         public bool Join(string username, string address)
         {
-            if (this.playersInGame.Exists(c => c.Username == username) || 
+            if (this.playersInGame.Exists(c => c.Username == username) ||
                 this.waitingQueue.Exists(c => c.Username == username))
             {
                 // lancar excepcao, nome ja em uso
@@ -146,7 +146,7 @@ namespace Server
                 typeof(IClient),
                 address);
             client.Username = username;
-                
+
             if (hasGameStarted)
             {
                 this.waitingQueue.Add(client); // on enqueued, remove it on this list and change it to the clients list
@@ -168,20 +168,24 @@ namespace Server
 
             if (NUM_PLAYERS == this.playersInGame.Count)
             {
+                // need threads?
+
+                sendClientsReadyToPlay(client);
+                //sendNewClientReadyToPlay(client);
+
                 // minimum numbers of players required to start the game has been reached. Simple strategy
                 // build game stage
                 stage.BuildInitStage(NUM_PLAYERS);
-                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
                 this.broadcastStartSignal();
                 this.hasGameStarted = true;
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                Console.WriteLine("Game started!!!!");
             }
             else
             {
                 // send waiting signal - for the game to start 
                 Console.WriteLine(String.Format("Sending to client '{0}' that he is just waiting for other to join", client.Username));
                 client.LobbyInfo("Waiting for other players to join...");
-                //sendClientsReadyToPlay(client);
-                //sendNewClientReadyToPlay(client);
             }
 
             return true;
@@ -215,53 +219,63 @@ namespace Server
 
         private void sendClientsReadyToPlay(IClient client)
         {
+            // key: username, value: address
             Dictionary<string, string> _clients = new Dictionary<string, string>();
             IPlayer player;
-            
-            for (int i = this.playersInGame.Count - 1; i >= 0; i--)
+            IClient cli;
+            for (int i = 0; i < this.playersInGame.Count; i++)
             {
                 player = this.playersInGame[i];
-                if(player.Username != client.Username)
-                {
-                    _clients.Add(player.Username, player.Address);
-                }
+                //if(player.Username != client.Username)
+                //{
+                _clients.Add(player.Username, player.Address);
+                //}
             }
-            for (int k = this.clients.Count - 1; k >= 0; k--)
+            for (int i = 0; i < this.clients.Count; i++)
             {
                 try
                 {
-                    if(this.clients[k].Username != client.Username)
-                    {
-                        this.clients.ElementAt(k).sendPlayersOnGame(_clients);
-                    }
+                    cli = this.clients[i];
+                    //if (cli.Username != client.Username)
+                    //{
+                    cli.sendPlayersOnGame(_clients);
+                    Console.WriteLine(String.Format("Information of all players sended to player: {0}",
+                          cli.Username));
+                    //}
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("error: \n" + e.StackTrace);
-                    this.clients.RemoveAt(k);
+                    Console.WriteLine("Removing client, because couldn't contact it to send info. of other players");
+                    this.clients.RemoveAt(i);
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
             }
-            Console.WriteLine("done");
+
+            //sendNewClientReadyToPlay(_clients, client);
+            Console.WriteLine("......Clients have information of all clientes......");
         }
 
-        public void sendNewClientReadyToPlay(IClient client)
+        public void sendNewClientReadyToPlay(Dictionary<string, string> clients, IClient client)
         {
             //broadcast to all besides client
-            IPlayer player;
-            for (int k = this.playersInGame.Count - 1; k >= 0; k--)
+            IClient cli;
+            for (int i = 0; i < clients.Count; i++)
             {
                 try
                 {
-                    player = this.playersInGame[k];
-                    if (player.Username != client.Username)
+                    cli = this.clients.FirstOrDefault(s => s.Username == clients.ElementAt(i).Key);
+                    if (cli.Username != client.Username)
                     {
-                        this.clients.ElementAt(k).sendNewPlayer(player.Username, player.Address);
+                        cli.sendNewPlayer(client.Username, client.Address);
+                        Console.WriteLine(String.Format("Informing player '{0}' of the new player: {1}",
+                            cli.Username, client.Username));
                     }
                 }
                 catch (Exception)
                 {
-                    this.clients.RemoveAt(k);
+                    Console.WriteLine("Removing client, because couldn't contact it to send info. of new player");
+                    this.clients.RemoveAt(i);
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
             }
@@ -336,7 +350,7 @@ namespace Server
             {
                 Play play = playerMoves[player];
                 Shared.Action action = player.Move(play);
-                if(action != null)
+                if (action != null)
                     actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
             }
@@ -357,21 +371,21 @@ namespace Server
 
         private void computeCollisionsPlayerCoin()
         {
-            foreach(Player player in stage.GetPlayers())
+            foreach (Player player in stage.GetPlayers())
             {
-                foreach(Coin coin in stage.GetCoins())
+                foreach (Coin coin in stage.GetCoins())
                 {
-                    bool colliding =player.IsColliding(Player.WIDTH, Player.HEIGHT, 
+                    bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
                         coin, Coin.WIDTH, Coin.HEIGHT);
 
-                    if(colliding)
+                    if (colliding)
                     {
                         player.Score++;
                         stage.RemoveCoin(coin);
                         actions.Add(new Shared.Action()
                         {
-                            action=Shared.Action.ActionTaken.REMOVE,
-                            ID = coin.ID                            
+                            action = Shared.Action.ActionTaken.REMOVE,
+                            ID = coin.ID
                         });
                     }
                 }
