@@ -17,7 +17,6 @@ namespace Server
             ServerManager serverManager = new ServerManager(8086);
             serverManager.createChannel();
             serverManager.server.Run(160);
-
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();
         }
