@@ -54,6 +54,7 @@ namespace Server
             this.Actions.Clear();
             this.ComputeRound();
             this.broadcastRound();
+            this.Round++;
             return this.Actions;
         }
 
@@ -215,6 +216,7 @@ namespace Server
         private void SendStart()
         {
             IClient client;
+
             Dictionary<string,string> clientsP2P = new Dictionary<string, string>();
             foreach (IClient c in this.Clients)
             {
