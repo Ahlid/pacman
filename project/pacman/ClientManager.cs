@@ -41,7 +41,7 @@ namespace pacman
                 {
                     //this.Port = this.server.NextAvailablePort(this.Address); // when this function is working on the server side is just to uncommment in this side.
                     channel = new TcpChannel(this.Port);
-                    ChannelServices.RegisterChannel(channel, true);
+                    ChannelServices.RegisterChannel(channel, false);
 
                     RemotingConfiguration.RegisterWellKnownServiceType(
                         typeof(ConcreteClient),

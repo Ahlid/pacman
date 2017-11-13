@@ -4,3 +4,5 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Debug\PuppetMaster.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Debug\PuppetMaster.pdb
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Debug\PuppetMaster.csprojResolveAssemblyReference.cache
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\bin\Debug\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\bin\Debug\Shared.pdb

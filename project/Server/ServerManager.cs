@@ -26,10 +26,10 @@ namespace Server
             this.Address = "tcp://localhost:" + port + "/" + this.resource;
         }
 
-        public void createChannel()
+        public void CreateChannel()
         {
             this.channel = new TcpChannel(this.Port);
-            ChannelServices.RegisterChannel(channel, true);
+            ChannelServices.RegisterChannel(channel, false);
 
             RemotingConfiguration.RegisterWellKnownServiceType(
                typeof(ConcreteServer),
@@ -39,6 +39,28 @@ namespace Server
             this.server = (IServer)Activator.GetObject(
                 typeof(IServer),
                 this.Address);
+        }
+
+        // todo
+        public void ProcessCreationServer()
+        {
+            // CAREFUl with hardcoded port
+            this.channel = new TcpChannel(7777);
+            ChannelServices.RegisterChannel(channel, false);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(
+               typeof(ConcreteServer),
+               "PCS",
+               WellKnownObjectMode.Singleton);
+
+            this.server = (IServer)Activator.GetObject(
+                typeof(IServer),
+                "PCS");
+        }
+
+        // todo
+        public void LoadConfigs(string filepath)
+        {
         }
     }
 }

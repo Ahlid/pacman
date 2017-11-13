@@ -15,7 +15,8 @@ namespace Server
         static void Main(string[] args)
         {
             ServerManager serverManager = new ServerManager(8086);
-            serverManager.createChannel();
+            serverManager.LoadConfigs(@"../../config.cfg");
+            serverManager.CreateChannel();
             serverManager.server.Run(160);
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();

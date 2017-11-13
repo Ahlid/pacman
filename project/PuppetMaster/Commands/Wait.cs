@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PuppetMaster.Commands
 {
 
-
+    // local, acts on the puppet master itself
     public class Wait : Command
     {
         public Wait() : base("Wait") { }
