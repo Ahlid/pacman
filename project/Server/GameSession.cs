@@ -98,6 +98,12 @@ namespace Server
             this.SendStart();
         }
 
+        public void EndGame()
+        {
+            this.broadcastEndGame();
+            
+        }
+
         private void ComputeRound()
         {
             ComputeMovement();
@@ -114,6 +120,7 @@ namespace Server
                 if (action != null)
                     Actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
+                PlayerMoves[player] = Play.NONE;
             }
 
             //Monsters movement

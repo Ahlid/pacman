@@ -41,5 +41,7 @@ namespace Shared
 
         void StartGame();
 
+        void EndGame();
+
     }
 }

@@ -63,6 +63,7 @@ namespace Server
                 if (actualGameSession.HasGameEnded())
                 {
                     //temos de começar uma nova ronda
+                    actualGameSession.EndGame();
                     IGameSession newGameSession = new GameSession(++this.lastID, NUM_PLAYERS);
                     this.gameSessionsTable[this.lastID] = newGameSession;
                     this.AddPlayersToGameSession(newGameSession);
