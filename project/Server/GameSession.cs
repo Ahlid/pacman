@@ -30,7 +30,6 @@ namespace Server
             this.NumberOfPlayers = numberOfPlayers;
         }
 
-
         public bool HasGameEnded()
         {
             //return false;
@@ -54,6 +53,7 @@ namespace Server
         {
             this.Actions.Clear();
             this.ComputeRound();
+            this.broadcastRound();
             return this.Actions;
         }
 
@@ -115,11 +115,11 @@ namespace Server
                     Actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
             }
-
+            
             //Monsters movement
             foreach (IMonster monster in this.Stage.GetMonsters())
             {
-                //monster.Step(stage);
+                //monster.Step(this.Stage);
             }
         }
 
@@ -212,6 +212,47 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
+                }
+                catch (Exception)
+                {
+                    this.Clients.RemoveAt(i);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
+            }
+        }
+
+        private void broadcastRound()
+        {
+            IClient client;
+            for (int i = this.Clients.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    client = this.Clients.ElementAt(i);
+                    Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
+                    Console.WriteLine(String.Format("Round Nº{0}", this.Round));
+                    //todo change score actions
+                    client.SendRoundStage(this.Actions, -9999, this.Round);
+                }
+                catch (Exception)
+                {
+                    this.Clients.RemoveAt(i);
+                    // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                }
+            }
+            this.Actions = new List<Shared.Action>();
+        }
+
+        private void broadcastEndGame()
+        {
+            IClient client;
+            for (int i = 0; i < this.Clients.Count; i++)
+            {
+                try
+                {
+                    client = this.Clients.ElementAt(i);
+                    Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
+                    client.End(this.GetWinningPlayer());
                 }
                 catch (Exception)
                 {

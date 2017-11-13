@@ -160,5 +160,10 @@ namespace pacman {
                 this.Select();
             }
         }
+
+        private void textBoxMessage_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
