@@ -10,7 +10,7 @@ namespace Shared
     public interface IMonster : IStageObject, ICollide
     {
         Point Speed { get; set; }
-        void Step(IStage stage);
+        Shared.Action Step(IStage stage);
 
     }
 }

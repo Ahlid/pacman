@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Action = Shared.Action;
 
 namespace Server
 {
@@ -24,14 +25,14 @@ namespace Server
             this.Position = new Point(x, y);
         }
 
-        public void Step(IStage stage)
+        public Action Step(IStage stage)
         {
             Position = new Point(Position.X + SPEED * direction.X, Position.Y + SPEED * direction.Y);
             //do Collision detection
-
+            return null;
             /*
              * é necessário fazer collision detection aqui? se o player já faz não será necess+ario fazer aqui.
-             */ 
+             */
         }
     }
 }
