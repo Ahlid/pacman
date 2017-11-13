@@ -948,7 +948,7 @@
             // 
             this.textBoxPlayers.Enabled = false;
             this.textBoxPlayers.Location = new System.Drawing.Point(734, 129);
-            this.textBoxPlayers.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxPlayers.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxPlayers.Multiline = true;
             this.textBoxPlayers.Name = "textBoxPlayers";
             this.textBoxPlayers.Size = new System.Drawing.Size(99, 296);
@@ -956,11 +956,11 @@
             // 
             // textBoxMessage
             // 
+            this.textBoxMessage.Enabled = false;
             this.textBoxMessage.Location = new System.Drawing.Point(11, 503);
-            this.textBoxMessage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.textBoxMessage.Multiline = true;
+            this.textBoxMessage.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.Size = new System.Drawing.Size(360, 26);
+            this.textBoxMessage.Size = new System.Drawing.Size(360, 20);
             this.textBoxMessage.TabIndex = 145;
             this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
             this.textBoxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMessage_OnKeyDown);
@@ -970,7 +970,7 @@
             this.textBoxChatHistory.Enabled = false;
             this.textBoxChatHistory.HideSelection = false;
             this.textBoxChatHistory.Location = new System.Drawing.Point(11, 445);
-            this.textBoxChatHistory.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxChatHistory.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxChatHistory.Multiline = true;
             this.textBoxChatHistory.Name = "textBoxChatHistory";
             this.textBoxChatHistory.Size = new System.Drawing.Size(360, 54);

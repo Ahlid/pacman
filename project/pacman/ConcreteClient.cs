@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Server;
 using System.Drawing;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace pacman
@@ -325,5 +326,24 @@ namespace pacman
                 }));
             }).Start();
         }
+
+        public void SendClients(Dictionary<string,string> clients)
+        {
+            foreach (string key in clients.Keys)
+            {
+                string address = clients[key];
+                // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
+                IClient client = (IClient)Activator.GetObject(
+                    typeof(IClient),
+                    address);
+
+                client.Username = key;
+                client.Address = address;
+            
+                this.Clients.Add(client);
+            }
+        }
+
+        
     }
 }

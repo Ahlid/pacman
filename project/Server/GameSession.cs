@@ -101,7 +101,7 @@ namespace Server
         public void EndGame()
         {
             this.broadcastEndGame();
-            
+
         }
 
         private void ComputeRound()
@@ -215,6 +215,13 @@ namespace Server
         private void SendStart()
         {
             IClient client;
+            Dictionary<string,string> clientsP2P = new Dictionary<string, string>();
+            foreach (IClient c in this.Clients)
+            {
+                clientsP2P[c.Username] = c.Address;
+            }
+
+
             for (int i = this.Clients.Count - 1; i >= 0; i--)
             {
                 try
@@ -222,9 +229,15 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
+
+
+
+                    client.SendClients(clientsP2P);
+
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     this.Clients.RemoveAt(i);
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
