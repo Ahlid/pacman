@@ -24,7 +24,7 @@ namespace Server
             this.Stage = new Stage();
             this.GameId = gameID;
             this.Round = 0;
-            this.PlayerMoves= new Dictionary<IPlayer, Play>();
+            this.PlayerMoves = new Dictionary<IPlayer, Play>();
             this.Actions = new List<Action>();
             this.HasGameStarted = false;
             this.NumberOfPlayers = numberOfPlayers;
@@ -93,7 +93,7 @@ namespace Server
                 this.Stage.AddPlayer(player);
                 this.PlayerMoves[player] = Play.NONE;
             }
-          
+
             //todo: infromar os clientes
             this.SendStart();
         }
@@ -115,11 +115,14 @@ namespace Server
                     Actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
             }
-            
+
             //Monsters movement
             foreach (IMonster monster in this.Stage.GetMonsters())
             {
-                //monster.Step(this.Stage);
+                Action action = monster.Step(this.Stage);
+                if (action != null)
+                    Actions.Add(action);
+                Console.WriteLine("Monster at : {0}", monster.Position);
             }
         }
 
