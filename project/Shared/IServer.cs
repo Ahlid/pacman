@@ -8,10 +8,9 @@ namespace Shared
 {
     public interface IServer
     {
-
         bool Join(string username, string address);
 
-        void Run(int roundMsec);
+        void Run(int roundMsec, int numPlayers = 2);
 
         void SetPlay(String address, Play play, int round);
 

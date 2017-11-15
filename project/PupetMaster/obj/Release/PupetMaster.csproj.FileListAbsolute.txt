@@ -1,0 +1,8 @@
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\obj\Release\PupetMaster.csprojResolveAssemblyReference.cache
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\bin\Release\PupetMaster.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\bin\Release\PupetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\bin\Release\PupetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\bin\Release\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\bin\Release\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\obj\Release\PupetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PupetMaster\obj\Release\PupetMaster.pdb

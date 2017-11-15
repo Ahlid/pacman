@@ -1,11 +1,3 @@
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.exe.config
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.dll
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.pdb
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Release\Server.exe.config
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Release\Server.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Release\Server.pdb
@@ -14,3 +6,11 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Re
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Server.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.pdb
