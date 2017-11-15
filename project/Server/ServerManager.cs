@@ -40,27 +40,5 @@ namespace Server
                 typeof(IServer),
                 this.Address);
         }
-
-        // todo
-        public void ProcessCreationServer()
-        {
-            // CAREFUl with hardcoded port
-            this.channel = new TcpChannel(7777);
-            ChannelServices.RegisterChannel(channel, false);
-
-            RemotingConfiguration.RegisterWellKnownServiceType(
-               typeof(ConcreteServer),
-               "PCS",
-               WellKnownObjectMode.Singleton);
-
-            this.server = (IServer)Activator.GetObject(
-                typeof(IServer),
-                "PCS");
-        }
-
-        // todo
-        public void LoadConfigs(string filepath)
-        {
-        }
     }
 }
