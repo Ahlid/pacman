@@ -26,8 +26,11 @@ namespace pacman
         public string Address { get; set; }
         public int Round { get; set; }
 
+        //This might be better refactored to be a class
         private Dictionary<int, PictureBox> stageObjects;
         private Dictionary<int, string> stageObjectsType;
+
+        private Dictionary<int, string> roundState;
 
         private bool hasGameStarted;
         static volatile Mutex mutex = new Mutex(false);
@@ -38,7 +41,38 @@ namespace pacman
             this.hasGameStarted = false;
             this.Clients = new List<IClient>();
             this.messages = new List<string>();
+            this.roundState = new Dictionary<int, string>();
         }
+
+        public string GetState()
+        {
+            int pacmanCount = 1;
+            int monsterCount = 1;
+            int coinCount = 1;
+            string state = "";
+            foreach(int key in stageObjects.Keys)
+            {
+                switch(stageObjectsType[key])
+                {
+                    case "player":
+                        //todo P or L
+                        state += "P" + (pacmanCount++) + ", P ";
+                        break;
+                    case "monster":
+                        state += "M" + (monsterCount++) + ", ";
+                        break;
+                    case "coin":
+                        state += "C" + (coinCount++) + ", ";
+                        break;
+                }
+
+                if(stageObjectsType[key] == "player" || stageObjectsType[key] == "monster" || stageObjectsType[key] == "coin")
+                    state += stageObjects[key].Left + ", " + stageObjects[key].Top + "\n";
+                
+            }
+            return state;
+        }
+
 
         public void Start(IStage stage)
         {
@@ -119,6 +153,8 @@ namespace pacman
                 }
             }
             //todo: score update
+
+            this.roundState.Add(round, GetState());
             Round = round;
             mutex.ReleaseMutex();
         }
@@ -132,7 +168,7 @@ namespace pacman
 
         public void GameOver()
         {
-
+            //todo
         }
 
         public void LobbyInfo(string message)
@@ -344,6 +380,15 @@ namespace pacman
             }
         }
 
-        
+        public string GetState(int round)
+        {
+            if (roundState.ContainsKey(round))
+            {
+                return roundState[round];
+            }
+
+            return null;
+            
+        }
     }
 }

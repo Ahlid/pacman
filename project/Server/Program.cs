@@ -31,7 +31,7 @@ namespace Server
                 ServerManager serverManager;
                 serverManager = new ServerManager();
                 serverManager.CreateChannel();
-                serverManager.server.Run(160);
+                serverManager.server.Run(160, 1);
             }
             else
             {

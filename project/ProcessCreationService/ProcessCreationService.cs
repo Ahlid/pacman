@@ -12,7 +12,10 @@ namespace ProcessCreationService
     class ProcessCreationService : IProcessCreationService
     {
         IDictionary<string, Process> processes = new Dictionary<string, Process>();
+        IDictionary<string, bool> processesFrozen = new Dictionary<string, bool>();
 
+        IDictionary<string, string> PIDToClientURL = new Dictionary<string, string>();
+        IDictionary<string, string> PIDToServerURL = new Dictionary<string, string>();
 
         [Flags]
         public enum ThreadAccess : int
@@ -40,13 +43,32 @@ namespace ProcessCreationService
         public void Crash(string PID)
         {
             processes[PID].Close();
+            PIDToClientURL.Remove(PID); 
+            PIDToServerURL.Remove(PID);
         }
 
         public void GlobalStatus()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Process Status: ");
+            foreach(string key in processes.Keys)
+            {
+                Process process = processes[key];
+                if(process.HasExited)
+                {
+                    Console.WriteLine("PID {0} is down");
+                }
+                else if(processesFrozen[key])
+                {
+                    Console.WriteLine("PID {0} is frozen");
+                } 
+                else
+                {
+                    Console.WriteLine("PID {0} is running");
+                }
+            }
         }
 
+        //todo
         public void InjectDelay(string sourcePID, string destinationPID)
         {
             throw new NotImplementedException();
@@ -54,41 +76,45 @@ namespace ProcessCreationService
 
         public string LocalState(string PID, string roundID)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Something()
-        {
-            Console.WriteLine("Something happened");
+            IClient client = (IClient)Activator.GetObject(
+                        typeof(IServer),
+                        this.PIDToClientURL[PID]);
+            return client.GetState(int.Parse(roundID));
         }
 
         public void StartClient(string PID, string clientURL, string msecPerRound, string numPlayers)
         {
             Process clientProcess = new Process();
+            processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Client.exe";
             clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
+            PIDToClientURL.Add(PID, clientURL);
         }
 
         public void StartClient(string PID, string clientURL, string msecPerRound, string numPlayers, string instructions)
         {
             Process clientProcess = new Process();
+            processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Client.exe";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
             clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers} {base64Instructions}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
+            PIDToClientURL.Add(PID, clientURL);
         }
 
         public void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers)
         {
             Process serverProcess = new Process();
+            processesFrozen.Add(PID, false);
             serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
             serverProcess.StartInfo.Arguments = $"{PID} {serverURL} {msecPerRound} {numPlayers}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
+            PIDToServerURL.Add(PID, serverURL);
         }
 
         public void Freeze(string PID)
@@ -97,6 +123,8 @@ namespace ProcessCreationService
 
             if (process.ProcessName == string.Empty)
                 return;
+
+            processesFrozen.Add(PID, true);
 
             foreach (ProcessThread pT in process.Threads)
             {
@@ -119,6 +147,8 @@ namespace ProcessCreationService
 
             if (process.ProcessName == string.Empty)
                 return;
+
+            processesFrozen.Add(PID, false);
 
             foreach (ProcessThread pT in process.Threads)
             {
