@@ -11,7 +11,7 @@ namespace Server
 {
     class ConcreteServer : MarshalByRefObject, IServer
     {
-        public const int NUM_PLAYERS = 2;
+        public  int numPlayers = 2;
         private int roundIntervalMsec;
         private int lastID = 0;
         private List<IClient> clients;
@@ -20,22 +20,20 @@ namespace Server
         private Timer timer;
 
         public ConcreteServer()
+        { } 
+        
+
+        public void Run(int roundIntervalMsec, int numPlayers = 2)
         {
             this.clients = new List<IClient>();
             this.waitingQueue = new List<IClient>();
             this.timer = new Timer(new TimerCallback(Tick), null, Timeout.Infinite, Timeout.Infinite);
+            this.numPlayers = numPlayers;
             //this is the server's first game session
             this.gameSessionsTable = new Dictionary<int, IGameSession>();
-            gameSessionsTable[++lastID] = new GameSession(lastID,NUM_PLAYERS);
-
-            Console.WriteLine("Server initiated.");
-        }
-
-        public void Run(int roundIntervalMsec)
-        {
+            gameSessionsTable[++lastID] = new GameSession(lastID, numPlayers);
             this.roundIntervalMsec = roundIntervalMsec;
             this.timer.Change(roundIntervalMsec, roundIntervalMsec);
-
         }
 
         public void Stop()
@@ -64,7 +62,7 @@ namespace Server
                 {
                     //temos de começar uma nova ronda
                     actualGameSession.EndGame();
-                    IGameSession newGameSession = new GameSession(++this.lastID, NUM_PLAYERS);
+                    IGameSession newGameSession = new GameSession(++this.lastID, numPlayers);
                     this.gameSessionsTable[this.lastID] = newGameSession;
                     this.AddPlayersToGameSession(newGameSession);
                 }
@@ -144,7 +142,7 @@ namespace Server
         public void AddPlayersToGameSession(IGameSession actualGameSession)
         {
             int playersWaiting = actualGameSession.Clients.Count;
-            int leftPlayers = NUM_PLAYERS - playersWaiting;
+            int leftPlayers = numPlayers - playersWaiting;
 
             List<IClient> inQuePlayers = this.waitingQueue.Take(leftPlayers).ToList();
 
@@ -159,7 +157,7 @@ namespace Server
             }
 
             //vamos ver se podemos começar o jogo
-            if (actualGameSession.Clients.Count - NUM_PLAYERS == 0)
+            if (actualGameSession.Clients.Count - numPlayers == 0)
             {
                 actualGameSession.StartGame();
             }
