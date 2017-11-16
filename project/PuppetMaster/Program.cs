@@ -25,9 +25,12 @@ namespace PuppetMaster
             }
 
 
-
-            // todo: Program should wait for all threads to be finished before allowing 
-            //to accept commands from the command line
+            /*
+             * TODO:
+             * Usar uma pool de threads e quando existir um ficheiro esperar que tudo seja
+             * executado é só depois é que possibilito a leitura de comandos a partir da consola
+             * 
+             */ 
 
             // read commands through the command line in real time 
             Console.WriteLine();

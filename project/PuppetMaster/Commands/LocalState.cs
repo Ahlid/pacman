@@ -19,15 +19,16 @@ namespace PuppetMaster.Commands
         {
             Console.WriteLine("+++Local State command+++");
 
-            string pid = parameters[0];
+            
+            // probabily threads are need here. test it
             IAsyncResult result;
-            IProcessCreationService pcs = processesPCS[pid];
-
-            remoteCallLocalState = new localStateDel(pcs.LocalState);
-            result = remoteCallLocalState.BeginInvoke(pid, parameters[1], null, null);
-            result.AsyncWaitHandle.WaitOne();
-
-            Console.WriteLine("LocalState of the process with PID: '{0}': \n" + result + "\n\n");
+            foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
+            {
+                remoteCallLocalState = new localStateDel((entry.Value).LocalState);
+                result = remoteCallLocalState.BeginInvoke(entry.Key, parameters[1], null, null);
+                result.AsyncWaitHandle.WaitOne();
+                Console.WriteLine("LocalState of the process with PID: '{0}': \n" + result + "\n\n");
+            }
         }
     }
 }
