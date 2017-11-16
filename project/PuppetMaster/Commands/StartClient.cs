@@ -34,7 +34,6 @@ namespace PuppetMaster
                 asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], null, null);
                 // wait for result
                 asyncResult.AsyncWaitHandle.WaitOne();
-                remoteCallStartClient.EndInvoke(asyncResult);
                 return;
             }
             // else -> client will be played automatically, following a moves trace file 
@@ -45,7 +44,6 @@ namespace PuppetMaster
                 remoteCallStartClientWithInstructions = new startClientWithInstructionsDel(pcs.StartClient);
                 asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], instructions, null, null);
                 asyncResult.AsyncWaitHandle.WaitOne();
-                remoteCallStartClientWithInstructions.EndInvoke(asyncResult);
                 return;
             }
             else
