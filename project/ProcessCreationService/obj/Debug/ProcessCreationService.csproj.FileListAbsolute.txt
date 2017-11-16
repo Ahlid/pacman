@@ -1,0 +1,8 @@
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.exe.config
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.exe
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\bin\Debug\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\bin\Debug\Shared.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.csprojResolveAssemblyReference.cache
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.exe
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.pdb

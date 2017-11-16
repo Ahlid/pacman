@@ -10,45 +10,53 @@ namespace PuppetMaster
 {
     public class Program
     {
-        private static string commandWithParameters;
         private static PlataformOrchestration master;
+
         static void Main(string[] args)
         {
             Console.WriteLine("***** Puppet Master initialized *****");
+            string commandWithParameters;
             master = new PlataformOrchestration();
-//#if DEBUG  // release env receives the arguments directly from the command line
-            //args = new[] { "scripts/script20.txt" };
-            args = new[] { "" };
-//#endif
-            executeScriptFile(args[0]);
+
+            // check if was submitted any scrit file
+            if (args.Length > 0 && args[0] != null && args[0].Trim() != "")
+            {
+                executeScriptFile(args[0]);
+            }
+
+
+
+            // todo: Program should wait for all threads to be finished before allowing 
+            //to accept commands from the command line
 
             // read commands through the command line in real time 
+            Console.WriteLine();
             Console.WriteLine("** Ready to read commands from console **");
+            string[] resolveCommandWithParameters;
+            string[] parameters;
             do
             {
                 Console.WriteLine("> Writer your command: ");
                 Console.Write("> ");
                 commandWithParameters = Console.ReadLine();
+                resolveCommandWithParameters = commandWithParameters.Split(' ');
+                parameters = new List<String>(resolveCommandWithParameters).GetRange(1, resolveCommandWithParameters.Length - 1).ToArray();
+                master.ExecuteCommand(resolveCommandWithParameters[0], parameters);
 
             } while (commandWithParameters != "QUIT");
             Console.WriteLine("***** Pupper Master shutting down! *****");
-            System.Threading.Thread.Sleep(1000); // wait thread execution
+            System.Threading.Thread.Sleep(1000); // wait thread execution, to see message
         }
 
-        private static void executeScriptFile(string filepath)
+        private static void executeScriptFile(string filename)
         {
-            // check if filepath was provided
-            if (filepath == null || filepath.Trim() == "")
-            {
-                return;
-            }
-            string uniformFilepath = @"../../" + filepath;
+            string uniformFilepath = @"../../scripts/" + filename;
             // check if the file exists
             if (File.Exists(uniformFilepath))
             {
-                Console.WriteLine("*** Initiating executing of script file ***");
-                master.executeScript(uniformFilepath);
-                Console.WriteLine("*** Finished Executing Script file ***");
+                Console.WriteLine("*** Start execution of the script file ***");
+                master.ExecuteScript(uniformFilepath);
+                Console.WriteLine("*** Finished executing script file ***");
             }
             else
             {

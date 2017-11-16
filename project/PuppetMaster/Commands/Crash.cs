@@ -3,16 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared;
 
 namespace PuppetMaster.Commands
 {
-    public class Crash : RemoteAsyncCommand
+    public class Crash : AsyncCommand
     {
+        private delegate void crashDel(string PID);
+        private crashDel remoteCallCrash;
+
+
         public Crash() : base("Crash") { }
 
-        public override void Execute(string[] parameters)
+        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
         {
-            throw new NotImplementedException();
+            // vou fazer uma chamada ao pcs asincronamente e depois a chamada e assincrona tambem
+            Console.WriteLine("+++Crash command+++");
+
+            string pid = parameters[0];
+            IAsyncResult result;
+            IProcessCreationService pcs = processesPCS[pid];
+
+            remoteCallCrash = new crashDel(pcs.Crash);
+            result = remoteCallCrash.BeginInvoke(pid, null, null);
+            result.AsyncWaitHandle.WaitOne();
         }
     }
 }

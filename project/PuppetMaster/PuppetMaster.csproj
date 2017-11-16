@@ -43,12 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\RemoteAsyncCommand.cs" />
-    <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\CommandInterpreter.cs" />
+    <Compile Include="Commands\AsyncCommand.cs" />
+    <Compile Include="Commands\AbstractCommand.cs" />
     <Compile Include="Commands\Crash.cs" />
     <Compile Include="Commands\Freeze.cs" />
     <Compile Include="Commands\GlobalStatus.cs" />
+    <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\InjectDelay.cs" />
     <Compile Include="Commands\LocalState.cs" />
     <Compile Include="Commands\Unfreeze.cs" />

@@ -14,13 +14,6 @@ namespace Server
     {
         static void Main(string[] args)
         {
-<<<<<<< HEAD
-            ServerManager serverManager = new ServerManager(8086);
-            serverManager.LoadConfigs(@"../../config.cfg");
-            serverManager.CreateChannel();
-            serverManager.server.Run(160);
-=======
-            
             if (args.Length > 0)
             {
                 ServerManager serverManager;
@@ -29,18 +22,17 @@ namespace Server
                 string msecPerRound = args[2];
                 string numPlayer = args[3];
                 serverManager = new ServerManager(serverURL);
-                serverManager.createChannel();
+                serverManager.CreateChannel();
                 serverManager.server.Run(int.Parse(msecPerRound), int.Parse(numPlayer));
             }
             else
             {
                 ServerManager serverManager;
                 serverManager = new ServerManager();
-                serverManager.createChannel();
+                serverManager.CreateChannel();
                 serverManager.server.Run(160);
             }
 
->>>>>>> 3273d1b074278497d241b8fbca71aaa47569f403
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();
         }
