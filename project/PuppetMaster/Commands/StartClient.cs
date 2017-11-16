@@ -11,8 +11,8 @@ namespace PuppetMaster
 {
     public class StartClient : AsyncCommand
     {
-        private delegate void startClientDel(string PID, string clientURL, string msecPerRound, string numPlayers);
-        private delegate void startClientWithInstructionsDel(string PID, string clientURL, string msecPerRound, string numPlayers, string instructions);
+        private delegate void startClientDel(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers);
+        private delegate void startClientWithInstructionsDel(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers, string instructions);
 
         private startClientDel remoteCallStartClient;
         private startClientWithInstructionsDel remoteCallStartClientWithInstructions;
@@ -31,7 +31,7 @@ namespace PuppetMaster
             if (parameters.Length < 6) // there is not instructions
             {
                 remoteCallStartClient = new startClientDel(pcs.StartClient);
-                asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], null, null);
+                asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[2], null, parameters[3], parameters[4], null, null);
                 // wait for result
                 asyncResult.AsyncWaitHandle.WaitOne();
                 return;
@@ -42,7 +42,7 @@ namespace PuppetMaster
             if(instructions != "")
             {
                 remoteCallStartClientWithInstructions = new startClientWithInstructionsDel(pcs.StartClient);
-                asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], instructions, null, null);
+                asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[2], null, parameters[3], parameters[4], instructions, null, null);
                 asyncResult.AsyncWaitHandle.WaitOne();
                 return;
             }

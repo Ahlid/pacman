@@ -82,7 +82,7 @@ namespace ProcessCreationService
             return client.GetState(int.Parse(roundID));
         }
 
-        public void StartClient(string PID, string clientURL, string msecPerRound, string numPlayers)
+        public void StartClient(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
@@ -93,7 +93,7 @@ namespace ProcessCreationService
             PIDToClientURL.Add(PID, clientURL);
         }
 
-        public void StartClient(string PID, string clientURL, string msecPerRound, string numPlayers, string instructions)
+        public void StartClient(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers, string instructions)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
