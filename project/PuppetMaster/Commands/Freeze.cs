@@ -20,12 +20,13 @@ namespace PuppetMaster.Commands
             Console.WriteLine("+++Freeze command+++");
 
             string pid = parameters[0];
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
             remoteCallFreeze = new freezeDel(pcs.Freeze);
-            result = remoteCallFreeze.BeginInvoke(pid, null, null);
-            result.AsyncWaitHandle.WaitOne();
+            asyncResult = remoteCallFreeze.BeginInvoke(pid, null, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            remoteCallFreeze.EndInvoke(asyncResult);
         }
     }
 }

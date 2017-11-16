@@ -21,12 +21,13 @@ namespace PuppetMaster.Commands
             Console.WriteLine("+++Crash command+++");
 
             string pid = parameters[0];
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
             remoteCallCrash = new crashDel(pcs.Crash);
-            result = remoteCallCrash.BeginInvoke(pid, null, null);
-            result.AsyncWaitHandle.WaitOne();
+            asyncResult = remoteCallCrash.BeginInvoke(pid, null, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            remoteCallCrash.EndInvoke(asyncResult);
         }
     }
 }

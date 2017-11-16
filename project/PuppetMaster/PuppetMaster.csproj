@@ -64,6 +64,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="output\" />
     <Folder Include="scripts\" />
   </ItemGroup>
   <ItemGroup>
