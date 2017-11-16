@@ -86,7 +86,7 @@ namespace ProcessCreationService
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
-            clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Debug\pacman.exe";
+            clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Release\pacman.exe";
             clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
@@ -110,7 +110,7 @@ namespace ProcessCreationService
         {
             Process serverProcess = new Process();
             processesFrozen.Add(PID, false);
-            serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Debug\Server.exe";
+            serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
             serverProcess.StartInfo.Arguments = $"{PID} {serverURL} {msecPerRound} {numPlayers}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
