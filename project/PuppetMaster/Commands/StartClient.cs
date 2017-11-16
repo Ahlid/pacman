@@ -37,7 +37,7 @@ namespace PuppetMaster
                 return;
             }
             // else -> client will be played automatically, following a moves trace file 
-
+            
             string instructions = readInstructions(parameters[4]); // pass filename
             if(instructions != "")
             {

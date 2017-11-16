@@ -26,7 +26,6 @@ namespace PuppetMaster
                 remoteCallGlobalStatus = new globalStatusDel((entry.Value).GlobalStatus);
                 asyncResult = remoteCallGlobalStatus.BeginInvoke(null, null);
                 asyncResult.AsyncWaitHandle.WaitOne();
-                remoteCallGlobalStatus.EndInvoke(asyncResult);
             }
         }
     }

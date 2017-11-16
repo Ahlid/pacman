@@ -9,12 +9,12 @@ using Shared;
 
 namespace PuppetMaster
 {
-    public class PlataformOrchestration
+    public class PlatformOrchestration
     {
         private Dictionary<String, IProcessCreationService> processesPCS;
 
 
-        public PlataformOrchestration()
+        public PlatformOrchestration()
         {
             this.processesPCS = new Dictionary<string, IProcessCreationService>();
         }

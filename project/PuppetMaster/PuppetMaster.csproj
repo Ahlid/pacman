@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;d</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -54,7 +54,7 @@
     <Compile Include="Commands\LocalState.cs" />
     <Compile Include="Commands\Unfreeze.cs" />
     <Compile Include="Commands\Wait.cs" />
-    <Compile Include="PlataformOrchestration.cs" />
+    <Compile Include="PlatformOrchestration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\StartClient.cs" />

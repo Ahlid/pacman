@@ -14,23 +14,22 @@ namespace PuppetMaster
 {
     public class Program : MarshalByRefObject
     {
-        private static PlataformOrchestration master;
+        private static PlatformOrchestration master;
         private static Uri puppetMasterURL;
-        private static string pathConfigFile;
+        private const string pathConfigFile = @"../../scripts/config.txt";
 
         static void Main(string[] args)
         {
             Console.WriteLine("***** Puppet Master initialized *****");
             string commandWithParameters;
-            pathConfigFile = @"../../scripts/config.txt";
+            
 
-            master = new PlataformOrchestration();
+            master = new PlatformOrchestration();
             // load configurations
             loadConfig();
-            // init remoting channel
-            createServer();
 
-            // check if was submitted any scrit file
+
+            // check if was submitted any script file
             if (args.Length > 0 && args[0] != null && args[0].Trim() != "")
             {
                 executeScriptFile(args[0]);
@@ -79,18 +78,6 @@ namespace PuppetMaster
             }
         }
 
-        private static void createServer()
-        {
-            string[] uri_splited = puppetMasterURL.AbsolutePath.Split('/');
-            string resource = uri_splited[uri_splited.Length - 1];
-            TcpChannel channel = new TcpChannel(puppetMasterURL.Port);
-            ChannelServices.RegisterChannel(channel, false);
-
-            RemotingConfiguration.RegisterWellKnownServiceType(
-               typeof(Program),
-               resource,
-               WellKnownObjectMode.Singleton);
-        }
 
         private static void loadConfig()
         {
@@ -99,7 +86,8 @@ namespace PuppetMaster
                 Console.WriteLine("*** Loading configs ***");
                 string line = File.ReadAllLines(pathConfigFile)[0];
                 puppetMasterURL = new Uri(line);
-            }else
+            }
+            else
             {
                 // Exit application, no configuration file!
                 Environment.Exit(0);
