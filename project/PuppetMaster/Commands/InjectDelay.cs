@@ -20,12 +20,13 @@ namespace PuppetMaster.Commands
             Console.WriteLine("+++Inject Delay command+++");
 
             string pid = parameters[0];
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
             remoteCallInjectDelay = new injectDealyDel(pcs.InjectDelay);
-            result = remoteCallInjectDelay.BeginInvoke(pid, parameters[1], null, null);
-            result.AsyncWaitHandle.WaitOne();
+            asyncResult = remoteCallInjectDelay.BeginInvoke(pid, parameters[1], null, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            remoteCallInjectDelay.EndInvoke(asyncResult);
         }
     }
 }

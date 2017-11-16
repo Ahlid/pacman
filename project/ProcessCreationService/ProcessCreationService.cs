@@ -97,7 +97,7 @@ namespace ProcessCreationService
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
-            clientProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
+            clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Debug\pacman.exe";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
             clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers} {base64Instructions}";

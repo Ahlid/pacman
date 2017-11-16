@@ -20,12 +20,13 @@ namespace PuppetMaster
         {
             Console.WriteLine("+++GlobalStatus command+++");
 
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
             {
                 remoteCallGlobalStatus = new globalStatusDel((entry.Value).GlobalStatus);
-                result = remoteCallGlobalStatus.BeginInvoke(null, null);
-                result.AsyncWaitHandle.WaitOne();
+                asyncResult = remoteCallGlobalStatus.BeginInvoke(null, null);
+                asyncResult.AsyncWaitHandle.WaitOne();
+                remoteCallGlobalStatus.EndInvoke(asyncResult);
             }
         }
     }

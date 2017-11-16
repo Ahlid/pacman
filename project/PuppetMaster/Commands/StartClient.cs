@@ -25,30 +25,32 @@ namespace PuppetMaster
             Console.WriteLine("+++Start Client command+++");
 
             string pid = parameters[0];
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
             
             if (parameters.Length < 6) // there is not instructions
             {
                 remoteCallStartClient = new startClientDel(pcs.StartClient);
-                result = remoteCallStartClient.BeginInvoke(pid, parameters[1], parameters[2], parameters[3], null, null);
+                asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], null, null);
+                // wait for result
+                asyncResult.AsyncWaitHandle.WaitOne();
+                return;
             }
-            else // client will be played automatically, following a moves trace file 
+            // else -> client will be played automatically, following a moves trace file 
+
+            string instructions = readInstructions(parameters[4]); // pass filename
+            if(instructions != "")
             {
-                string instructions = readInstructions(parameters[4]); // pass filename
-                if(instructions != "")
-                {
-                    remoteCallStartClientWithInstructions = new startClientWithInstructionsDel(pcs.StartClient);
-                    result = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[1], parameters[2], parameters[3], instructions, null, null);
-                }else
-                {
-                    Console.WriteLine("No file or no instructions");
-                    return;
-                }
-                
+                remoteCallStartClientWithInstructions = new startClientWithInstructionsDel(pcs.StartClient);
+                asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[2], parameters[3], parameters[4], instructions, null, null);
+                asyncResult.AsyncWaitHandle.WaitOne();
+                return;
             }
-            // wait for result
-            result.AsyncWaitHandle.WaitOne();
+            else
+            {
+                Console.WriteLine("No file or no instructions");
+                return;
+            }
         }
 
         private string readInstructions(string filename)

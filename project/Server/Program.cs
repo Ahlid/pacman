@@ -14,7 +14,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            
+            Console.WriteLine("***** Server Initilized *****");
             if (args.Length == 4)
             {
                 ServerManager serverManager;

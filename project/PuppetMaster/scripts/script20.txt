@@ -14,7 +14,7 @@ LocalState C3 1
 LocalState C4 1
 LocalState C5 1
 LocalState C6 1
-Wait 5500
+Wait 500
 LocalState S1 20
 LocalState C1 20
 LocalState C2 20

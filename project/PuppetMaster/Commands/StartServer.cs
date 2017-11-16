@@ -21,12 +21,12 @@ namespace PuppetMaster
             Console.WriteLine("+++Start Server command+++");
 
             string pid = parameters[0];
-            IAsyncResult result;
+            IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
             remoteCallStartServer = new startServerDel(pcs.StartServer);
-            result = remoteCallStartServer.BeginInvoke(pid, parameters[1], parameters[2], parameters[3], null, null);
-            result.AsyncWaitHandle.WaitOne();
+            asyncResult = remoteCallStartServer.BeginInvoke(pid, parameters[1], parameters[2], parameters[3], null, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
         }
     }
 }
