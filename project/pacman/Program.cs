@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,10 +19,17 @@ namespace pacman {
                 string clientURL = args[1];
                 string msecPerRound = args[2];
                 string numPlayer = args[3];
+                var uri = new Uri(clientURL);
                 FormWelcome form = new FormWelcome(clientURL, int.Parse(msecPerRound), int.Parse(numPlayer));
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(form);
+
+                // init connection with the server automatically
+                form.textBoxUsername.Text = PID;
+                form.textBoxClientPort.Text = uri.Port.ToString(); 
+                form.buttonJoin.PerformClick();
+
             }
             else if (args.Length == 5)
             {
@@ -30,6 +37,7 @@ namespace pacman {
                 string clientURL = args[1];
                 string msecPerRound = args[2];
                 string numPlayer = args[3];
+                var uri = new Uri(clientURL);
                 var base64EncodedBytes = System.Convert.FromBase64String(args[4]);
                 string instructions = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
 
@@ -37,6 +45,11 @@ namespace pacman {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(form);
+
+                // init connection with the server automatically
+                form.textBoxUsername.Text = PID;
+                form.textBoxClientPort.Text = uri.Port.ToString();
+                form.buttonJoin.PerformClick();
             }
             else if(args.Length == 0)
             {
@@ -46,7 +59,7 @@ namespace pacman {
             }
             else
             {
-                throw new Exception("Inválid Arguments.");
+                throw new Exception("Invalid Arguments.");
             }
             
         }

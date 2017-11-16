@@ -147,10 +147,10 @@
 
         private System.Windows.Forms.Label labelGameName;
         private System.Windows.Forms.Label labelTitleApp;
-        private System.Windows.Forms.Button buttonJoin;
+        public System.Windows.Forms.Button buttonJoin;
         private System.Windows.Forms.Button buttonQuit;
         private System.Windows.Forms.Label labelError;
-        private System.Windows.Forms.TextBox textBoxUsername;
-        private System.Windows.Forms.TextBox textBoxClientPort;
+        public System.Windows.Forms.TextBox textBoxUsername;
+        public System.Windows.Forms.TextBox textBoxClientPort;
     }
 }
