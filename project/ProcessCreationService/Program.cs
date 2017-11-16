@@ -13,14 +13,19 @@ namespace ProcessCreationService
     {
         static void Main(string[] args)
         {
-            TcpChannel channel = new TcpChannel(11000);
-            ChannelServices.RegisterChannel(channel, true);
+            Console.WriteLine("***** Process Creation Server initialized *****");
+
+            TcpChannel channel = new TcpChannel(20001);
+            ChannelServices.RegisterChannel(channel, false);
 
             RemotingConfiguration.RegisterWellKnownServiceType(
                typeof(ProcessCreationService),
                "ProcessCreationService",
                WellKnownObjectMode.Singleton);
 
+
+
+            Console.ReadLine();
         }
     }
 }

@@ -1,1 +1,1 @@
-StartClient C1 tcp://0.0.0.0:11000/ProcessCreationService tcp://0.0.0.0:30001/Client 20 6
+StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:40001/Client 20 6

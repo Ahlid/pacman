@@ -3,20 +3,32 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PuppetMaster
 {
-    public class Program
+    public class Program : MarshalByRefObject
     {
         private static PlataformOrchestration master;
+        private static Uri puppetMasterURL;
+        private static string pathConfigFile;
 
         static void Main(string[] args)
         {
             Console.WriteLine("***** Puppet Master initialized *****");
             string commandWithParameters;
+            pathConfigFile = @"../../scripts/config.txt";
+
             master = new PlataformOrchestration();
+            // load configurations
+            loadConfig();
+            // init remoting channel
+            createServer();
 
             // check if was submitted any scrit file
             if (args.Length > 0 && args[0] != null && args[0].Trim() != "")
@@ -64,6 +76,33 @@ namespace PuppetMaster
             else
             {
                 Console.WriteLine("** Script file doesn't exist! **");
+            }
+        }
+
+        private static void createServer()
+        {
+            string[] uri_splited = puppetMasterURL.AbsolutePath.Split('/');
+            string resource = uri_splited[uri_splited.Length - 1];
+            TcpChannel channel = new TcpChannel(puppetMasterURL.Port);
+            ChannelServices.RegisterChannel(channel, false);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(
+               typeof(Program),
+               resource,
+               WellKnownObjectMode.Singleton);
+        }
+
+        private static void loadConfig()
+        {
+            if (File.Exists(pathConfigFile))
+            {
+                Console.WriteLine("*** Loading configs ***");
+                string line = File.ReadAllLines(pathConfigFile)[0];
+                puppetMasterURL = new Uri(line);
+            }else
+            {
+                // Exit application, no configuration file!
+                Environment.Exit(0);
             }
         }
     }

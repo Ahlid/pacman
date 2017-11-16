@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ProcessCreationService
 {
-    class ProcessCreationService : IProcessCreationService
+    class ProcessCreationService : MarshalByRefObject, IProcessCreationService
     {
         IDictionary<string, Process> processes = new Dictionary<string, Process>();
 

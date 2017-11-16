@@ -5,6 +5,6 @@
     <StartArguments>scripts/script20.txt</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>script20.txt</StartArguments>
+    <StartArguments>init.txt</StartArguments>
   </PropertyGroup>
 </Project>
