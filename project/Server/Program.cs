@@ -14,23 +14,28 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            if (args.Length > 0)
+            
+            if (args.Length == 4)
             {
                 ServerManager serverManager;
                 string PID = args[0];
                 string serverURL = args[1];
                 string msecPerRound = args[2];
                 string numPlayer = args[3];
-                serverManager = new ServerManager(serverURL);
+                serverManager = new ServerManager(PID, serverURL);
                 serverManager.CreateChannel();
                 serverManager.server.Run(int.Parse(msecPerRound), int.Parse(numPlayer));
             }
-            else
+            else if(args.Length == 0)
             {
                 ServerManager serverManager;
                 serverManager = new ServerManager();
                 serverManager.CreateChannel();
-                serverManager.server.Run(160);
+                serverManager.server.Run(160, 1);
+            }
+            else
+            {
+                System.Console.WriteLine("Invalid Arguments!!");
             }
 
             System.Console.WriteLine("<enter> para sair...");

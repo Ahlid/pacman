@@ -16,14 +16,17 @@ namespace Server
         private TcpChannel channel;
         public IServer server { get; private set; }
         private Uri uri;
+        private string PID;
 
-        public ServerManager(string address = "tcp://localhost:8086/")
+        public ServerManager(string PID = "not set", string address = "tcp://localhost:8086/")
         {
+            this.PID = PID;
             uri = new Uri(address);
         }
 
         public void CreateChannel()
         {
+
             this.channel = new TcpChannel(uri.Port);
             ChannelServices.RegisterChannel(channel, true);
 
@@ -34,7 +37,7 @@ namespace Server
 
             this.server = (IServer)Activator.GetObject(
                 typeof(IServer),
-                uri.AbsolutePath + "Server");
+                uri.AbsoluteUri + "Server");
 
         }
     }

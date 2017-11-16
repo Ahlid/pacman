@@ -29,6 +29,8 @@ namespace Shared
         //If two are received for some reason, the client will only accept/display
         //the last round received.
 
+
+        string GetState(int round);
         /// <summary>
         /// Client receives a immutable stage from the server.
         /// </summary>

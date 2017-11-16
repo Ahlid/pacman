@@ -17,6 +17,24 @@ namespace pacman
     {
         private ClientManager clientManager;
         public Label LabelError { get { return this.labelError; } set { this.labelError = value; } }
+        int msecPerRound = 2;
+        int numPlayer = 2;
+
+        public FormWelcome(string clientURL, int msecPerRound, int numPlayer, string instructions)
+        {
+            //todo - Deal with the instructions
+            InitializeComponent();
+            this.MaximizeBox = false; // disable the maximize button 
+            this.labelError.Visible = false;
+            this.textBoxUsername.Select();
+            this.msecPerRound = msecPerRound;
+            this.numPlayer = numPlayer;
+
+            Uri uri = new Uri(clientURL);
+            textBoxClientPort.Text = uri.Port.ToString();
+            textBoxClientPort.ReadOnly = true;
+            this.clientManager = new ClientManager();
+        }
 
         public FormWelcome(string clientURL, int msecPerRound, int numPlayer)
         {
@@ -24,6 +42,8 @@ namespace pacman
             this.MaximizeBox = false; // disable the maximize button 
             this.labelError.Visible = false;
             this.textBoxUsername.Select();
+            this.msecPerRound = msecPerRound;
+            this.numPlayer = numPlayer;
 
             Uri uri = new Uri(clientURL);
             textBoxClientPort.Text = uri.Port.ToString();
@@ -39,12 +59,6 @@ namespace pacman
             this.textBoxUsername.Select();
             this.clientManager = new ClientManager();
         }
-
-        private void createManager()
-        {
-
-        }
-
 
         private bool validateForm()
         {
@@ -68,7 +82,6 @@ namespace pacman
 
         private void buttonJoin_Click(object sender, EventArgs e)
         {
-            
             try
             {
                 if(!validateForm())
@@ -79,10 +92,12 @@ namespace pacman
                 int port = int.Parse(textBoxClientPort.Text);
                 this.labelError.Visible = false;
                 string username = textBoxUsername.Text.Trim();
-                this.clientManager.Port = port;
+                this.clientManager.uri = new Uri("tcp://localhost:"+port.ToString());
+
                 ConcreteClient.WelcomeForm = this;
                 ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
                 
+
                 //Connect to the server
                 this.clientManager.createConnectionToServer();
 
@@ -91,7 +106,6 @@ namespace pacman
                 {
                     this.textBoxClientPort.Enabled = false; // user no longer can update the port 
                 }
-                
 
                 clientManager.Username = username;
                 //this.clientManager.Port = port;

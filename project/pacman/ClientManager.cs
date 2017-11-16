@@ -22,7 +22,8 @@ namespace pacman
         public IClient client { get; private set; }
         private TcpChannel channel;
         private string resource;
-        private Uri uri;
+        public Uri uri { get; set; }
+        
         private Uri serverURL = new Uri("tcp://localhost:8086/Server");
 
         public ClientManager()
@@ -39,6 +40,7 @@ namespace pacman
                 try
                 {
                     //this.Port = this.server.NextAvailablePort(this.Address); // when this function is working on the server side is just to uncommment in this side.
+
                     channel = new TcpChannel(uri.Port);
                     ChannelServices.RegisterChannel(channel, true);
 
@@ -47,7 +49,7 @@ namespace pacman
                         this.resource,
                     WellKnownObjectMode.Singleton);
 
-                    string address = string.Format("{0}/{1}", this.uri.AbsolutePath, this.resource);
+                    string address = this.uri.ToString() + this.resource;
                     client = (IClient)Activator.GetObject(
                         typeof(IClient),
                         address);
@@ -56,7 +58,7 @@ namespace pacman
                     //what happens on replication
                     server = (IServer)Activator.GetObject(
                         typeof(IServer),
-                        this.serverURL.AbsolutePath);
+                        this.serverURL.ToString());
 
                     this.Connected = true;
                 }
