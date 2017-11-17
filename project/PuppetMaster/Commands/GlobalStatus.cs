@@ -12,11 +12,11 @@ namespace PuppetMaster
     {
         private delegate void globalStatusDel();
         private globalStatusDel remoteCallGlobalStatus;
-
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
 
         public GlobalStatus() : base("GlobalStatus") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++GlobalStatus command+++");
 

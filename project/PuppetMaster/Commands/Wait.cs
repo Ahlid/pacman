@@ -14,7 +14,7 @@ namespace PuppetMaster.Commands
     {
         public Wait() : base("Wait") { }
 
-        public override void Execute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void Execute(string[] parameters)
         {
             Console.WriteLine("+++Wait command+++");
             // stop current thread for the miliseconds received as parameter

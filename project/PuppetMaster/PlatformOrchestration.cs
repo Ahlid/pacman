@@ -11,12 +11,17 @@ namespace PuppetMaster
 {
     public class PlatformOrchestration
     {
+        // pid - remote service of server and replicas
         private Dictionary<String, IProcessCreationService> processesPCS;
+        
+        // pid - url of master servers
+        private Dictionary<string, string> masterServersUrl;
 
 
         public PlatformOrchestration()
         {
             this.processesPCS = new Dictionary<string, IProcessCreationService>();
+            this.masterServersUrl = new Dictionary<string, string>();
         }
 
 
@@ -41,7 +46,7 @@ namespace PuppetMaster
                     try
                     {
                         command = createCommand(commandName, parameters);
-                        command.Execute(parameters, processesPCS);
+                        command.Execute(parameters);
                     }
                     catch (ArgumentException e)
                     {
@@ -64,7 +69,7 @@ namespace PuppetMaster
                 try
                 {
                     ICommand command = createCommand(commandName, parameters);
-                    command.Execute(parameters, processesPCS);
+                    command.Execute(parameters);
                 }
                 catch (ArgumentException e)
                 {
@@ -79,34 +84,76 @@ namespace PuppetMaster
         private ICommand createCommand(string commandName, string[] parameters)
         {
             ICommand command;
+            string masterServerUrl;
 
             switch (commandName)
             {
                 case "StartClient":
-                    command = new StartClient();
-                    saveProcessPCS(parameters[0], parameters[1]);
+                    // find the server url to which im going to connect
+                    masterServerUrl = findServerToConnect(parameters[2]);
+                    if (masterServerUrl != "")
+                    {
+                        StartClient cli = new StartClient();
+                        cli.masterServerUrl = masterServerUrl;
+                        cli.processesPCS = processesPCS;
+                        command = cli;
+                        saveProcessPCS(parameters[0], parameters[1]);
+                    } else
+                    {
+                        throw new ArgumentException(String.Format("Couldn't start client because server with PID: '{0}' doesn't exist!", parameters[2]));
+                    }
                     break;
                 case "StartServer":
-                    command = new StartServer();
+                    StartServer sv = new StartServer();
+                    sv.processesPCS = processesPCS;
+                    command = sv;
                     saveProcessPCS(parameters[0], parameters[1]);
+                    this.masterServersUrl.Add(parameters[0], parameters[2]); // save pid - server url
+                    break;
+                case "Replicate":
+                    // find the server url to which im going to connect
+                    masterServerUrl = findServerToConnect(parameters[2]);
+                    if (masterServerUrl != "")
+                    {
+                        Replicate rep = new Replicate();
+                        rep.masterServerUrl = masterServerUrl;
+                        command = rep;
+                        saveProcessPCS(parameters[0], parameters[1]);
+                    }
+                    else
+                    {
+                        throw new ArgumentException(String.Format("Couldn't start replica because server with PID: '{0}' doesn't exist!", parameters[2]));
+                    }
                     break;
                 case "GlobalStatus":
-                    command = new GlobalStatus();
+                    GlobalStatus gs = new GlobalStatus();
+                    gs.processesPCS = processesPCS;
+                    command = gs;
                     break;
                 case "Crash":
-                    command = new Crash();
+                    Crash c = new Crash();
+                    c.processesPCS = processesPCS;
+                    command = c;
                     break;
                 case "Freeze":
-                    command = new Freeze();
+                    Freeze f = new Freeze();
+                    f.processesPCS = processesPCS;
+                    command = f;
                     break;
                 case "Unfreeze":
-                    command = new Unfreeze();
+                    Unfreeze u = new Unfreeze();
+                    u.processesPCS = processesPCS;
+                    command = u;
                     break;
                 case "InjectDelay":
-                    command = new InjectDelay();
+                    InjectDelay id = new InjectDelay();
+                    id.processesPCS = processesPCS;
+                    command = id;
                     break;
                 case "LocalState":
-                    command = new LocalState();
+                    LocalState ls = new LocalState();
+                    ls.processesPCS = processesPCS;
+                    command = ls;
                     break;
                 case "Wait":
                     command = new Wait();
@@ -125,6 +172,19 @@ namespace PuppetMaster
                 url);
             // pid, pcs remove service
             this.processesPCS.Add(pid, pcs);
+        }
+
+        private string findServerToConnect(string PID)
+        {            
+            foreach (KeyValuePair<string, string> server in this.masterServersUrl)
+            {
+                // do something with entry.Value or entry.Key
+                if(server.Key == PID)
+                {
+                    return server.Value; // return server url
+                }
+            }
+            return "";
         }
 
     }

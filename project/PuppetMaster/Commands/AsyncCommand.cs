@@ -12,16 +12,16 @@ namespace PuppetMaster.Commands
     {
         public AsyncCommand(string name) : base(name) { }
 
-        public override void Execute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void Execute(string[] parameters)
         {
             Thread t = new Thread(delegate ()
             {
                 Console.WriteLine(String.Format("Async Execution: '{0}' started", this.name));
-                CommandToExecute(parameters, processesPCS);
+                CommandToExecute(parameters);
             });
             t.Start();
         }
 
-        public abstract void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS);
+        public abstract void CommandToExecute(string[] parameters);
     }
 }
