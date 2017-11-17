@@ -61,8 +61,7 @@ namespace Server
 
         private static void StartMasterModeDefault()
         {
-            Server server;
-            server = new Server(new Uri("tcp://localhost:8086/"));
+            Server server = new Server(new Uri("tcp://localhost:8086/"));
         }
 
         private static void StartMasterMode(string PID, Uri serverURL, int msecPerRound, int numPlayers)

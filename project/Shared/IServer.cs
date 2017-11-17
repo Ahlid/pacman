@@ -14,6 +14,5 @@ namespace Shared
 
         void Quit(string address);
 
-        int NextAvailablePort(string address);
     }
 }

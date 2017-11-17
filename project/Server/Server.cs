@@ -40,7 +40,7 @@ namespace Server
 
             //Start services
             channel = new TcpChannel(address.Port);
-            ChannelServices.RegisterChannel(channel, true);
+            ChannelServices.RegisterChannel(channel, false);
             RemotingServices.Marshal(this, "Server", typeof(Server));
         }
         //Master constructor
@@ -63,14 +63,8 @@ namespace Server
         {
             //This server will start as a Replica
             this.isMaster = false;
-            
-            //todo - communicate with the main server and request a stage and the missing information (numPlayers, roundIntervalMsec)
 
-        }
-
-        public void Stop()
-        {
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
+            // TODO: communicate with the main server and request a stage and the missing information (numPlayers, roundIntervalMsec)
         }
 
         private void Tick(Object parameters)
@@ -103,6 +97,10 @@ namespace Server
             timer.Change(roundIntervalMsec, Timeout.Infinite);
         }
 
+        public void Stop()
+        {
+            timer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
 
         private void addPlayersToCurrentGameSession()
         {
@@ -131,11 +129,6 @@ namespace Server
         //#############################
         //##   Interface SERVICES    ##
         //#############################
-
-        public int NextAvailablePort(string address)
-        {
-            throw new NotImplementedException();
-        }
 
         // TODO: What happens if a lot of players try to join at the same time? The method probably isn't thread safe.
         // adiciona os jogadores na lista de espera. quando a lista de espera atingir o numero minimo de jogadores entao passa-os para outra lista, limpa a lista de espera
