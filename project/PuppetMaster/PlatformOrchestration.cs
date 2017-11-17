@@ -12,11 +12,13 @@ namespace PuppetMaster
     public class PlatformOrchestration
     {
         private Dictionary<String, IProcessCreationService> processesPCS;
+        private List<string> serversUrls;
 
 
         public PlatformOrchestration()
         {
             this.processesPCS = new Dictionary<string, IProcessCreationService>();
+            this.serversUrls = new List<string>();
         }
 
 
@@ -83,12 +85,15 @@ namespace PuppetMaster
             switch (commandName)
             {
                 case "StartClient":
-                    command = new StartClient();
+                    StartClient cli = new StartClient();
+                    cli.ServersUrls = serversUrls;
+                    command = cli;
                     saveProcessPCS(parameters[0], parameters[1]);
                     break;
                 case "StartServer":
                     command = new StartServer();
                     saveProcessPCS(parameters[0], parameters[1]);
+                    this.serversUrls.Add(parameters[2]); // save server url
                     break;
                 case "GlobalStatus":
                     command = new GlobalStatus();
