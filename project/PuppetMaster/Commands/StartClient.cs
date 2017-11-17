@@ -11,40 +11,41 @@ namespace PuppetMaster
 {
     public class StartClient : AsyncCommand
     {
-        private delegate void startClientDel(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers);
-        private delegate void startClientWithInstructionsDel(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers, string instructions);
+        private delegate void startClientDel(string PID, string clientURL, string masterServerUrl, string msecPerRound, string numPlayers);
+        private delegate void startClientWithInstructionsDel(string PID, string clientURL, string masterServerUrl, string msecPerRound, string numPlayers, string instructions);
 
         private startClientDel remoteCallStartClient;
         private startClientWithInstructionsDel remoteCallStartClientWithInstructions;
 
-        public List<string> ServersUrls;
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
+        public string masterServerUrl;
 
 
         public StartClient () : base("StartClient") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++Start Client command+++");
 
             string pid = parameters[0];
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
-            
+
             if (parameters.Length < 6) // there is not instructions
             {
                 remoteCallStartClient = new startClientDel(pcs.StartClient);
-                asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[2], ServersUrls, parameters[3], parameters[4], null, null);
+                asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[3], masterServerUrl, parameters[4], parameters[5], null, null);
                 // wait for result
                 asyncResult.AsyncWaitHandle.WaitOne();
                 return;
             }
             // else -> client will be played automatically, following a moves trace file 
             
-            string instructions = readInstructions(parameters[4]); // pass filename
+            string instructions = readInstructions(parameters[6]); // pass filename
             if(instructions != "")
             {
                 remoteCallStartClientWithInstructions = new startClientWithInstructionsDel(pcs.StartClient);
-                asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[2], ServersUrls, parameters[3], parameters[4], instructions, null, null);
+                asyncResult = remoteCallStartClientWithInstructions.BeginInvoke(pid, parameters[3], masterServerUrl, parameters[4], parameters[5], instructions, null, null);
                 asyncResult.AsyncWaitHandle.WaitOne();
                 return;
             }

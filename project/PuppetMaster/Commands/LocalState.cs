@@ -11,11 +11,12 @@ namespace PuppetMaster.Commands
     {
         private delegate string localStateDel(string PID, string roundID);
         private localStateDel remoteCallLocalState;
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
 
 
         public LocalState() : base("LocalState") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++Local State command+++");
 

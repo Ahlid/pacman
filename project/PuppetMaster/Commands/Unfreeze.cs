@@ -11,11 +11,11 @@ namespace PuppetMaster.Commands
     {
         private delegate void unfreezeDel(string PID);
         private unfreezeDel remoteCallUnfreeze;
-
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
 
         public Unfreeze() : base("Unfreeze") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++Unfreeze command+++");
 

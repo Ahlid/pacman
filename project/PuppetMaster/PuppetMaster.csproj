@@ -52,6 +52,7 @@
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\InjectDelay.cs" />
     <Compile Include="Commands\LocalState.cs" />
+    <Compile Include="Commands\Replicate.cs" />
     <Compile Include="Commands\Unfreeze.cs" />
     <Compile Include="Commands\Wait.cs" />
     <Compile Include="PlatformOrchestration.cs" />

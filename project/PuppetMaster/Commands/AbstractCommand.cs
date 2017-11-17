@@ -19,6 +19,6 @@ namespace PuppetMaster
             this.name = name;
         }
 
-        public abstract void Execute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS);
+        public abstract void Execute(string[] parameters);
     }
 }

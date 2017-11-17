@@ -1,3 +1,16 @@
 StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:8086 20 2
-StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:40001/Client 20 2
-StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:40002/Client 20 2
+StartServer S2 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:8090 20000 7
+
+StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:40001/Client 20 2
+StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:40002/Client 20 2
+
+StartClient C3 tcp://127.0.0.1:20001/ProcessCreationService S2 tcp://127.0.0.1:40001/Client 20 2
+StartClient C4 tcp://127.0.0.1:20001/ProcessCreationService S2 tcp://127.0.0.1:40002/Client 20 2
+
+Replicate R1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:8087
+Replicate R2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:8088
+Replicate R3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:8089
+
+Replicate R4 tcp://127.0.0.1:20001/ProcessCreationService S2 tcp://127.0.0.1:8087
+Replicate R5 tcp://127.0.0.1:20001/ProcessCreationService S2 tcp://127.0.0.1:8088
+Replicate R6 tcp://127.0.0.1:20001/ProcessCreationService S2 tcp://127.0.0.1:8089

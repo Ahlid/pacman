@@ -11,11 +11,11 @@ namespace PuppetMaster.Commands
     {
         private delegate void injectDealyDel(string sourcePID, string destinationPID);
         private injectDealyDel remoteCallInjectDelay;
-
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
 
         public InjectDelay() : base("InjectDelay") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++Inject Delay command+++");
 

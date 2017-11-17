@@ -7,28 +7,27 @@ using Shared;
 
 namespace PuppetMaster.Commands
 {
-    public class Crash : AsyncCommand
+    public class Replicate : AsyncCommand
     {
-        private delegate void crashDel(string PID);
-        private crashDel remoteCallCrash;
+        private delegate void StartReplicaDel(string PID, string serverURL, string replicaURL);
+        private StartReplicaDel remoteCallStartReplica;
         public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
+        public string masterServerUrl;
 
 
-        public Crash() : base("Crash") { }
+        public Replicate() : base("Replica") { }
 
         public override void CommandToExecute(string[] parameters)
         {
-            // vou fazer uma chamada ao pcs asincronamente e depois a chamada e assincrona tambem
-            Console.WriteLine("+++Crash command+++");
+            Console.WriteLine("+++Start Server command+++");
 
             string pid = parameters[0];
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
-            remoteCallCrash = new crashDel(pcs.Crash);
-            asyncResult = remoteCallCrash.BeginInvoke(pid, null, null);
+            remoteCallStartReplica = new StartReplicaDel(pcs.StartReplica);
+            asyncResult = remoteCallStartReplica.BeginInvoke(parameters[0], masterServerUrl, parameters[3], null, null);
             asyncResult.AsyncWaitHandle.WaitOne();
-            remoteCallCrash.EndInvoke(asyncResult);
         }
     }
 }

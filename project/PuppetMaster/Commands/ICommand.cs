@@ -9,6 +9,6 @@ namespace PuppetMaster.Commands
 {
     public interface ICommand
     {
-            void Execute(string[] parameters, Dictionary<String, IProcessCreationService> processesPCS);
+        void Execute(string[] parameters);
     }
 }

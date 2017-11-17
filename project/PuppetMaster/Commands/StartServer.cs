@@ -10,13 +10,14 @@ namespace PuppetMaster
 {
     public class StartServer : AsyncCommand
     {
-        private delegate void startServerDel(string PID, string clientURL, string msecPerRound, string numPlayers);
+        private delegate void startServerDel(string PID, string serverURL, string msecPerRound, string numPlayers);
         private startServerDel remoteCallStartServer;
+        public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
 
 
         public StartServer() : base("StartServer") { }
 
-        public override void CommandToExecute(string[] parameters, Dictionary<string, IProcessCreationService> processesPCS)
+        public override void CommandToExecute(string[] parameters)
         {
             Console.WriteLine("+++Start Server command+++");
 
