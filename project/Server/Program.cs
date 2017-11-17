@@ -12,31 +12,38 @@ namespace Server
 {
     class Program
     {
+        const string MASTER_MODE = "master";
+        const string REPLICA_MODE = "replica";
+
         static void Main(string[] args)
         {
             Console.WriteLine("***** Server Initilized *****");
             try
-            {
-
-            
-                if (args.Length == 4)
+            { 
+                if (args.Length > 0)
                 {
-                    ServerManager serverManager;
-                    string PID = args[0];
-                    string serverURL = args[1];
-                    string msecPerRound = args[2];
-                    string numPlayer = args[3];
-                    Console.WriteLine($"{PID} {serverURL} {msecPerRound} {numPlayer}");
-                    serverManager = new ServerManager(PID, serverURL);
-                    serverManager.CreateChannel();
-                    serverManager.server.Run(int.Parse(msecPerRound), int.Parse(numPlayer));
+                    if(args[0] == MASTER_MODE)
+                    {
+                        string PID = args[1];
+                        Uri serverURL = new Uri(args[2]);
+                        int msecPerRound = int.Parse(args[3]);
+                        int numPlayers = int.Parse(args[4]);
+
+                        StartMasterMode(PID, serverURL, msecPerRound, numPlayers);
+                    }
+                    else if(args[0] == REPLICA_MODE)
+                    {
+                        string PID = args[1];
+                        Uri serverURL = new Uri(args[2]);
+                        Uri replicaURL = new Uri(args[3]);
+
+                        StartReplicaMode(PID, serverURL, replicaURL);
+                    }
+                    
                 }
                 else if(args.Length == 0)
                 {
-                    ServerManager serverManager;
-                    serverManager = new ServerManager();
-                    serverManager.CreateChannel();
-                    serverManager.server.Run(160, 1);
+                    StartMasterModeDefault();
                 }
                 else
                 {
@@ -51,5 +58,24 @@ namespace Server
             System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();
         }
+
+        private static void StartMasterModeDefault()
+        {
+            Server server;
+            server = new Server(new Uri("tcp://localhost:8086/"));
+        }
+
+        private static void StartMasterMode(string PID, Uri serverURL, int msecPerRound, int numPlayers)
+        {
+            Console.WriteLine($"Master Mode {PID} {serverURL} {msecPerRound} {numPlayers}");
+            Server server = new Server(serverURL, PID, msecPerRound, numPlayers);
+        }
+
+        private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL)
+        {
+            Console.WriteLine($"Replica mode {PID} {serverURL} {serverURL} {replicaURL}");
+            Server server = new Server(serverURL, PID);
+        }
+
     }
 }

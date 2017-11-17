@@ -8,7 +8,7 @@ namespace Shared
 {
     public interface IGameSession
     {
-        int GameId { get; set; }
+        int ID { get; set; }
 
         /// <summary>
         /// The number of the round

@@ -8,9 +8,11 @@ namespace Server
 {
     public class GameSession : IGameSession
     {
+        private static int lastID = 0;
+
         public List<IClient> Clients { get; set; }
         public IStage Stage { get; set; }
-        public int GameId { get; set; }
+        public int ID { get; set; }
         public int Round { get; set; }
         public Dictionary<IPlayer, Play> PlayerMoves { get; set; }
         public List<Shared.Action> Actions { get; set; }
@@ -18,11 +20,12 @@ namespace Server
         public int NumberOfPlayers { get; set; }
 
 
-        public GameSession(int gameID, int numberOfPlayers)
+        public GameSession(int numberOfPlayers)
         {
+            GameSession.lastID ++;
             this.Clients = new List<IClient>();
             this.Stage = new Stage();
-            this.GameId = gameID;
+            this.ID = GameSession.lastID;
             this.Round = 0;
             this.PlayerMoves = new Dictionary<IPlayer, Play>();
             this.Actions = new List<Action>();
@@ -74,8 +77,6 @@ namespace Server
 
             //retornar o que tem mais score
             return alivePlayers.OrderBy(p => p.Score).First();
-
-
         }
 
         public void StartGame()
@@ -101,8 +102,7 @@ namespace Server
 
         public void EndGame()
         {
-            this.broadcastEndGame();
-
+            broadcastEndGame();
         }
 
         private void ComputeRound()
@@ -177,7 +177,7 @@ namespace Server
 
                     if (colliding)
                     {
-                        //TODO: the player gets a gameover and is removed from the list
+                        //TODO: The player gets a gameover and is removed from the list
                         player.Alive = false;
                         Actions.Add(new Shared.Action()
                         {
@@ -223,7 +223,6 @@ namespace Server
                 clientsP2P[c.Username] = c.Address;
             }
 
-
             for (int i = this.Clients.Count - 1; i >= 0; i--)
             {
                 try
@@ -231,11 +230,7 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
-
-
-
                     client.SendClients(clientsP2P);
-
                 }
                 catch (Exception e)
                 {

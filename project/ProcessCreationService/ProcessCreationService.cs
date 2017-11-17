@@ -82,25 +82,25 @@ namespace ProcessCreationService
             return client.GetState(int.Parse(roundID));
         }
 
-        public void StartClient(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers)
+        public void StartClient(string PID, string clientURL, string serverUR, string msecPerRound, string numPlayers)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Release\pacman.exe";
-            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers}";
+            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
         }
 
-        public void StartClient(string PID, string clientURL, IList<string> serverURLList, string msecPerRound, string numPlayers, string instructions)
+        public void StartClient(string PID, string clientURL, string serverURL, string msecPerRound, string numPlayers, string instructions)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Debug\pacman.exe";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
-            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {msecPerRound} {numPlayers} {base64Instructions}";
+            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
@@ -111,11 +111,23 @@ namespace ProcessCreationService
             Process serverProcess = new Process();
             processesFrozen.Add(PID, false);
             serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
-            serverProcess.StartInfo.Arguments = $"{PID} {serverURL} {msecPerRound} {numPlayers}";
+            serverProcess.StartInfo.Arguments = $"master {PID} {serverURL} {msecPerRound} {numPlayers}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
             PIDToServerURL.Add(PID, serverURL);
         }
+
+        public void StartReplica(string PID, string serverURL, string replicaURL)
+        {
+            Process serverProcess = new Process();
+            processesFrozen.Add(PID, false);
+            serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
+            serverProcess.StartInfo.Arguments = $"replica {PID} {serverURL} {replicaURL}";
+            serverProcess.Start();
+            processes.Add(PID, serverProcess);
+            PIDToServerURL.Add(PID, serverURL);
+        }
+
 
         public void Freeze(string PID)
         {
@@ -168,5 +180,6 @@ namespace ProcessCreationService
                 CloseHandle(pOpenThread);
             }
         }
+
     }
 }
