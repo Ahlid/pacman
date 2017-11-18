@@ -28,6 +28,5 @@ namespace Shared
         void GlobalStatus();
 
         void Crash(string PID);
-
     }
 }

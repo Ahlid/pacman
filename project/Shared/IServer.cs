@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
+    public enum JoinResult { QUEUED, REJECTED_USERNAME }
+
     public interface IServer
     {
-        bool Join(string username, string address);
+        JoinResult Join(string username, Uri address);
 
-        void SetPlay(String address, Play play, int round);
+        void SetPlay(Uri address, Play play, int round);
 
-        void Quit(string address);
-
+        void Quit(Uri address);
     }
 }

@@ -962,7 +962,6 @@
             this.textBoxMessage.Name = "textBoxMessage";
             this.textBoxMessage.Size = new System.Drawing.Size(360, 20);
             this.textBoxMessage.TabIndex = 145;
-            this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
             this.textBoxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMessage_OnKeyDown);
             // 
             // textBoxChatHistory

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace Server
+namespace Shared
 {
     [Serializable]
     public class Stage :  IStage

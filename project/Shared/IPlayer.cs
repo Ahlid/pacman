@@ -15,9 +15,8 @@ namespace Shared
 
         bool Alive { get; set; }
 
-        string Address { get; set; }
+        Uri Address { get; set; }
 
         Action Move(Play play);
-
     }
 }

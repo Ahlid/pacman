@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,131 +16,54 @@ namespace pacman
     /// </summary>
     public partial class FormWelcome : Form
     {
-        private ClientManager clientManager;
-        public Label LabelError { get { return this.labelError; } set { this.labelError = value; } }
-        int msecPerRound = 2;
-        int numPlayer = 2;
+        private Hub hub;
 
-        public FormWelcome(string clientURL, int msecPerRound, int numPlayer, string instructions)
-        {
-            //todo - Deal with the instructions
-            InitializeComponent();
-            this.MaximizeBox = false; // disable the maximize button 
-            this.labelError.Visible = false;
-            this.textBoxUsername.Select();
-            this.msecPerRound = msecPerRound;
-            this.numPlayer = numPlayer;
-
-            Uri uri = new Uri(clientURL);
-            textBoxClientPort.Text = uri.Port.ToString();
-            textBoxClientPort.ReadOnly = true;
-            this.clientManager = new ClientManager();
-        }
-
-        public FormWelcome(string clientURL, int msecPerRound, int numPlayer)
+        public FormWelcome(Hub hub)
         {
             InitializeComponent();
             this.MaximizeBox = false; // disable the maximize button 
             this.labelError.Visible = false;
             this.textBoxUsername.Select();
-            this.msecPerRound = msecPerRound;
-            this.numPlayer = numPlayer;
+            this.hub = hub;
 
-            Uri uri = new Uri(clientURL);
-            textBoxClientPort.Text = uri.Port.ToString();
-            textBoxClientPort.ReadOnly = true;
-            this.clientManager = new ClientManager();
-        }
-
-        public FormWelcome()
-        {
-            InitializeComponent();
-            this.MaximizeBox = false; // disable the maximize button 
-            this.labelError.Visible = false;
-            this.textBoxUsername.Select();
-            this.clientManager = new ClientManager();
-        }
-
-        private bool validateForm()
-        {
-            int port = Int32.Parse(textBoxClientPort.Text);
-            if (!(port > -1 && port < 65536))
+            hub.OnStart += (stage) =>
             {
-                labelError.Text = "Invalid port number, should be in rage [0, 65536]";
-                labelError.Visible = true;
-                return false;
-            }
+                Invoke(new System.Action(() =>
+                {
+                    // TODO: remove this handler of the OnStart event
+                    Hide();
+                    FormStage formStage = new FormStage(hub, stage);
+                    formStage.Show();
+                }));
+            };
 
+        }
+
+        private void joinClick(object sender, EventArgs e)
+        {
             if (this.textBoxUsername.Text == null || this.textBoxUsername.Text == "")
             {
                 labelError.Text = "Invalid user number";
                 labelError.Visible = true;
-                return false;
+                return;
             }
 
-            return true;
-        }
+            this.labelError.Visible = false;
+            string username = textBoxUsername.Text.Trim();
 
-        private void buttonJoin_Click(object sender, EventArgs e)
-        {
-            try
+            // todo: should this call be async?
+            JoinResult result = hub.Join(username);
+            switch(result)
             {
-                if(!validateForm())
-                {
-                    return;
-                }
-
-                int port = int.Parse(textBoxClientPort.Text);
-                this.labelError.Visible = false;
-                string username = textBoxUsername.Text.Trim();
-                this.clientManager.uri = new Uri("tcp://localhost:"+port.ToString());
-
-                ConcreteClient.WelcomeForm = this;
-                ConcreteClient.ClientManager = clientManager; // :l, waiting for a better solution
-                
-
-                //Connect to the server
-                this.clientManager.createConnectionToServer();
-
-                //If it connected
-                if (this.clientManager.Connected)
-                {
-                    this.textBoxClientPort.Enabled = false; // user no longer can update the port 
-                }
-
-                clientManager.Username = username;
-                //this.clientManager.Port = port;
-
-                // todo: should this call be async?
-                bool result = this.clientManager.server.Join(username, this.clientManager.client.Address);
-                if(result)
-                {
-                    this.clientManager.Joined = true;
-                }
-                else
-                {
+                case JoinResult.REJECTED_USERNAME:
                     this.labelError.Visible = true;
                     this.labelError.Text = "Username already in use";
-                }
-                
-                
+                    break;
+                case JoinResult.QUEUED:
+                    this.labelError.Text = "Waiting for the server to start the game session..";
+                    break;
             }
-            catch (FormatException)
-            {
-                labelError.Visible = true;
-                labelError.Text = "Port value should contain only numbers.";
-            }
-        }
 
-        private void textBoxClientPort_OnFocus(object sender, EventArgs e)
-        {
-            this.labelError.Visible = false;
-            textBoxOnFocus(this.textBoxClientPort, "Client Port");
-        }
-
-        private void textBoxClientPort_OnLostFocus(object sender, EventArgs e)
-        {
-            textBoxOnLostFocus(this.textBoxClientPort, "Client Port");
         }
 
         private void textBoxUsername_OnFocus(object sender, EventArgs e)
@@ -163,15 +87,10 @@ namespace pacman
         {
             disconnetFromServer();
         }
-
-        // todo: Adicionar este código a um delegate e depois chamar quando fechar a janela do jogo directamente.
+       
         private void disconnetFromServer()
         {
-            if (this.clientManager != null && this.clientManager.Connected)
-            {
-                // if already exists a connection to a server
-                clientManager.server.Quit(this.clientManager.client.Address);
-            }
+            hub.Quit();
         }
 
         private void textBoxOnFocus(TextBox tb, string defaultText)

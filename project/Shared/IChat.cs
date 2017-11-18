@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-
     public interface IChat
     {
+        void SendMessage(string username,string message);
 
-        List<IClient> Clients { get; set; }
-
-        void SendTextMessage(string username, string message);
-        void MessageToAnotherPeer(string message);
-        void SendClients(Dictionary<string, string> clients);
+        void SetPeers(Dictionary<string, Uri> peers);
     }
 }

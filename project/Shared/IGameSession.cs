@@ -35,7 +35,7 @@ namespace Shared
 
         List<Shared.Action> PlayRound();
 
-        void SetPlay(string address, Play play, int round);
+        void SetPlay(Uri address, Play play, int round);
 
         IPlayer GetWinningPlayer();
 

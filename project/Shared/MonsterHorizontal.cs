@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Action = Shared.Action;
 
-namespace Server
+namespace Shared
 {
     [Serializable]
     public class MonsterHorizontal : RigidObject, IMonster
@@ -18,7 +18,6 @@ namespace Server
         public Shared.Action.Direction DirectionAction = Shared.Action.Direction.RIGHT;
 
         public Point Speed { get; set; }
-
 
         public MonsterHorizontal(int x, int y)
         {
@@ -68,7 +67,6 @@ namespace Server
                 action = Shared.Action.ActionTaken.MOVE,
                 direction = direction,
                 displacement = displacement
-
             };
         }
     }

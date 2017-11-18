@@ -87,7 +87,7 @@ namespace ProcessCreationService
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Release\pacman.exe";
-            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
+            clientProcess.StartInfo.Arguments = $"not-instructed {PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
@@ -100,7 +100,7 @@ namespace ProcessCreationService
             clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Debug\pacman.exe";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
-            clientProcess.StartInfo.Arguments = $"{PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
+            clientProcess.StartInfo.Arguments = $"instructed {PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);

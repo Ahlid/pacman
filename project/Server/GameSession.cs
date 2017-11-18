@@ -15,17 +15,17 @@ namespace Server
         public int ID { get; set; }
         public int Round { get; set; }
         public Dictionary<IPlayer, Play> PlayerMoves { get; set; }
-        public List<Shared.Action> Actions { get; set; }
+        public List<global::Shared.Action> Actions { get; set; }
         public bool HasGameStarted { get; set; }
         public int NumberOfPlayers { get; set; }
 
 
         public GameSession(int numberOfPlayers)
         {
-            GameSession.lastID ++;
+            lastID ++;
             this.Clients = new List<IClient>();
             this.Stage = new Stage();
-            this.ID = GameSession.lastID;
+            this.ID = lastID;
             this.Round = 0;
             this.PlayerMoves = new Dictionary<IPlayer, Play>();
             this.Actions = new List<Action>();
@@ -52,7 +52,7 @@ namespace Server
             }
         }
 
-        public List<Shared.Action> PlayRound()
+        public List<global::Shared.Action> PlayRound()
         {
             this.Actions.Clear();
             this.ComputeRound();
@@ -61,9 +61,9 @@ namespace Server
             return this.Actions;
         }
 
-        public void SetPlay(string address, Play play, int round)
+        public void SetPlay(Uri address, Play play, int round)
         {
-            PlayerMoves[this.Stage.GetPlayers().First(p => p.Address == address)] = play;
+            PlayerMoves[this.Stage.GetPlayers().First(p => p.Address.ToString() == address.ToString())] = play;
         }
 
         public IPlayer GetWinningPlayer()
@@ -117,7 +117,7 @@ namespace Server
             foreach (Player player in this.Stage.GetPlayers())
             {
                 Play play = PlayerMoves[player];
-                Shared.Action action = player.Move(play);
+                global::Shared.Action action = player.Move(play);
                 if (action != null)
                     Actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
@@ -154,9 +154,9 @@ namespace Server
                     {
                         player.Score++;
                         this.Stage.RemoveCoin(coin);
-                        this.Actions.Add(new Shared.Action()
+                        this.Actions.Add(new global::Shared.Action()
                         {
-                            action = Shared.Action.ActionTaken.REMOVE,
+                            action = global::Shared.Action.ActionTaken.REMOVE,
                             ID = coin.ID
                         });
                     }
@@ -179,9 +179,9 @@ namespace Server
                     {
                         //TODO: The player gets a gameover and is removed from the list
                         player.Alive = false;
-                        Actions.Add(new Shared.Action()
+                        Actions.Add(new global::Shared.Action()
                         {
-                            action = Shared.Action.ActionTaken.REMOVE,
+                            action = global::Shared.Action.ActionTaken.REMOVE,
                             ID = player.ID
                         });
                     }
@@ -203,9 +203,9 @@ namespace Server
                         //TODO: the player gets a gameover and is removed from the list
                         player.Alive = false;
                         Console.WriteLine("Player  {0}: REMOVED", player.Username);
-                        Actions.Add(new Shared.Action()
+                        Actions.Add(new global::Shared.Action()
                         {
-                            action = Shared.Action.ActionTaken.REMOVE,
+                            action = global::Shared.Action.ActionTaken.REMOVE,
                             ID = player.ID
                         });
                     }
@@ -217,7 +217,7 @@ namespace Server
         {
             IClient client;
 
-            Dictionary<string,string> clientsP2P = new Dictionary<string, string>();
+            Dictionary<string, Uri> clientsP2P = new Dictionary<string, Uri>();
             foreach (IClient c in this.Clients)
             {
                 clientsP2P[c.Username] = c.Address;
@@ -230,7 +230,7 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
-                    client.SendClients(clientsP2P);
+                    client.SetPeers(clientsP2P);
                 }
                 catch (Exception e)
                 {
@@ -252,7 +252,7 @@ namespace Server
                     Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
                     Console.WriteLine(String.Format("Round Nº{0}", this.Round));
                     //todo change score actions
-                    client.SendRoundStage(this.Actions, -9999, this.Round);
+                    client.SendRound(this.Actions, -9999, this.Round);
                 }
                 catch (Exception)
                 {
@@ -260,7 +260,7 @@ namespace Server
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
             }
-            this.Actions = new List<Shared.Action>();
+            this.Actions = new List<Action>();
         }
 
         private void broadcastEndGame()

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Action = Shared.Action;
 
-namespace Server
+namespace Shared
 {
     [Serializable]
     public class MonsterAware : RigidObject, IMonster

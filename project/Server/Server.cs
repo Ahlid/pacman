@@ -133,32 +133,30 @@ namespace Server
         // TODO: What happens if a lot of players try to join at the same time? The method probably isn't thread safe.
         // adiciona os jogadores na lista de espera. quando a lista de espera atingir o numero minimo de jogadores entao passa-os para outra lista, limpa a lista de espera
         // e inicia o jogo
-        public bool Join(string username, string address)
+        public JoinResult Join(string username, Uri address)
         {
             if (clients.Exists(c => c.Username == username) ||
                 waitingQueue.Exists(c => c.Username == username))
             {
                 // TODO: Lauch exception to the client (username already exists)
-                return false;
+                return JoinResult.REJECTED_USERNAME;
             }
 
             // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
             IClient client = (IClient)Activator.GetObject(
                 typeof(IClient),
-                address);
-            client.Username = username;
+                address.ToString() + "Client");
+            //client.Username = username;
 
-            waitingQueue.Add(client); // on enqueued, remove it on this list and change it to the clients list
-                                      // send waiting signal - for the game to end
-            Console.WriteLine(string.Format("Sending to client '{0}' that he has just been queued", client.Username));
-            client.LobbyInfo("Queued for the next game...");
+            waitingQueue.Add(client);
 
+            Console.WriteLine(string.Format("Sending to client '{0}' that he has just been queued", username));
+            
             clients.Add(client);
-            return true;
-
+            return JoinResult.QUEUED;
         }
 
-        public void SetPlay(string address, Play play, int round)
+        public void SetPlay(Uri address, Play play, int round)
         {
             if (currentGameSession != null && currentGameSession.HasGameStarted)
             {
@@ -171,11 +169,11 @@ namespace Server
             }
         }
 
-        public void Quit(string address)
+        public void Quit(Uri address)
         {
             Console.WriteLine(String.Format("Client [name] at {0} is disconnecting.", address));
-            this.clients.RemoveAll(p => p.Address == address);
-            this.waitingQueue.RemoveAll(p => p.Address == address);
+            this.clients.RemoveAll(p => p.Address.ToString() == address.ToString());
+            this.waitingQueue.RemoveAll(p => p.ToString() == address.ToString());
         }
 
     }

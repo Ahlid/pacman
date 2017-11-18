@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace Server
+namespace Shared
 {
     [Serializable]
     public class Player : RigidObject, IPlayer
@@ -16,7 +16,7 @@ namespace Server
         public const int SPEED = 10;
 
         public string Username { get; set; }
-        public string Address { get; set; }
+        public Uri Address { get; set; }
         public int Score { get; set; }
         public bool Alive { get; set; }
 
