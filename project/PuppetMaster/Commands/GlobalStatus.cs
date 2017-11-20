@@ -18,8 +18,6 @@ namespace PuppetMaster
 
         public override void CommandToExecute(string[] parameters)
         {
-            Console.WriteLine("+++GlobalStatus command+++");
-
             IAsyncResult asyncResult;
             foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
             {

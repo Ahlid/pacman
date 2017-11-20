@@ -61,7 +61,7 @@ namespace pacman {
 
         private static void instructedClient(Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
         {
-            Hub hub = new Hub(serverURL, clientURL);
+            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new AutomatedGame(instructions));
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
 
@@ -73,14 +73,14 @@ namespace pacman {
 
         private static void notInstructedClient(Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
         {
-            Hub hub = new Hub(serverURL, clientURL);
+            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new SimpleGame());
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
         }
 
         private static void defaultClient()
         {
-            Hub hub = new Hub(new Uri("tcp://localhost:8086"), null);
+            Hub hub = new Hub(new Uri("tcp://localhost:8086"), 20);
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
         }

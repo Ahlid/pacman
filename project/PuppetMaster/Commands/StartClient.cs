@@ -25,13 +25,11 @@ namespace PuppetMaster
 
         public override void CommandToExecute(string[] parameters)
         {
-            Console.WriteLine("+++Start Client command+++");
-
             string pid = parameters[0];
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
-            if (parameters.Length < 6) // there is not instructions
+            if (parameters.Length < 7) // there is not instructions
             {
                 remoteCallStartClient = new startClientDel(pcs.StartClient);
                 asyncResult = remoteCallStartClient.BeginInvoke(pid, parameters[3], masterServerUrl, parameters[4], parameters[5], null, null);
@@ -39,8 +37,6 @@ namespace PuppetMaster
                 asyncResult.AsyncWaitHandle.WaitOne();
                 return;
             }
-            // else -> client will be played automatically, following a moves trace file 
-            
             string instructions = readInstructions(parameters[6]); // pass filename
             if(instructions != "")
             {

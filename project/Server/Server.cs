@@ -75,6 +75,7 @@ namespace Server
             // The game is waiting for players
             if (!this.currentGameSession.HasGameStarted)
             {
+                Console.WriteLine("entrei");
                 addPlayersToCurrentGameSession();
                 timer.Change(roundIntervalMsec, Timeout.Infinite);
                 return;

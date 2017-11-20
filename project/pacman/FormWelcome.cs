@@ -34,6 +34,9 @@ namespace pacman
                     Hide();
                     FormStage formStage = new FormStage(hub, stage);
                     formStage.Show();
+
+                    // start game
+                    hub.CurrentSession.game.Play();
                 }));
             };
 
@@ -41,7 +44,7 @@ namespace pacman
 
         private void joinClick(object sender, EventArgs e)
         {
-            if (this.textBoxUsername.Text == null || this.textBoxUsername.Text == "")
+            if (this.textBoxUsername.Text == null || this.textBoxUsername.Text.Trim() == "")
             {
                 labelError.Text = "Invalid user number";
                 labelError.Visible = true;
@@ -52,6 +55,8 @@ namespace pacman
             string username = textBoxUsername.Text.Trim();
 
             // todo: should this call be async?
+            //     should if we want to do something with the gui, like move it around, 
+            //     otherwise there is not much to do at the same time
             JoinResult result = hub.Join(username);
             switch(result)
             {
@@ -110,6 +115,5 @@ namespace pacman
                 tb.ForeColor = SystemColors.InactiveCaption;
             }
         }
-
     }
 }

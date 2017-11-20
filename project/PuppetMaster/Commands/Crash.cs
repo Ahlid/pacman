@@ -18,9 +18,6 @@ namespace PuppetMaster.Commands
 
         public override void CommandToExecute(string[] parameters)
         {
-            // vou fazer uma chamada ao pcs asincronamente e depois a chamada e assincrona tambem
-            Console.WriteLine("+++Crash command+++");
-
             string pid = parameters[0];
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];

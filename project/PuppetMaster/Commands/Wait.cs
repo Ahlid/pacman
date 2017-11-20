@@ -16,7 +16,7 @@ namespace PuppetMaster.Commands
 
         public override void Execute(string[] parameters)
         {
-            Console.WriteLine("+++Wait command+++");
+            Console.WriteLine(String.Format("Sync Execution of command: '{0}'", this.name));
             // stop current thread for the miliseconds received as parameter
             Thread.Sleep(Int32.Parse(parameters[0]));
         }

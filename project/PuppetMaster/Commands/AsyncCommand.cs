@@ -16,7 +16,7 @@ namespace PuppetMaster.Commands
         {
             Thread t = new Thread(delegate ()
             {
-                Console.WriteLine(String.Format("Async Execution: '{0}' started", this.name));
+                Console.WriteLine(String.Format("Async Execution of command: '{0}'", this.name));
                 CommandToExecute(parameters);
             });
             t.Start();
