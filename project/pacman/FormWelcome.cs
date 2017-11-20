@@ -34,9 +34,6 @@ namespace pacman
                     Hide();
                     FormStage formStage = new FormStage(hub, stage);
                     formStage.Show();
-
-                    // start game
-                    hub.CurrentSession.game.Play();
                 }));
             };
 

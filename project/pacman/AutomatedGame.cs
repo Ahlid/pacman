@@ -15,17 +15,15 @@ namespace pacman
         public Play Move { get { return move; } set { this.move = value; OnPlayHandler(); } } // on set activate the event
         private string[] instructions;
         private int nextMove;
-        public bool Automated { get; set; }
 
         public AutomatedGame(string instructions)
         {
-            this.Automated = true;
             this.instructions = instructions.Split('\n');
             this.nextMove = 0;
             this.Move = Shared.Play.NONE;
         }
 
-        public void Play()
+        public void Play(int round)
         {
             // preciso do numero da ronda 
             if(instructions.Length < nextMove)
@@ -52,5 +50,6 @@ namespace pacman
                     return Shared.Play.NONE;
             }
         }
+
     }
 }

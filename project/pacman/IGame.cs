@@ -15,8 +15,7 @@ namespace pacman
         event OnPlayDelegate OnPlayHandler;
 
         Play Move { get; set; }
-        bool Automated { get; set; }
 
-        void Play();
+        void Play(int round);
     }
 }

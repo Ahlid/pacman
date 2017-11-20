@@ -13,8 +13,7 @@ namespace pacman
 
         private Play move;
         public Play Move { get { return move; } set { this.move = value; OnPlayHandler(); } } // on set activate the event
-        public bool Automated { get; set; }
 
-        public void Play() { this.Automated = false; }
+        public void Play(int round) { }
     }
 }

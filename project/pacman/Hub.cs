@@ -29,9 +29,9 @@ namespace pacman
 
 
         //Interface complience
-        string IClient.Username { get { return CurrentSession.Username; } }
-        int IClient.Round { get { return CurrentSession.Round; } }
-        List<IClient> Peers { get { return currentChatRoom.Peers; }  }
+        public string Username { get { return CurrentSession.Username; } }
+        public int Round { get { return CurrentSession.Round; } }
+        public List<IClient> Peers { get { return currentChatRoom.Peers; }  }
 
         //Events
 
@@ -64,6 +64,8 @@ namespace pacman
             this.serverURL = serverURL;
             Address = address;
 
+            CurrentSession = new Session(game, msecPerRound);
+
             channel = new TcpChannel(address.Port);
             ChannelServices.RegisterChannel(channel, false);
 
@@ -91,16 +93,15 @@ namespace pacman
         //Attempts to join the server using a username
         public JoinResult Join(string username)
         {
-            if(CurrentSession != null)
+            if (CurrentSession.SessionStatus != Session.Status.PENDING)
             {
                 throw new Exception("A session is already open");
             }
-
+            CurrentSession.Username = username;
             JoinResult result = server.Join(username, Address);
             switch (result)
             {
                 case JoinResult.QUEUED:
-                    CurrentSession = new Session(username, Session.Status.QUEUED, game, msecPerRound);
                     CurrentSession.SessionStatus = Session.Status.QUEUED;
                     currentChatRoom = new ChatRoom(CurrentSession);
 
@@ -151,6 +152,7 @@ namespace pacman
         {
             CurrentSession.Round = round;
             OnRoundReceived?.Invoke(actions, score, round);
+            CurrentSession.game.Play(round);
         }
 
         void IClient.Died()

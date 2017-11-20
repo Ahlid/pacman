@@ -100,6 +100,8 @@ namespace pacman {
         }
 
         private void keyIsUp(object sender, KeyEventArgs e) {
+
+
             switch (e.KeyCode)
             {
                 case Keys.Left:
