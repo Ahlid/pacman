@@ -29,10 +29,10 @@ namespace pacman {
         #region TO REMOVE
 
         // direction player is moving in. Only one will be 
-        bool goup;
-        bool godown;
-        bool goleft;
-        bool goright;
+        private bool goup;
+        private bool godown;
+        private bool goleft;
+        private bool goright;
 
         int score = 0;
         int total_coins = 61;
