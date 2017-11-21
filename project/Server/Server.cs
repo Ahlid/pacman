@@ -28,10 +28,14 @@ namespace Server
         private Dictionary<int, IGameSession> gameSessionsTable;
         private IGameSession currentGameSession;
         private Timer timer;
+        private bool stop;
+
+        public static volatile Mutex mutex = new Mutex(false);
 
         //Commun private constructor
         private Server(Uri address, string PID)
         {
+            this.stop = false;
             this.PID = PID;
             this.address = address;
             this.clients = new List<IClient>();
@@ -44,18 +48,16 @@ namespace Server
             RemotingServices.Marshal(this, "Server", typeof(Server));
         }
         //Master constructor
-        public Server(Uri address, string PID = "not set", int numPlayers = 1, int roundIntervalMsec = 200) : this(address, PID)
+        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 2) : this(address, PID)
         {
             //This server will start as a Master
+
             this.isMaster = true;
             this.numPlayers = numPlayers;
             this.roundIntervalMsec = roundIntervalMsec;
             this.currentGameSession = new GameSession(numPlayers);
             this.gameSessionsTable[currentGameSession.ID] = currentGameSession;
             this.roundIntervalMsec = roundIntervalMsec;
-            
-            timer = new Timer(new TimerCallback(Tick), null, Timeout.Infinite, Timeout.Infinite);
-            timer.Change(roundIntervalMsec, roundIntervalMsec);
 
         }
         //Replica constructor
@@ -69,32 +71,31 @@ namespace Server
 
         private void Tick(Object parameters)
         {
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
-            Console.WriteLine("TIMER");
-
-            // The game is waiting for players
-            if (!this.currentGameSession.HasGameStarted)
-            {
-                addPlayersToCurrentGameSession();
-                timer.Change(roundIntervalMsec, Timeout.Infinite);
-                return;
-            }
 
             if (this.currentGameSession.HasGameEnded())
             {
+                Console.WriteLine("Game has ended!");
+                this.stop = true;
                 //temos de começar uma nova ronda
                 this.currentGameSession.EndGame();
                 IGameSession newGameSession = new GameSession(numPlayers);
                 gameSessionsTable[newGameSession.ID] = newGameSession;
                 this.currentGameSession = newGameSession;
-                addPlayersToCurrentGameSession();
+
+                //
+                // handle clients and server lists
+                //
             }
             else
             {
                 currentGameSession.PlayRound();
             }
 
-            timer.Change(roundIntervalMsec, Timeout.Infinite);
+            if(!this.stop)
+            {
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+            }
+            
         }
 
         public void Stop()
@@ -117,12 +118,6 @@ namespace Server
                     currentGameSession.Clients.Add(player);
                     this.waitingQueue.RemoveAll(p => p.Address == player.Address);
                 }
-            }
-
-            //vamos ver se podemos começar o jogo
-            if (currentGameSession.Clients.Count - numPlayers == 0)
-            {
-                currentGameSession.StartGame();
             }
         }
 
@@ -148,11 +143,29 @@ namespace Server
                 address.ToString() + "Client");
             //client.Username = username;
 
+            Console.WriteLine(address.ToString());
+
             waitingQueue.Add(client);
 
             Console.WriteLine(string.Format("Sending to client '{0}' that he has just been queued", username));
             
             clients.Add(client);
+
+            //vamos ver se podemos começar o jogo
+            if (waitingQueue.Count >= numPlayers)
+            {
+                mutex.WaitOne();
+                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                Thread thread = new Thread(new ThreadStart(()=>
+                {
+                    // todo: this block has a problem
+                    addPlayersToCurrentGameSession();
+                    currentGameSession.StartGame();
+                }));
+                thread.Start();
+                mutex.ReleaseMutex();
+            }
+
             return JoinResult.QUEUED;
         }
 
@@ -171,7 +184,7 @@ namespace Server
 
         public void Quit(Uri address)
         {
-            Console.WriteLine(String.Format("Client [name] at {0} is disconnecting.", address));
+            Console.WriteLine(String.Format("Client at {0} is disconnecting.", address));
             this.clients.RemoveAll(p => p.Address.ToString() == address.ToString());
             this.waitingQueue.RemoveAll(p => p.ToString() == address.ToString());
         }

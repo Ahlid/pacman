@@ -117,6 +117,7 @@ namespace PuppetMaster
                     {
                         Replicate rep = new Replicate();
                         rep.masterServerUrl = masterServerUrl;
+                        rep.processesPCS = processesPCS;
                         command = rep;
                         saveProcessPCS(parameters[0], parameters[1]);
                     }

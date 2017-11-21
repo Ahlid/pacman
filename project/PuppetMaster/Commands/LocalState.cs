@@ -18,9 +18,6 @@ namespace PuppetMaster.Commands
 
         public override void CommandToExecute(string[] parameters)
         {
-            Console.WriteLine("+++Local State command+++");
-
-            
             // probabily threads are need here. test it
             IAsyncResult asyncResult;
             string result;

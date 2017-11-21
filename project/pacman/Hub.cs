@@ -20,13 +20,18 @@ namespace pacman
         private IServer server { get; set; }
 
         //Current Session Information
-        private Session currentSession;
+        public Session CurrentSession { get; set; } // changed to property
         private ChatRoom currentChatRoom;
 
+        // # refactor this variables..
+        private int msecPerRound;
+        private IGame game;
+
+
         //Interface complience
-        string IClient.Username { get { return currentSession.Username; } }
-        int IClient.Round { get { return currentSession.Round; } }
-        List<IClient> Peers { get { return currentChatRoom.Peers; }  }
+        public string Username { get { return CurrentSession.Username; } }
+        public int Round { get { return CurrentSession.Round; } }
+        public List<IClient> Peers { get { return currentChatRoom.Peers; }  }
 
         //Events
 
@@ -40,9 +45,9 @@ namespace pacman
         public event EventHandler OnDeath;
         public event GameEndEvent OnGameEnd;
 
-        public GetStateHandler getStateHandler { get; set; }
+        public GetStateHandler getStateHandler { get; set; } 
 
-        public Hub(Uri serverURL, Uri address)
+        public Hub(Uri serverURL, Uri address, int msecPerRound, IGame game)
         {
             if(serverURL == null)
             {
@@ -54,8 +59,12 @@ namespace pacman
                 address = new Uri("tcp://localhost:"+ FreeTcpPort().ToString());
             }
 
+            this.game = game;
+            this.msecPerRound = msecPerRound;
             this.serverURL = serverURL;
             Address = address;
+
+            CurrentSession = new Session(game, msecPerRound);
 
             channel = new TcpChannel(address.Port);
             ChannelServices.RegisterChannel(channel, false);
@@ -68,7 +77,8 @@ namespace pacman
                 this.serverURL.ToString() + "Server");
         }
 
-        public Hub(Uri serverURL) : this(serverURL, null) {}
+        public Hub(Uri serverURL, int msecPerRound) : this(serverURL, null, msecPerRound, new SimpleGame()) {}
+
 
         static int FreeTcpPort()
         {
@@ -83,18 +93,23 @@ namespace pacman
         //Attempts to join the server using a username
         public JoinResult Join(string username)
         {
-            if(currentSession != null)
+            if (CurrentSession.SessionStatus != Session.Status.PENDING)
             {
                 throw new Exception("A session is already open");
             }
-
+            CurrentSession.Username = username;
             JoinResult result = server.Join(username, Address);
             switch (result)
             {
                 case JoinResult.QUEUED:
-                    currentSession = new Session(username, Session.Status.QUEUED);
-                    currentSession.SessionStatus = Session.Status.QUEUED;
-                    currentChatRoom = new ChatRoom(currentSession);
+                    CurrentSession.SessionStatus = Session.Status.QUEUED;
+                    currentChatRoom = new ChatRoom(CurrentSession);
+
+                    this.CurrentSession.game.OnPlayHandler += () =>
+                    {
+                        this.SetPlay(this.CurrentSession.game.Move);
+                    };
+
                     break;
             }
             
@@ -103,20 +118,25 @@ namespace pacman
 
         public void SetPlay(Play play)
         {
-            if(currentSession == null)
+            if(CurrentSession == null)
             {
                 throw new Exception("The session hasn't started yet.");
             }
-            server.SetPlay(Address, play, currentSession.Round);
+            server.SetPlay(Address, play, CurrentSession.Round);
         }
 
         public void Quit()
         {
-            if (currentSession == null)
+            try
             {
-                throw new Exception("The session hasn't started yet.");
+                if (CurrentSession != null)
+                {
+                    server.Quit(Address);
+                }
+            }catch(Exception e)
+            {
+                // there is not connection
             }
-            server.Quit(Address);
         }
 
 
@@ -124,25 +144,26 @@ namespace pacman
 
         void IClient.Start(IStage stage)
         {
-            currentSession.SessionStatus = Session.Status.RUNNING;
+            CurrentSession.SessionStatus = Session.Status.RUNNING;
             OnStart?.Invoke(stage);
         }
 
         void IClient.SendRound(List<Shared.Action> actions, int score, int round)
         {
-            currentSession.Round = round;
+            CurrentSession.Round = round;
             OnRoundReceived?.Invoke(actions, score, round);
+            CurrentSession.game.Play(round);
         }
 
         void IClient.Died()
         {
-            currentSession.SessionStatus = Session.Status.DIED;
+            CurrentSession.SessionStatus = Session.Status.DIED;
             OnDeath?.Invoke(this, null);
         }
 
         void IClient.End(IPlayer winner)
         {
-            currentSession.SessionStatus = Session.Status.ENDED;
+            CurrentSession.SessionStatus = Session.Status.ENDED;
             OnGameEnd?.Invoke(winner);
         }
 
@@ -174,7 +195,7 @@ namespace pacman
             {
                 throw new Exception("The session hasn't started.");
             }
-            currentChatRoom.PublishMessage(currentSession.Username, message);
+            currentChatRoom.PublishMessage(CurrentSession.Username, message);
         }
 
         public string GetState(int round)

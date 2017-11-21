@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Shared;
 
 namespace pacman {
     static class Program {
@@ -15,6 +17,12 @@ namespace pacman {
         static void Main(string[] args) {
             Application.SetCompatibleTextRenderingDefault(false);
             Application.EnableVisualStyles();
+
+
+            if (!Debugger.IsAttached)
+                Debugger.Launch();
+            Debugger.Break();
+
             try
             {
                 if (args.Length > 0)
@@ -30,7 +38,7 @@ namespace pacman {
                         var base64EncodedBytes = System.Convert.FromBase64String(args[6]);
                         string instructions = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
 
-                        instructedClient(clientURL, serverURL, msecPerRound, numPlayers, instructions);
+                        instructedClient(PID, clientURL, serverURL, msecPerRound, numPlayers, instructions);
                     }
                     else if(args[0] == NOT_INSTRUCTED)
                     {
@@ -40,7 +48,7 @@ namespace pacman {
                         int msecPerRound = int.Parse(args[4]);
                         int numPlayers = int.Parse(args[5]);
 
-                        notInstructedClient(clientURL, serverURL, msecPerRound, numPlayers);
+                        notInstructedClient(PID, clientURL, serverURL, msecPerRound, numPlayers);
                     }
 
                 }
@@ -59,11 +67,17 @@ namespace pacman {
             }
         }
 
-        private static void instructedClient(Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
+        private static void instructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
         {
-            Hub hub = new Hub(serverURL, clientURL);
-            FormWelcome form = new FormWelcome(hub);
-            Application.Run(form);
+            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new AutomatedGame(instructions));
+            JoinResult result = hub.Join(PID);
+            //FormWelcome form = new FormWelcome(hub);
+            //Application.Run(form);
+            hub.OnStart += (stage) =>
+            {
+                FormStage formStage = new FormStage(hub, stage);
+                Application.Run(formStage);
+            };
 
             // init connection with the server automatically
             // form.textBoxUsername.Text = PID;
@@ -71,16 +85,23 @@ namespace pacman {
             // form.buttonJoin.PerformClick();
         }
 
-        private static void notInstructedClient(Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
+        private static void notInstructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
         {
-            Hub hub = new Hub(serverURL, clientURL);
-            FormWelcome form = new FormWelcome(hub);
-            Application.Run(form);
+            MessageBox.Show(PID);
+            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new SimpleGame());
+            //FormWelcome form = new FormWelcome(hub);
+            //Application.Run(form);
+            JoinResult result = hub.Join(PID);
+            hub.OnStart += (stage) =>
+            {
+                FormStage formStage = new FormStage(hub, stage);
+                Application.Run(formStage);
+            };
         }
 
         private static void defaultClient()
         {
-            Hub hub = new Hub(new Uri("tcp://localhost:8086"), null);
+            Hub hub = new Hub(new Uri("tcp://localhost:8086"), 20);
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
         }

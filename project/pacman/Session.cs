@@ -9,19 +9,23 @@ namespace pacman
 {
     public class Session
     {
-        public string Username { get; private set; }
+        public string Username { get; set; }
         public int Round { get; set; }
         public int Score { get; set; }
         public List<IClient> Peers { get; }
-        public enum Status { QUEUED, RUNNING, DIED, ENDED }
+        public enum Status { PENDING, QUEUED, RUNNING, DIED, ENDED }
         public Status SessionStatus { get; set; }
+        public int MsecPerRound { get; set; }
+        public IGame game { get; set; }
 
-        public Session(string username, Status status)
+
+        public Session(IGame game, int msecPerRound = 20)
         {
-            Username = username;
-            SessionStatus = status;
+            SessionStatus = Status.PENDING;
             Round = 0;
             Score = 0;
+            MsecPerRound = msecPerRound;
+            this.game = game;
         }
     }
 }

@@ -41,10 +41,9 @@
             // 
             this.labelGameName.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.labelGameName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
-            this.labelGameName.Location = new System.Drawing.Point(215, 50);
-            this.labelGameName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelGameName.Location = new System.Drawing.Point(287, 62);
             this.labelGameName.Name = "labelGameName";
-            this.labelGameName.Size = new System.Drawing.Size(100, 33);
+            this.labelGameName.Size = new System.Drawing.Size(133, 41);
             this.labelGameName.TabIndex = 0;
             this.labelGameName.Text = "PACMAN";
             // 
@@ -52,20 +51,19 @@
             // 
             this.labelTitleApp.AutoSize = true;
             this.labelTitleApp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
-            this.labelTitleApp.Location = new System.Drawing.Point(112, 83);
-            this.labelTitleApp.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelTitleApp.Location = new System.Drawing.Point(149, 102);
             this.labelTitleApp.Name = "labelTitleApp";
-            this.labelTitleApp.Size = new System.Drawing.Size(315, 25);
+            this.labelTitleApp.Size = new System.Drawing.Size(412, 29);
             this.labelTitleApp.TabIndex = 1;
             this.labelTitleApp.Text = "Distributed Online Gaming Platform";
             // 
             // buttonJoin
             // 
             this.buttonJoin.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.buttonJoin.Location = new System.Drawing.Point(172, 199);
-            this.buttonJoin.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonJoin.Location = new System.Drawing.Point(229, 245);
+            this.buttonJoin.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonJoin.Name = "buttonJoin";
-            this.buttonJoin.Size = new System.Drawing.Size(183, 28);
+            this.buttonJoin.Size = new System.Drawing.Size(244, 34);
             this.buttonJoin.TabIndex = 2;
             this.buttonJoin.Text = "Join";
             this.buttonJoin.UseVisualStyleBackColor = true;
@@ -74,10 +72,10 @@
             // buttonQuit
             // 
             this.buttonQuit.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.buttonQuit.Location = new System.Drawing.Point(172, 231);
-            this.buttonQuit.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonQuit.Location = new System.Drawing.Point(229, 284);
+            this.buttonQuit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonQuit.Name = "buttonQuit";
-            this.buttonQuit.Size = new System.Drawing.Size(183, 28);
+            this.buttonQuit.Size = new System.Drawing.Size(244, 34);
             this.buttonQuit.TabIndex = 3;
             this.buttonQuit.Text = "Quit";
             this.buttonQuit.UseVisualStyleBackColor = true;
@@ -88,10 +86,9 @@
             this.labelError.AutoSize = true;
             this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.labelError.ForeColor = System.Drawing.Color.Red;
-            this.labelError.Location = new System.Drawing.Point(169, 133);
-            this.labelError.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelError.Location = new System.Drawing.Point(225, 164);
             this.labelError.Name = "labelError";
-            this.labelError.Size = new System.Drawing.Size(39, 17);
+            this.labelError.Size = new System.Drawing.Size(45, 20);
             this.labelError.TabIndex = 4;
             this.labelError.Text = "error";
             // 
@@ -99,11 +96,11 @@
             // 
             this.textBoxUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.textBoxUsername.ForeColor = System.Drawing.SystemColors.InactiveCaption;
-            this.textBoxUsername.Location = new System.Drawing.Point(172, 167);
-            this.textBoxUsername.Margin = new System.Windows.Forms.Padding(2);
+            this.textBoxUsername.Location = new System.Drawing.Point(229, 206);
+            this.textBoxUsername.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxUsername.Multiline = true;
             this.textBoxUsername.Name = "textBoxUsername";
-            this.textBoxUsername.Size = new System.Drawing.Size(183, 28);
+            this.textBoxUsername.Size = new System.Drawing.Size(243, 34);
             this.textBoxUsername.TabIndex = 5;
             this.textBoxUsername.Text = "Username";
             this.textBoxUsername.Enter += new System.EventHandler(this.textBoxUsername_OnFocus);
@@ -111,10 +108,10 @@
             // 
             // FormWelcome
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.ClientSize = new System.Drawing.Size(539, 340);
+            this.ClientSize = new System.Drawing.Size(719, 418);
             this.Controls.Add(this.textBoxUsername);
             this.Controls.Add(this.labelError);
             this.Controls.Add(this.buttonQuit);
@@ -124,7 +121,7 @@
             this.ForeColor = System.Drawing.SystemColors.MenuText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "FormWelcome";
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

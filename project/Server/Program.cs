@@ -7,6 +7,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Server
 {
@@ -18,28 +19,30 @@ namespace Server
         static void Main(string[] args)
         {
             Console.WriteLine("***** Server Initilized *****");
+
+            if (!Debugger.IsAttached)
+                Debugger.Launch();
+            Debugger.Break();
+
             try
             { 
-                if (args.Length > 0)
+
+                if(args.Length > 0 && args[0] == MASTER_MODE)
                 {
-                    if(args[0] == MASTER_MODE)
-                    {
-                        string PID = args[1];
-                        Uri serverURL = new Uri(args[2]);
-                        int msecPerRound = int.Parse(args[3]);
-                        int numPlayers = int.Parse(args[4]);
+                    string PID = args[1];
+                    Uri serverURL = new Uri(args[2]);
+                    int msecPerRound = int.Parse(args[3]);
+                    int numPlayers = int.Parse(args[4]);
 
-                        StartMasterMode(PID, serverURL, msecPerRound, numPlayers);
-                    }
-                    else if(args[0] == REPLICA_MODE)
-                    {
-                        string PID = args[1];
-                        Uri serverURL = new Uri(args[2]);
-                        Uri replicaURL = new Uri(args[3]);
+                    StartMasterMode(PID, serverURL, msecPerRound, numPlayers);
+                }
+                else if(args.Length > 0 && args[0] == REPLICA_MODE)
+                {
+                    string PID = args[1];
+                    Uri serverURL = new Uri(args[2]);
+                    Uri replicaURL = new Uri(args[3]);
 
-                        StartReplicaMode(PID, serverURL, replicaURL);
-                    }
-                    
+                    StartReplicaMode(PID, serverURL, replicaURL);
                 }
                 else if(args.Length == 0)
                 {

@@ -3,8 +3,3 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\De
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Debug\Shared.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Debug\Shared.dll
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Debug\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Debug\Shared.dll
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Debug\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Debug\Shared.csprojResolveAssemblyReference.cache
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Debug\Shared.dll
-C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Debug\Shared.pdb

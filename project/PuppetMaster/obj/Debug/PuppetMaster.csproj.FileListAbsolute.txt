@@ -1,11 +1,3 @@
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe.config
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\Shared.dll
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.csprojResolveAssemblyReference.cache
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.pdb
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe.config
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\bin\Debug\PuppetMaster.pdb

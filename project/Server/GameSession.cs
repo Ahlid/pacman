@@ -223,6 +223,7 @@ namespace Server
                 clientsP2P[c.Username] = c.Address;
             }
 
+            Console.WriteLine("Clients size: " + Clients.Count);
             for (int i = this.Clients.Count - 1; i >= 0; i--)
             {
                 try
@@ -230,7 +231,7 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
-                    client.SetPeers(clientsP2P);
+                    //client.SetPeers(clientsP2P);
                 }
                 catch (Exception e)
                 {

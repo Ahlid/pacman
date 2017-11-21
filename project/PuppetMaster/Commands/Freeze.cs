@@ -17,8 +17,6 @@ namespace PuppetMaster.Commands
 
         public override void CommandToExecute(string[] parameters)
         {
-            Console.WriteLine("+++Freeze command+++");
-
             string pid = parameters[0];
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];

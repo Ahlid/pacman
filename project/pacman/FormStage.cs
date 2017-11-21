@@ -18,6 +18,9 @@ using System.Windows.Forms;
 namespace pacman {
     public partial class FormStage : Form {
 
+        // arranjar maneira de declarar os eventos à mão para key down e key up para quando o jogo for automatico 
+        // nao dar para jogar!, apenas para falar no chat
+
         private Play play = Play.NONE;
 
         private Dictionary<int, PictureBox> stageObjects;
@@ -25,19 +28,6 @@ namespace pacman {
         private Dictionary<int, string> roundState;
 
         static volatile Mutex mutex = new Mutex(false);
-
-        #region TO REMOVE
-
-        // direction player is moving in. Only one will be 
-        private bool goup;
-        private bool godown;
-        private bool goleft;
-        private bool goright;
-
-        int score = 0;
-        int total_coins = 61;
-
-        #endregion
 
         private Hub hub;
 
@@ -49,6 +39,8 @@ namespace pacman {
             stageObjects = new Dictionary<int, PictureBox>();
             stageObjectsType = new Dictionary<int, string>();
             roundState = new Dictionary<int, string>();
+
+            
 
             if (!this.IsHandleCreated)
             {
@@ -66,63 +58,76 @@ namespace pacman {
 
             hub.OnRoundReceived += SendRound;
 
+
+            /*
+             * activate keyisdown and key is up, only on simple game
+             * // this has to set delegates for key is down and key is up
+             * 
+             * // and on the automated game the chat is available 
+             * 
+             * // make the chat as the one on lol -> enter with no text "minimizes the chat bar"
+             * 
+             */ 
         }
 
 
-        private void keyisdown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Left) {
-                play = Play.LEFT;
-                goleft = true;
-                pacman.Image = Properties.Resources.Left; //Change image to pacman looking left 
+        private void keyIsDown(object sender, KeyEventArgs e) {
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    play = Play.LEFT;
+                    pacman.Image = Properties.Resources.Left; //Change image to pacman looking left 
+                    break;
+                case Keys.Right:
+                    play = Play.RIGHT;
+                    pacman.Image = Properties.Resources.Right;
+                    break;
+                case Keys.Up:
+                    play = Play.UP;
+                    pacman.Image = Properties.Resources.Up;
+                    break;
+                case Keys.Down:
+                    play = Play.DOWN;
+                    pacman.Image = Properties.Resources.down;
+                    break;
+                case Keys.Enter:
+                    this.textBoxMessage.Enabled = true;
+                    this.textBoxMessage.Focus();
+                    this.textBoxMessage.Select();
+                    break;
             }
-            if (e.KeyCode == Keys.Right) {
-                goright = true;
-                play = Play.RIGHT;
-                pacman.Image = Properties.Resources.Right;
-            }
-            if (e.KeyCode == Keys.Up) {
-                goup = true;
-                play = Play.UP;
-                pacman.Image = Properties.Resources.Up;
-            }
-            if (e.KeyCode == Keys.Down) {
-                godown = true;
-                play = Play.DOWN;
-                pacman.Image = Properties.Resources.down;
-            }
-            if (e.KeyCode == Keys.Enter) {
-                //tbMsg.Enabled = true; tbMsg.Focus();
-                this.textBoxMessage.Enabled = true;
-                this.textBoxMessage.Focus();
-                this.textBoxMessage.Select();
-               }
+
         }
 
-        private void keyisup(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Left) {
-                goleft = false;
-                play = Play.NONE;
-            }
-            if (e.KeyCode == Keys.Right) {
-                goright = false;
-                play = Play.NONE;
-            }
-            if (e.KeyCode == Keys.Up) {
-                goup = false;
-                play = Play.NONE;
-            }
-            if (e.KeyCode == Keys.Down) {
-                godown = false;
-                play = Play.NONE;
+        private void keyIsUp(object sender, KeyEventArgs e) {
+
+
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Up:
+                case Keys.Down:
+                    play = Play.NONE;
+                    break;
             }
         }
 
 
         //Running every 20 ms
         private void timer1_Tick(object sender, EventArgs e) {
+
+            /*
+             *  a cada 20 ms vai buscar a jogada que está no jogo
+             *  
+             */ 
+
             if(play != Play.NONE)
             {
-                hub.SetPlay(play);
+                //hub.SetPlay(play);
+                //hub.SetPlay(this.hub.CurrentSession.game.Move);
+                this.hub.CurrentSession.game.Move = play;
+                // aqui faz so set da jogada 
             }
         }
 
