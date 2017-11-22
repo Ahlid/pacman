@@ -6,3 +6,11 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreati
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Release\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Release\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.csprojResolveAssemblyReference.cache

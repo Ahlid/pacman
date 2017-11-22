@@ -24,7 +24,6 @@ namespace pacman {
         private Play play = Play.NONE;
 
         private Dictionary<int, PictureBox> stageObjects;
-        private Dictionary<int, Point> stageObjectsOriginalPositions;
         private Dictionary<int, string> stageObjectsType;
         private Dictionary<int, string> roundState;
 
@@ -40,7 +39,6 @@ namespace pacman {
             stageObjects = new Dictionary<int, PictureBox>();
             stageObjectsType = new Dictionary<int, string>();
             roundState = new Dictionary<int, string>();
-            stageObjectsOriginalPositions = new Dictionary<int, Point>();
 
 
 
@@ -148,17 +146,17 @@ namespace pacman {
                 {
                     case Shared.Action.ActionTaken.MOVE:
                         pictureBox = stageObjects[action.ID];
-                        Point originalPos = stageObjectsOriginalPositions[action.ID];
-                        originalPos = new Point(originalPos.X + action.displacement.X, originalPos.Y + action.displacement.Y);
-                        stageObjectsOriginalPositions[action.ID] = originalPos;
-                        Point pos = fit(originalPos);
-                        int x = pos.X;
-                        int y = pos.Y;
-      
+
+                        Point pos1 = new Point(action.position.X - action.width / 2, action.position.Y - action.height /2);
+                        Point pos2 = fit(pos1);
+                        int x = pos2.X;
+                        int y = pos2.Y;
+
                         Invoke(new System.Action(() =>
                         {
                             if (stageObjectsType[action.ID] == "player")
                             {
+                                this.textBoxChatHistory.Text = pos1.X + " " + pos1.Y + " - " + pos2.X + "  " + pos2.Y;
                                 switch (action.direction)
                                 {
                                     case Shared.Action.Direction.DOWN:
@@ -245,15 +243,11 @@ namespace pacman {
         private PictureBox createControl(string name, Point position, int width, int height)
         {
             PictureBox pictureBox = new PictureBox();
-            
-            Point size = fit(new Point(width, height));
-            pictureBox.Size = new Size(size.X, size.Y);
-
-            Point pos = fit(position);
-
+            pictureBox.Size = new Size(fit(new Point(width, height)));
             pictureBox.BackColor = Color.Transparent;
-            pictureBox.Location = fit(new Point(pos.X - size.X / 2, pos.Y - size.Y / 2)); 
+            pictureBox.Location = fit(new Point(position.X - width / 2, position.Y - height / 2)); 
             pictureBox.Margin = new Padding(0);
+            pictureBox.Padding = new Padding(0);
             pictureBox.Name = name;
             pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox.TabIndex = 4;
@@ -270,7 +264,6 @@ namespace pacman {
                 newWall = createControl("wall" + i++, wall.Position, Wall.WIDTH, Wall.HEIGHT);
                 newWall.BackColor = Color.Blue;
                 stageObjects.Add(wall.ID, newWall);
-                stageObjectsOriginalPositions.Add(wall.ID, wall.Position);
                 stageObjectsType.Add(wall.ID, "wall");
                 Invoke(new System.Action(() => panelGame.Controls.Add(newWall)));
             }
@@ -285,7 +278,6 @@ namespace pacman {
                 newPlayer = createControl("pacman" + i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
                 stageObjects.Add(player.ID, newPlayer);
-                stageObjectsOriginalPositions.Add(player.ID, player.Position);
                 stageObjectsType.Add(player.ID, "player");
                 Invoke(new System.Action(() => {
                     panelGame.Controls.Add(newPlayer);
@@ -305,7 +297,6 @@ namespace pacman {
                 newCoin.Image = global::pacman.Properties.Resources.cccc;
                 newCoin.SizeMode = PictureBoxSizeMode.StretchImage;
                 stageObjects.Add(coin.ID, newCoin);
-                stageObjectsOriginalPositions.Add(coin.ID, coin.Position);
                 stageObjectsType.Add(coin.ID, "coin");
                 Invoke(new System.Action(() => panelGame.Controls.Add(newCoin)));
             }
@@ -331,7 +322,6 @@ namespace pacman {
                     newMonster.Image = global::pacman.Properties.Resources.yellow_guy;
                 }
                 stageObjects.Add(monster.ID, newMonster);
-                stageObjectsOriginalPositions.Add(monster.ID, monster.Position);
                 stageObjectsType.Add(monster.ID, "monster");
                 Invoke(new System.Action(() => panelGame.Controls.Add(newMonster)));
             }

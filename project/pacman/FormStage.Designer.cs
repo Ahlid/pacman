@@ -42,11 +42,12 @@
             // textBoxMessage
             // 
             this.textBoxMessage.Enabled = false;
-            this.textBoxMessage.Location = new System.Drawing.Point(610, 305);
-            this.textBoxMessage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.textBoxMessage.Location = new System.Drawing.Point(458, 248);
+            this.textBoxMessage.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.Size = new System.Drawing.Size(347, 45);
+            this.textBoxMessage.ReadOnly = true;
+            this.textBoxMessage.Size = new System.Drawing.Size(261, 37);
             this.textBoxMessage.TabIndex = 145;
             this.textBoxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMessage_OnKeyDown);
             // 
@@ -54,60 +55,64 @@
             // 
             this.textBoxChatHistory.Enabled = false;
             this.textBoxChatHistory.HideSelection = false;
-            this.textBoxChatHistory.Location = new System.Drawing.Point(610, 40);
-            this.textBoxChatHistory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.textBoxChatHistory.Location = new System.Drawing.Point(458, 32);
+            this.textBoxChatHistory.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxChatHistory.Multiline = true;
             this.textBoxChatHistory.Name = "textBoxChatHistory";
-            this.textBoxChatHistory.Size = new System.Drawing.Size(347, 261);
+            this.textBoxChatHistory.ReadOnly = true;
+            this.textBoxChatHistory.Size = new System.Drawing.Size(261, 213);
             this.textBoxChatHistory.TabIndex = 146;
             // 
             // panelGame
             // 
-            this.panelGame.Location = new System.Drawing.Point(83, 357);
-            this.panelGame.Margin = new System.Windows.Forms.Padding(4);
+            this.panelGame.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panelGame.Location = new System.Drawing.Point(12, 32);
             this.panelGame.Name = "panelGame";
-            this.panelGame.Size = new System.Drawing.Size(720, 471);
+            this.panelGame.Size = new System.Drawing.Size(322, 253);
             this.panelGame.TabIndex = 149;
             // 
             // textboxPlayers
             // 
             this.textboxPlayers.Enabled = false;
-            this.textboxPlayers.Location = new System.Drawing.Point(452, 40);
+            this.textboxPlayers.Location = new System.Drawing.Point(339, 32);
+            this.textboxPlayers.Margin = new System.Windows.Forms.Padding(2);
             this.textboxPlayers.Multiline = true;
             this.textboxPlayers.Name = "textboxPlayers";
-            this.textboxPlayers.Size = new System.Drawing.Size(152, 310);
+            this.textboxPlayers.ReadOnly = true;
+            this.textboxPlayers.Size = new System.Drawing.Size(115, 253);
             this.textboxPlayers.TabIndex = 150;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 19);
+            this.label1.Location = new System.Drawing.Point(9, 15);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 17);
+            this.label1.Size = new System.Drawing.Size(38, 13);
             this.label1.TabIndex = 151;
             this.label1.Text = "Score:";
             // 
             // labelScore
             // 
             this.labelScore.AutoSize = true;
-            this.labelScore.Location = new System.Drawing.Point(67, 19);
+            this.labelScore.Location = new System.Drawing.Point(50, 15);
+            this.labelScore.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelScore.Name = "labelScore";
-            this.labelScore.Size = new System.Drawing.Size(16, 17);
+            this.labelScore.Size = new System.Drawing.Size(13, 13);
             this.labelScore.TabIndex = 151;
             this.labelScore.Text = "0";
             // 
             // FormStage
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1453, 841);
+            this.ClientSize = new System.Drawing.Size(731, 296);
             this.Controls.Add(this.labelScore);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textboxPlayers);
             this.Controls.Add(this.panelGame);
             this.Controls.Add(this.textBoxChatHistory);
             this.Controls.Add(this.textBoxMessage);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormStage";

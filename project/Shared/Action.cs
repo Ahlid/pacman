@@ -17,5 +17,8 @@ namespace Shared
         public ActionTaken action { get; set; }
         public Direction direction { get; set; }
         public Point displacement { get; set; }
+        public Point position { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
     }
 }

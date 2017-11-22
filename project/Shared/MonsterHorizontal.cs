@@ -66,7 +66,10 @@ namespace Shared
                 ID = this.ID,
                 action = Shared.Action.ActionTaken.MOVE,
                 direction = direction,
-                displacement = displacement
+                displacement = displacement,
+                position = Position,
+                width = WIDTH,
+                height = HEIGHT
             };
         }
     }

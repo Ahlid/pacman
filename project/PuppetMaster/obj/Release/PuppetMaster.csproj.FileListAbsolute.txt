@@ -6,3 +6,11 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Release\PuppetMaster.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Release\PuppetMaster.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\PuppetMaster\obj\Release\PuppetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Release\PuppetMaster.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Release\PuppetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Release\PuppetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Release\PuppetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Release\PuppetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Release\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Release\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Release\PuppetMaster.csprojResolveAssemblyReference.cache
