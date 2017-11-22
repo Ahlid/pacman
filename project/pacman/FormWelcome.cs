@@ -81,16 +81,18 @@ namespace pacman
 
         private void buttonQuit_Click(object sender, EventArgs e)
         {
-            disconnetFromServer();
+            disconnectFromServer();
             this.Close();
+            //Application.Exit();
         }
 
         private void formWelcome_OnClosing(object sender, FormClosingEventArgs e)
         {
-            disconnetFromServer();
+            disconnectFromServer();
+            Application.Exit();
         }
        
-        private void disconnetFromServer()
+        private void disconnectFromServer()
         {
             hub.Quit();
         }

@@ -1,8 +1,0 @@
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Debug\Server.exe.config
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Debug\Server.exe
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Debug\Server.pdb
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Debug\Shared.dll
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\bin\Debug\Shared.pdb
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Debug\Server.csprojResolveAssemblyReference.cache
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Debug\Server.exe
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Debug\Server.pdb

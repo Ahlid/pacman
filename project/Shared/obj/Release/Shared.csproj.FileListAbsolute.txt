@@ -1,0 +1,4 @@
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Release\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Release\Shared.pdb

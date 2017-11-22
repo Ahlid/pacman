@@ -8,6 +8,12 @@ using System.Windows.Forms;
 using Shared;
 
 namespace pacman {
+
+    class MyContext : ApplicationContext
+    {
+
+    }
+
     static class Program {
 
         private const string INSTRUCTED = "instructed";
@@ -19,9 +25,8 @@ namespace pacman {
             Application.EnableVisualStyles();
 
 
-            if (!Debugger.IsAttached)
-                Debugger.Launch();
-            Debugger.Break();
+            //if (!Debugger.IsAttached)
+//                Debugger.Launch();
 
             try
             {
@@ -70,38 +75,44 @@ namespace pacman {
         private static void instructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
         {
             Hub hub = new Hub(serverURL, clientURL, msecPerRound, new AutomatedGame(instructions));
-            JoinResult result = hub.Join(PID);
-            //FormWelcome form = new FormWelcome(hub);
-            //Application.Run(form);
+
+            Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
             {
-                FormStage formStage = new FormStage(hub, stage);
-                Application.Run(formStage);
+                form.Invoke(new System.Action(() =>
+                {
+                    form.Hide();
+                    FormStage formStage = new FormStage(hub, stage);
+                    formStage.Show();
+                }));
             };
-
-            // init connection with the server automatically
-            // form.textBoxUsername.Text = PID;
-            // form.textBoxClientPort.Text = uri.Port.ToString(); 
-            // form.buttonJoin.PerformClick();
+            JoinResult result = hub.Join(PID);
+            Application.Run(form);
         }
 
         private static void notInstructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
         {
-            MessageBox.Show(PID);
+            //MessageBox.Show(PID);
             Hub hub = new Hub(serverURL, clientURL, msecPerRound, new SimpleGame());
             //FormWelcome form = new FormWelcome(hub);
             //Application.Run(form);
-            JoinResult result = hub.Join(PID);
+            Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
             {
-                FormStage formStage = new FormStage(hub, stage);
-                Application.Run(formStage);
+                form.Invoke(new System.Action(() =>
+                {
+                    form.Hide();
+                    FormStage formStage = new FormStage(hub, stage);
+                    formStage.Show();
+                }));
             };
+            JoinResult result = hub.Join(PID);
+            Application.Run(form);
         }
 
         private static void defaultClient()
         {
-            Hub hub = new Hub(new Uri("tcp://localhost:8086"), 20);
+            Hub hub = new Hub(new Uri("tcp://127.0.0.1:30001"), 20);
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
         }

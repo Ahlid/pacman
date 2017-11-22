@@ -7,6 +7,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 using Shared;
 using System.Net.Sockets;
 using System.Net;
+using System.Windows.Forms;
 
 namespace pacman
 {
@@ -56,13 +57,14 @@ namespace pacman
 
             if(address == null)
             {
-                address = new Uri("tcp://localhost:"+ FreeTcpPort().ToString());
+                address = new Uri("tcp://127.0.0.1:"+ FreeTcpPort().ToString());
             }
 
             this.game = game;
             this.msecPerRound = msecPerRound;
             this.serverURL = serverURL;
             Address = address;
+//            MessageBox.Show(address.ToString());
 
             CurrentSession = new Session(game, msecPerRound);
 

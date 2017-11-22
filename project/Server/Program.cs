@@ -20,9 +20,9 @@ namespace Server
         {
             Console.WriteLine("***** Server Initilized *****");
 
-            if (!Debugger.IsAttached)
-                Debugger.Launch();
-            Debugger.Break();
+            //if (!Debugger.IsAttached)
+//                Debugger.Launch();
+            //Debugger.Break();
 
             try
             { 
@@ -64,7 +64,7 @@ namespace Server
 
         private static void StartMasterModeDefault()
         {
-            Server server = new Server(new Uri("tcp://localhost:8086/"));
+            Server server = new Server(new Uri("tcp://127.0.0.1:30001"));
         }
 
         private static void StartMasterMode(string PID, Uri serverURL, int msecPerRound, int numPlayers)

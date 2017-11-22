@@ -76,19 +76,15 @@ namespace pacman {
             {
                 case Keys.Left:
                     play = Play.LEFT;
-                    pacman.Image = Properties.Resources.Left; //Change image to pacman looking left 
                     break;
                 case Keys.Right:
                     play = Play.RIGHT;
-                    pacman.Image = Properties.Resources.Right;
                     break;
                 case Keys.Up:
                     play = Play.UP;
-                    pacman.Image = Properties.Resources.Up;
                     break;
                 case Keys.Down:
                     play = Play.DOWN;
-                    pacman.Image = Properties.Resources.down;
                     break;
                 case Keys.Enter:
                     this.textBoxMessage.Enabled = true;
@@ -142,8 +138,9 @@ namespace pacman {
                 {
                     case Shared.Action.ActionTaken.MOVE:
                         pictureBox = stageObjects[action.ID];
-                        int x = pictureBox.Location.X + action.displacement.X;
+                        int x = pictureBox.Location.X + action.displacement.X ;
                         int y = pictureBox.Location.Y + action.displacement.Y;
+
                         Invoke(new System.Action(() =>
                         {
                             if (stageObjectsType[action.ID] == "player")
@@ -284,7 +281,8 @@ namespace pacman {
             foreach (ICoin coin in stage.GetCoins())
             {
                 newCoin = createControl("coin" + i++, coin.Position, Coin.WIDTH, Coin.HEIGHT);
-                newCoin.Image = global::pacman.Properties.Resources.coin;
+                newCoin.Image = global::pacman.Properties.Resources.cccc;
+                newCoin.SizeMode = PictureBoxSizeMode.StretchImage;
                 stageObjects.Add(coin.ID, newCoin);
                 stageObjectsType.Add(coin.ID, "coin");
                 Invoke(new System.Action(() => panelGame.Controls.Add(newCoin)));
@@ -315,5 +313,11 @@ namespace pacman {
                 Invoke(new System.Action(() => panelGame.Controls.Add(newMonster)));
             }
         }
+
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
+
     }
 }

@@ -11,8 +11,8 @@ namespace Shared
     [Serializable]
     public class Stage :  IStage
     {
-        public const int WIDTH = 600;
-        public const int HEIGHT = 400;
+        public const int WIDTH = 430;
+        public const int HEIGHT = 310;
         public const int COINS = 30;
 
         private int lastID = 1;

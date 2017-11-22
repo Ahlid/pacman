@@ -16,11 +16,11 @@ namespace Shared
         /// <summary>
         /// Width of the wall.
         /// </summary>
-        public const int WIDTH = 20;
+        public const int WIDTH = 15;
         /// <summary>
         /// Height of the wall.
         /// </summary>
-        public const int HEIGHT = 120;
+        public const int HEIGHT = 95;
 
 
         /// <summary>

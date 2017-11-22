@@ -11,8 +11,8 @@ namespace Shared
     [Serializable]
     public class Coin : ICoin
     {
-        public const int WIDTH = 20;
-        public const int HEIGHT = 18;
+        public const int WIDTH = 15;
+        public const int HEIGHT = 15;
 
         public int ID { get; set; }
         public Point Position { get; set; }

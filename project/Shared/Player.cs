@@ -11,8 +11,8 @@ namespace Shared
     [Serializable]
     public class Player : RigidObject, IPlayer
     {
-        public const int WIDTH = 34;
-        public const int HEIGHT = 32;
+        public const int WIDTH = 25;
+        public const int HEIGHT = 25;
         public const int SPEED = 10;
 
         public string Username { get; set; }
@@ -54,7 +54,7 @@ namespace Shared
                     direction = Shared.Action.Direction.RIGHT;
                     if (this.Position.X + Player.SPEED + Player.WIDTH / 2 > Stage.WIDTH)
                     {
-                        this.Position = new Point(Stage.WIDTH + Player.WIDTH / 2, this.Position.Y);
+                        this.Position = new Point(Stage.WIDTH - Player.WIDTH / 2, this.Position.Y);
                     }
                     else
                     {
@@ -74,10 +74,11 @@ namespace Shared
                     }
                     break;
                 case Play.DOWN:
+                    Console.WriteLine("###########\n\n" + (this.Position.Y + Player.SPEED + Player.HEIGHT / 2));
                     direction = Shared.Action.Direction.DOWN;
                     if (this.Position.Y + Player.SPEED + Player.HEIGHT / 2 > Stage.HEIGHT)
                     {
-                        this.Position = new Point(this.Position.X, Stage.HEIGHT- Player.HEIGHT / 2);
+                        this.Position = new Point(this.Position.X, Stage.HEIGHT - Player.HEIGHT / 2);
                     }
                     else
                     {

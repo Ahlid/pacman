@@ -12,8 +12,8 @@ namespace Shared
     [Serializable]
     public class MonsterAware : RigidObject, IMonster
     {
-        public const int WIDTH = 40;
-        public const int HEIGHT = 36;
+        public const int WIDTH = 30;
+        public const int HEIGHT = 30;
         public const int SPEED = 3;
         public Point direction { get; set; }
         public Point Speed { get; set; }

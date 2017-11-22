@@ -71,7 +71,7 @@ namespace Server
 
         private void Tick(Object parameters)
         {
-
+            Console.WriteLine("tick");
             if (this.currentGameSession.HasGameEnded())
             {
                 Console.WriteLine("Game has ended!");
@@ -130,6 +130,7 @@ namespace Server
         // e inicia o jogo
         public JoinResult Join(string username, Uri address)
         {
+            Console.WriteLine($"Username {username} Address {address.ToString()}");
             if (clients.Exists(c => c.Username == username) ||
                 waitingQueue.Exists(c => c.Username == username))
             {
@@ -154,16 +155,17 @@ namespace Server
             //vamos ver se podemos começar o jogo
             if (waitingQueue.Count >= numPlayers)
             {
-                mutex.WaitOne();
-                timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
+                
+                //mutex.WaitOne();
                 Thread thread = new Thread(new ThreadStart(()=>
                 {
                     // todo: this block has a problem
                     addPlayersToCurrentGameSession();
                     currentGameSession.StartGame();
+                    timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
                 }));
                 thread.Start();
-                mutex.ReleaseMutex();
+                //mutex.ReleaseMutex();
             }
 
             return JoinResult.QUEUED;
