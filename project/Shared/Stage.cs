@@ -16,7 +16,7 @@ namespace Shared
         public const int COINS = 30;
 
         private int lastID = 1;
-        private int initX = 8, initY = 8, space = 40;
+        private int initX = 150, initY = 50, space = 40;
 
         private List<IMonster> monsters;
         private List<ICoin> coins;

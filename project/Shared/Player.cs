@@ -13,7 +13,7 @@ namespace Shared
     {
         public const int WIDTH = 25;
         public const int HEIGHT = 25;
-        public const int SPEED = 10;
+        public const int SPEED = 6;
 
         public string Username { get; set; }
         public Uri Address { get; set; }
@@ -74,7 +74,7 @@ namespace Shared
                     }
                     break;
                 case Play.DOWN:
-                    Console.WriteLine("###########\n\n" + (this.Position.Y + Player.SPEED + Player.HEIGHT / 2));
+                    
                     direction = Shared.Action.Direction.DOWN;
                     if (this.Position.Y + Player.SPEED + Player.HEIGHT / 2 > Stage.HEIGHT)
                     {

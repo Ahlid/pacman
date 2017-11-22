@@ -63,12 +63,10 @@
             // 
             // panelGame
             // 
-            this.panelGame.Location = new System.Drawing.Point(13, 40);
+            this.panelGame.Location = new System.Drawing.Point(83, 357);
             this.panelGame.Margin = new System.Windows.Forms.Padding(4);
-            this.panelGame.MaximumSize = new System.Drawing.Size(430, 310);
-            this.panelGame.MinimumSize = new System.Drawing.Size(430, 310);
             this.panelGame.Name = "panelGame";
-            this.panelGame.Size = new System.Drawing.Size(430, 310);
+            this.panelGame.Size = new System.Drawing.Size(720, 471);
             this.panelGame.TabIndex = 149;
             // 
             // textboxPlayers
@@ -102,7 +100,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(979, 365);
+            this.ClientSize = new System.Drawing.Size(1453, 841);
             this.Controls.Add(this.labelScore);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textboxPlayers);
