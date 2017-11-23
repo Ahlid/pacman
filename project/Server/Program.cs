@@ -76,7 +76,7 @@ namespace Server
         private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL)
         {
             Console.WriteLine($"Replica mode {PID} {serverURL} {serverURL} {replicaURL}");
-            Server server = new Server(serverURL, PID);
+            Server server = new Server(replicaURL, serverURL, PID);
         }
 
     }

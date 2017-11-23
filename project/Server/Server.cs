@@ -19,6 +19,11 @@ namespace Server
         //For replica purposes
         private bool isMaster;
         private Uri masterAddress;
+        private IServer master;
+        private List<Uri> replicaServersURIsList;
+        private Dictionary<Uri, IServer> replicas;
+        public static volatile Mutex replicaMutex = new Mutex(false);
+
 
         public int numPlayers;
         private int roundIntervalMsec;
@@ -32,6 +37,7 @@ namespace Server
 
         public static volatile Mutex mutex = new Mutex(false);
 
+
         //Commun private constructor
         private Server(Uri address, string PID)
         {
@@ -41,6 +47,8 @@ namespace Server
             this.clients = new List<IClient>();
             this.waitingQueue = new List<IClient>();
             this.gameSessionsTable = new Dictionary<int, IGameSession>();
+            this.replicaServersURIsList = new List<Uri>();
+            this.replicas = new Dictionary<Uri, IServer>();
 
             //Start services
             channel = new TcpChannel(address.Port);
@@ -66,7 +74,12 @@ namespace Server
             //This server will start as a Replica
             this.isMaster = false;
 
-            // TODO: communicate with the main server and request a stage and the missing information (numPlayers, roundIntervalMsec)
+            this.master = (IServer)Activator.GetObject(
+                typeof(IServer),
+                masterURL.ToString() + "Server");
+
+            this.master.RegisterReplica(address);
+
         }
 
         private void Tick(Object parameters)
@@ -191,6 +204,209 @@ namespace Server
             this.waitingQueue.RemoveAll(p => p.ToString() == address.ToString());
         }
 
+        //REPLICATION
+
+        //Remote
+        public void RegisterReplica(Uri replicaServerURL)
+        {
+            if(!this.isMaster)
+            {
+                throw new Exception("This server is a replica and cannot register replicas");
+            }
+
+            //Todo: Test the communication with the replica
+
+            replicaMutex.WaitOne();
+            replicaServersURIsList.Add(replicaServerURL);
+
+            IServer replica = (IServer)Activator.GetObject(
+                typeof(IServer),
+                replicaServerURL.ToString() + "Server");
+
+            replicas.Add(replicaServerURL, replica);
+            broadcastReplicaList();
+
+            replicaMutex.ReleaseMutex();
+        }
+
+        private void broadcastReplicaList()
+        {
+            foreach (IClient client in clients)
+            {
+                client.SetReplicaList(replicaServersURIsList);
+            }
+
+            foreach (Uri uri in replicaServersURIsList)
+            {
+                IServer server = replicas[uri];
+                server.SetReplicaList(replicaServersURIsList);
+            }
+        }
+
+        //Remote
+        public void SetReplicaList(List<Uri> replicasURLs)
+        {
+            if (this.isMaster)
+            {
+                throw new Exception("This server has to be a replica");
+            }
+
+            replicaMutex.WaitOne();
+            replicas = new Dictionary<Uri, IServer>();
+            foreach (Uri replicaURL in replicasURLs)
+            {
+                IServer replica = (IServer)Activator.GetObject(
+                                typeof(IServer),
+                                replicaURL.ToString() + "Server");
+                replicas.Add(replicaURL, replica);
+            }
+            replicaMutex.ReleaseMutex();
+
+        }
+
+        public Uri GetMaster()
+        {
+            if(this.isMaster)
+            {
+                return this.address;
+            }
+
+            if(this.masterAddress == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                //Check if it is still on
+                this.master.Ping();
+                return this.masterAddress;
+            }
+            catch(Exception)
+            {
+                int index = replicaServersURIsList.IndexOf(this.address);
+                //todo: get the next in the chain.  
+                if (index == 0)
+                {
+                    Thread thread = new Thread(new ThreadStart(() =>
+                    {
+                        makeMaster();
+                    }));
+                }
+                else
+                {
+                    Thread thread = new Thread(new ThreadStart(() =>
+                    {
+                        resolveNewMaster();
+                        master = null;
+                        masterAddress = null;
+                    }));
+                }
+
+                return null;
+            }
+
+        }
+
+        private void makeMaster()
+        {
+            //Assume that we are the new master.
+            this.isMaster = true;
+            replicaServersURIsList.Remove(this.address); //I'm no longer a replica
+            broadcastReplicaList();
+            master = null;
+            masterAddress = null;
+        }
+
+        private void resolveNewMaster()
+        {
+            int index = replicaServersURIsList.IndexOf(this.address);
+            
+            if (index == 0)
+            {
+                //Assume that we are the new master.
+                makeMaster();
+                return;
+            }
+
+            Uri previousReplicaURL = getPreviousReplica();
+            if(previousReplicaURL == null) {
+                //Assume that we are the new master.
+                makeMaster();
+                return;
+            }
+
+            //Ask the index-1 replica who is the server.
+            masterAddress = replicas[previousReplicaURL].GetMaster();
+            if(masterAddress == null)
+            {
+                //Assume that we are the new master.
+                makeMaster();
+                return;
+            }
+
+            master = (IServer)Activator.GetObject(
+                    typeof(IServer),
+                    masterAddress.ToString() + "Server");
+
+        }
+
+
+        private Uri getPreviousReplica()
+        {
+            if (replicaServersURIsList.Count == 1)
+            {
+                return null;
+            }
+
+            int index = replicaServersURIsList.IndexOf(this.address);
+            if (index - 1 < 0)
+            {
+                return replicaServersURIsList[replicaServersURIsList.Count - 1];
+            }
+
+            return replicaServersURIsList[index - 1];
+        }
+
+        private Uri getNextReplica()
+        {
+            if(replicaServersURIsList.Count == 1)
+            {
+                return null;
+            }
+
+            int index = replicaServersURIsList.IndexOf(this.address);
+            if (index + 1 >= replicaServersURIsList.Count) {
+                return replicaServersURIsList[0];
+            }
+
+            return replicaServersURIsList[index + 1];
+        }
+
+
+
+        public void SendRoundStage(IStage stage)
+        {
+            if(isMaster)
+            {
+                throw new Exception("Master can't receive Rounds Stages");
+            }
+
+            //Assume a session already exists
+            //TODO: may be necessary see if the session has arived
+
+            currentGameSession.Stage = stage;
+            Thread thread = new Thread(new ThreadStart(() =>
+            {
+                
+            }));
+            
+        }
+
+        public string Ping()
+        {
+            return "Here";
+        }
     }
 
 }

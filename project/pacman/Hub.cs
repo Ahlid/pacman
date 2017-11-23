@@ -19,6 +19,7 @@ namespace pacman
         private TcpChannel channel;
         private Uri serverURL { get; set; }
         private IServer server { get; set; }
+        private List<Uri> replicaServerList;
 
         //Current Session Information
         public Session CurrentSession { get; set; } // changed to property
@@ -64,7 +65,8 @@ namespace pacman
             this.msecPerRound = msecPerRound;
             this.serverURL = serverURL;
             Address = address;
-//            MessageBox.Show(address.ToString());
+            replicaServerList = new List<Uri>();
+            //            MessageBox.Show(address.ToString());
 
             CurrentSession = new Session(game, msecPerRound);
 
@@ -81,7 +83,6 @@ namespace pacman
 
         public Hub(Uri serverURL, int msecPerRound) : this(serverURL, null, msecPerRound, new SimpleGame()) {}
 
-
         static int FreeTcpPort()
         {
             TcpListener l = new TcpListener(IPAddress.Loopback, 0);
@@ -90,7 +91,6 @@ namespace pacman
             l.Stop();
             return port;
         }
-
 
         //Attempts to join the server using a username
         public JoinResult Join(string username)
@@ -124,8 +124,66 @@ namespace pacman
             {
                 throw new Exception("The session hasn't started yet.");
             }
-            server.SetPlay(Address, play, CurrentSession.Round);
+
+            try
+            {
+                server.SetPlay(Address, play, CurrentSession.Round);
+            }
+            catch(Exception ex)
+            {
+                //Assume the server crashed or retry
+                if(this.replicaServerList.Count == 0)
+                {
+                    //No replicas, the server has effectively crashed
+                    //TODO: Stop the game
+                    return;
+                }
+
+                bool done = true;
+                do
+                {
+                    Uri nextServer = this.replicaServerList[0];
+
+                    try
+                    {
+                        IServer replica = (IServer)Activator.GetObject(
+                        typeof(IServer),
+                        nextServer.ToString() + "Server");
+
+                        Uri masterURL = replica.GetMaster();
+
+                        //If the replica does not know who is the master
+                        if (masterURL == null)
+                        {
+                            //Call again in some time
+                            //todo: start a timer
+                            //todo: call an OnReconnecting event in order to stop the from input
+
+                            return;
+                        }
+
+                        IServer master = (IServer)Activator.GetObject(
+                            typeof(IServer),
+                            masterURL.ToString() + "Server");
+
+                        serverURL = masterURL;
+                        server = master;
+
+                        server.SetPlay(Address, play, CurrentSession.Round);
+
+                    }
+                    catch (Exception)
+                    {
+                        //remove the replica server from the list
+                        this.replicaServerList.RemoveAt(0);
+                        done = false;
+                    }
+
+                } while (done);
+            }
         }
+
+
 
         public void Quit()
         {
@@ -203,6 +261,11 @@ namespace pacman
         public string GetState(int round)
         {
             return getStateHandler.Invoke(round);
+        }
+
+        public void SetReplicaList(List<Uri> replicaServersURIsList)
+        {
+            replicaServerList = replicaServersURIsList;
         }
     }
 }

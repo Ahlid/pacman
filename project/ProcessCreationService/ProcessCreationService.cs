@@ -42,7 +42,7 @@ namespace ProcessCreationService
 
         public void Crash(string PID)
         {
-            processes[PID].Close();
+            processes[PID].CloseMainWindow();
             PIDToClientURL.Remove(PID); 
             PIDToServerURL.Remove(PID);
         }
@@ -126,7 +126,6 @@ namespace ProcessCreationService
             serverProcess.Start();
             processes.Add(PID, serverProcess);
             PIDToServerURL.Add(PID, serverURL);
-
         }
 
 

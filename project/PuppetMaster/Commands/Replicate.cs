@@ -15,7 +15,7 @@ namespace PuppetMaster.Commands
         public string masterServerUrl;
 
 
-        public Replicate() : base("Replica") { }
+        public Replicate() : base("Replicate") { }
 
         public override void CommandToExecute(string[] parameters)
         {
