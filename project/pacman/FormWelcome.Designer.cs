@@ -126,7 +126,7 @@
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = " PACMAN";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formWelcome_OnClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formWelcome_OnClose);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -6,7 +6,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using Shared;
 using System.Threading;
-
+using Shared.Exceptions;
 
 namespace Server
 {
@@ -130,12 +130,13 @@ namespace Server
         // e inicia o jogo
         public JoinResult Join(string username, Uri address)
         {
-            Console.WriteLine($"Username {username} Address {address.ToString()}");
             if (clients.Exists(c => c.Username == username) ||
                 waitingQueue.Exists(c => c.Username == username))
             {
                 // TODO: Lauch exception to the client (username already exists)
-                return JoinResult.REJECTED_USERNAME;
+                Console.WriteLine($"Client at {address.ToString()} tried to join with username {username}, but is already in use.");
+                throw new InvalidUsernameException("Username already in use");
+                //return JoinResult.REJECTED_USERNAME;
             }
 
             // ao enviar os dados dos clients para um cliente devem enviar o endereço e o username.
@@ -148,24 +149,20 @@ namespace Server
 
             waitingQueue.Add(client);
 
-            Console.WriteLine(string.Format("Sending to client '{0}' that he has just been queued", username));
+            Console.WriteLine($"Client with username {username} and at {address} joined successfully");
             
             clients.Add(client);
 
-            //vamos ver se podemos começar o jogo
+            // check if there are enough players in the waiting queue to start the game
             if (waitingQueue.Count >= numPlayers)
             {
-                
-                //mutex.WaitOne();
                 Thread thread = new Thread(new ThreadStart(()=>
                 {
-                    // todo: this block has a problem
                     addPlayersToCurrentGameSession();
                     currentGameSession.StartGame();
                     timer = new Timer(new TimerCallback(Tick), null, roundIntervalMsec, Timeout.Infinite);
                 }));
                 thread.Start();
-                //mutex.ReleaseMutex();
             }
 
             return JoinResult.QUEUED;
@@ -188,7 +185,7 @@ namespace Server
         {
             Console.WriteLine(String.Format("Client at {0} is disconnecting.", address));
             this.clients.RemoveAll(p => p.Address.ToString() == address.ToString());
-            this.waitingQueue.RemoveAll(p => p.ToString() == address.ToString());
+            this.waitingQueue.RemoveAll(p => p.Address.ToString() == address.ToString());
         }
 
     }

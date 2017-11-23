@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Coin.cs" />
     <Compile Include="Action.cs" />
+    <Compile Include="Exceptions\InvalidUsernameException.cs" />
     <Compile Include="IChat.cs" />
     <Compile Include="ICollide.cs" />
     <Compile Include="IGameSession.cs" />

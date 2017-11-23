@@ -1,5 +1,5 @@
 StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001 20 2
-Wait 2000
+#Wait 2000
 StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50001 20 2
-Wait 2000
 StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50002 20 2
+#Replicate R1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:30002

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Shared.Exceptions;
 
 namespace pacman
 {
@@ -54,18 +55,25 @@ namespace pacman
             // todo: should this call be async?
             //     should if we want to do something with the gui, like move it around, 
             //     otherwise there is not much to do at the same time
-            JoinResult result = hub.Join(username);
-            switch(result)
+            try
             {
-                case JoinResult.REJECTED_USERNAME:
-                    this.labelError.Visible = true;
-                    this.labelError.Text = "Username already in use";
-                    break;
-                case JoinResult.QUEUED:
-                    this.labelError.Text = "Waiting for the server to start the game session..";
-                    break;
+                JoinResult result = hub.Join(username);
+                switch (result)
+                {
+                    case JoinResult.QUEUED:
+                        this.labelError.Visible = true;
+                        this.labelError.Text = "Waiting for the server to start the game session..";
+                        this.buttonJoin.Enabled = false;
+                        this.textBoxUsername.Enabled = false;   // can't change username after joining 
+                        break;
+                }
             }
-
+            catch (InvalidUsernameException exc)
+            {
+                this.labelError.Visible = true;
+                this.labelError.Text = exc.Message;
+                this.textBoxUsername.Clear();   // clear text
+            }
         }
 
         private void textBoxUsername_OnFocus(object sender, EventArgs e)
@@ -81,12 +89,11 @@ namespace pacman
 
         private void buttonQuit_Click(object sender, EventArgs e)
         {
-            disconnectFromServer();
-            this.Close();
-            //Application.Exit();
+            this.Close();   // this will trigger the event form on close
+            Application.Exit();
         }
 
-        private void formWelcome_OnClosing(object sender, FormClosingEventArgs e)
+        private void formWelcome_OnClose(object sender, FormClosedEventArgs e)
         {
             disconnectFromServer();
             Application.Exit();

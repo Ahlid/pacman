@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Shared;
+using Shared.Exceptions;
 
 namespace pacman {
 
@@ -25,8 +26,9 @@ namespace pacman {
             Application.EnableVisualStyles();
 
 
-            //if (!Debugger.IsAttached)
-//                Debugger.Launch();
+            if (!Debugger.IsAttached)
+                Debugger.Launch();
+            Debugger.Break();
 
             try
             {
@@ -75,7 +77,6 @@ namespace pacman {
         private static void instructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
         {
             Hub hub = new Hub(serverURL, clientURL, msecPerRound, new AutomatedGame(instructions));
-
             Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
             {
@@ -86,16 +87,22 @@ namespace pacman {
                     formStage.Show();
                 }));
             };
-            JoinResult result = hub.Join(PID);
-            Application.Run(form);
+            try
+            {
+                JoinResult result = hub.Join(PID);
+                Application.Run(form);
+            }
+            catch (InvalidUsernameException exc)
+            {
+                MessageBox.Show(exc.Message);
+                Application.Exit();
+            }
         }
 
         private static void notInstructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
         {
-            //MessageBox.Show(PID);
             Hub hub = new Hub(serverURL, clientURL, msecPerRound, new SimpleGame());
-            //FormWelcome form = new FormWelcome(hub);
-            //Application.Run(form);
+
             Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
             {
@@ -106,8 +113,17 @@ namespace pacman {
                     formStage.Show();
                 }));
             };
-            JoinResult result = hub.Join(PID);
-            Application.Run(form);
+
+            try
+            {
+                JoinResult result = hub.Join(PID);
+                Application.Run(form);
+            }
+            catch (InvalidUsernameException exc)
+            {
+                MessageBox.Show(exc.Message);
+                Application.Exit();
+            }
         }
 
         private static void defaultClient()

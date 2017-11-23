@@ -64,7 +64,6 @@ namespace pacman
             this.msecPerRound = msecPerRound;
             this.serverURL = serverURL;
             Address = address;
-//            MessageBox.Show(address.ToString());
 
             CurrentSession = new Session(game, msecPerRound);
 
@@ -127,6 +126,7 @@ namespace pacman
             server.SetPlay(Address, play, CurrentSession.Round);
         }
 
+        // this is being called 3 times!!!!!
         public void Quit()
         {
             try
@@ -134,6 +134,7 @@ namespace pacman
                 if (CurrentSession != null)
                 {
                     server.Quit(Address);
+                    return;
                 }
             }catch(Exception e)
             {

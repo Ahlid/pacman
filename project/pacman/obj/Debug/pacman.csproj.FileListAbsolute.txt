@@ -1,14 +1,13 @@
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Debug\pacman.exe.config
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Debug\pacman.exe
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Debug\pacman.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Debug\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\bin\Debug\Shared.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.csprojResolveAssemblyReference.cache
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.AutomaticStartForm.resources
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.FormStage.resources
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.FormWelcome.resources
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.Properties.Resources.resources
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.csproj.GenerateResource.Cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Debug\pacman.exe.config
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Debug\pacman.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Debug\pacman.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Debug\Shared.dll
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Debug\Shared.pdb
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.csprojResolveAssemblyReference.cache
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.AutomaticStartForm.resources
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.FormStage.resources
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.FormWelcome.resources
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.Properties.Resources.resources
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.csproj.GenerateResource.Cache
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Debug\pacman.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\pacman\obj\Debug\pacman.pdb
