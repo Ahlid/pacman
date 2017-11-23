@@ -46,5 +46,7 @@ namespace Shared
         /// </summary>
         /// <param name="winner"></param>
         void End(IPlayer winner);
+
+        void SetReplicaList(List<Uri> replicaServersURIsList);
     }
 }
