@@ -150,7 +150,7 @@ namespace pacman
                         typeof(IServer),
                         nextServer.ToString() + "Server");
 
-                        Uri masterURL = replica.GetMaster();
+                        Uri masterURL = replica.GetLeader();
 
                         //If the replica does not know who is the master
                         if (masterURL == null)
