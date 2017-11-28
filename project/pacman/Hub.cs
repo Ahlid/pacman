@@ -23,7 +23,7 @@ namespace pacman
 
         //Current Session Information
         public Session CurrentSession { get; set; } // changed to property
-        private ChatRoom currentChatRoom;
+        public ChatRoom CurrentChatRoom { get; set; }
 
         // # refactor this variables..
         private int msecPerRound;
@@ -33,7 +33,7 @@ namespace pacman
         //Interface complience
         public string Username { get { return CurrentSession.Username; } }
         public int Round { get { return CurrentSession.Round; } }
-        public List<IClient> Peers { get { return currentChatRoom.Peers; }  }
+        public List<IClient> Peers { get { return CurrentChatRoom.Peers; }  }
 
         //Events
 
@@ -105,7 +105,7 @@ namespace pacman
             {
                 case JoinResult.QUEUED:
                     CurrentSession.SessionStatus = Session.Status.QUEUED;
-                    currentChatRoom = new ChatRoom(CurrentSession);
+                    CurrentChatRoom = new ChatRoom(CurrentSession);
 
                     this.CurrentSession.game.OnPlayHandler += () =>
                     {
@@ -151,6 +151,7 @@ namespace pacman
                         nextServer.ToString() + "Server");
 
                         Uri masterURL = replica.GetMaster();
+
 
                         //If the replica does not know who is the master
                         if (masterURL == null)
@@ -230,32 +231,32 @@ namespace pacman
 
         //IChatRoom
 
-        public void SendMessage(string username, string message)
+
+        public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
         {
-            if (currentChatRoom == null)
+            if (CurrentChatRoom == null)
             {
                 throw new Exception("The session hasn't started.");
             }
-            currentChatRoom.SendMessage(username, message);
-            //todo tie events to the form
+            CurrentChatRoom.ReceiveMessage(username, message);
         }
 
         public void SetPeers(Dictionary<string, Uri> peers)
         {
-            if (currentChatRoom == null)
+            if (CurrentChatRoom == null)
             {
                 throw new Exception("The session hasn't started.");
             }
-            currentChatRoom.SetPeers(peers);
+            CurrentChatRoom.SetPeers(peers);
         }
 
         public void PublishMessage(string message)
         {
-            if (currentChatRoom == null)
+            if (CurrentChatRoom == null)
             {
                 throw new Exception("The session hasn't started.");
             }
-            currentChatRoom.PublishMessage(CurrentSession.Username, message);
+            CurrentChatRoom.PublishMessage(CurrentSession.Username, message);
         }
 
         public string GetState(int round)

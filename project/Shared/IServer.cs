@@ -8,13 +8,15 @@ namespace Shared
 {
     public enum JoinResult { QUEUED, REJECTED_USERNAME }
 
-    public interface IServer : IReplica
+    public interface IServer //: IReplica
     {
         JoinResult Join(string username, Uri address);
 
         void SetPlay(Uri address, Play play, int round);
 
         void Quit(Uri address);
+
+        Uri GetMaster();
 
     }
 }

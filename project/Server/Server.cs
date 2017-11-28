@@ -56,7 +56,7 @@ namespace Server
             RemotingServices.Marshal(this, "Server", typeof(Server));
         }
         //Master constructor
-        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 2) : this(address, PID)
+        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
             //This server will start as a Master
 
@@ -78,7 +78,7 @@ namespace Server
                 typeof(IServer),
                 masterURL.ToString() + "Server");
 
-            this.master.RegisterReplica(address);
+          //  this.master.RegisterReplica(address);
 
         }
 
@@ -200,7 +200,7 @@ namespace Server
             this.clients.RemoveAll(p => p.Address.ToString() == address.ToString());
             this.waitingQueue.RemoveAll(p => p.Address.ToString() == address.ToString());
         }
-
+/*
         //REPLICATION
 
         //Remote
@@ -236,7 +236,7 @@ namespace Server
             foreach (Uri uri in replicaServersURIsList)
             {
                 IServer server = replicas[uri];
-                server.SetReplicaList(replicaServersURIsList);
+               // server.SetReplicaList(replicaServersURIsList);
             }
         }
 
@@ -260,15 +260,17 @@ namespace Server
             replicaMutex.ReleaseMutex();
 
         }
-
+        */
         public Uri GetMaster()
         {
-            if(this.isMaster)
-            {
-                return this.address;
-            }
-
-            if(this.masterAddress == null)
+            /* if(this.isMaster)
+             {*/
+            return this.address;
+            /* }
+             * */
+        }
+        /*
+        if(this.masterAddress == null)
             {
                 return null;
             }
@@ -276,7 +278,7 @@ namespace Server
             try
             {
                 //Check if it is still on
-                this.master.Ping();
+                //this.master.Ping();
                 return this.masterAddress;
             }
             catch(Exception)
@@ -334,7 +336,7 @@ namespace Server
             }
 
             //Ask the index-1 replica who is the server.
-            masterAddress = replicas[previousReplicaURL].GetMaster();
+           // masterAddress = replicas[previousReplicaURL].GetMaster();
             if(masterAddress == null)
             {
                 //Assume that we are the new master.
@@ -404,6 +406,7 @@ namespace Server
         {
             return "Here";
         }
+        */
     }
 
 }

@@ -6,3 +6,12 @@ C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreati
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.csprojResolveAssemblyReference.cache
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.exe
 C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.exe.config
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.exe
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Debug\ProcessCreationService.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Debug\Shared.dll
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Debug\Shared.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.csprojResolveAssemblyReference.cache
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.csproj.CoreCompileInputs.cache
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.exe
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Debug\ProcessCreationService.pdb

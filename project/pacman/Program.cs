@@ -8,20 +8,23 @@ using System.Windows.Forms;
 using Shared;
 using Shared.Exceptions;
 
-namespace pacman {
+namespace pacman
+{
 
     class MyContext : ApplicationContext
     {
 
     }
 
-    static class Program {
+    static class Program
+    {
 
         private const string INSTRUCTED = "instructed";
         private const string NOT_INSTRUCTED = "not-instructed";
 
         [STAThread]
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
             Application.SetCompatibleTextRenderingDefault(false);
             Application.EnableVisualStyles();
 
@@ -47,7 +50,7 @@ namespace pacman {
 
                         instructedClient(PID, clientURL, serverURL, msecPerRound, numPlayers, instructions);
                     }
-                    else if(args[0] == NOT_INSTRUCTED)
+                    else if (args[0] == NOT_INSTRUCTED)
                     {
                         string PID = args[1];
                         Uri clientURL = new Uri(args[2]);
