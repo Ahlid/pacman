@@ -86,7 +86,7 @@ namespace ProcessCreationService
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
-            clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Release\pacman.exe";
+            clientProcess.StartInfo.FileName = this.pathClientExecutable();
             clientProcess.StartInfo.Arguments = $"not-instructed {PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
             clientProcess.Start();
             processes.Add(PID, clientProcess);
@@ -97,7 +97,7 @@ namespace ProcessCreationService
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
-            clientProcess.StartInfo.FileName = @"..\..\..\pacman\bin\Release\pacman.exe";
+            clientProcess.StartInfo.FileName = this.pathClientExecutable();
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
             clientProcess.StartInfo.Arguments = $"instructed {PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
@@ -110,7 +110,7 @@ namespace ProcessCreationService
         {
             Process serverProcess = new Process();
             processesFrozen.Add(PID, false);
-            serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
+            serverProcess.StartInfo.FileName = this.pathServerExecutable();
             serverProcess.StartInfo.Arguments = $"master {PID} {serverURL} {msecPerRound} {numPlayers}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
@@ -121,7 +121,7 @@ namespace ProcessCreationService
         {
             Process serverProcess = new Process();
             processesFrozen.Add(PID, false);
-            serverProcess.StartInfo.FileName = @"..\..\..\Server\bin\Release\Server.exe";
+            serverProcess.StartInfo.FileName = this.pathServerExecutable();
             serverProcess.StartInfo.Arguments = $"replica {PID} {serverURL} {replicaURL}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
@@ -181,5 +181,23 @@ namespace ProcessCreationService
             }
         }
 
+        private string pathClientExecutable()
+        {
+            return isEnvDebug() ? @"..\..\..\pacman\bin\Debug\pacman.exe" : @"..\..\..\pacman\bin\Release\pacman.exe";
+        }
+
+        private string pathServerExecutable()
+        {
+            return isEnvDebug() ? @"..\..\..\Server\bin\Debug\Server.exe" : @"..\..\..\Server\bin\Release\Server.exe";
+        }
+
+        private bool isEnvDebug()
+        {
+            #if DEBUG
+                return true;
+            #else 
+                return false;
+            #endif
+        }
     }
 }

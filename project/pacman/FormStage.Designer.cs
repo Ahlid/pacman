@@ -46,7 +46,6 @@
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.ReadOnly = true;
             this.textBoxMessage.Size = new System.Drawing.Size(261, 37);
             this.textBoxMessage.TabIndex = 145;
             this.textBoxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMessage_OnKeyDown);

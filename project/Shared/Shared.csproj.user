@@ -4,4 +4,8 @@
     <StartAction>Program</StartAction>
     <StartProgram>C:\Users\pctm\Documents\pacman\project\pacman\bin\Debug\pacman.exe</StartProgram>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Users\pctm\Documents\pacman\project\pacman\bin\Release\pacman.exe</StartProgram>
+  </PropertyGroup>
 </Project>

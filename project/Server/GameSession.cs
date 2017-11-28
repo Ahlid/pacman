@@ -221,7 +221,7 @@ namespace Server
                 {
                     client = this.Clients.ElementAt(i);
                     client.Start(this.Stage);
-                    //client.SetPeers(clientsP2P);
+                    client.SetPeers(clientsP2P);
                 }
                 catch (Exception e)
                 {

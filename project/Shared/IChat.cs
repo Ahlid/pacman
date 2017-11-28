@@ -8,7 +8,7 @@ namespace Shared
 {
     public interface IChat
     {
-        void SendMessage(string username,string message);
+        void ReceiveMessage(string username,IVetorMessage<IChatMessage> message);
 
         void SetPeers(Dictionary<string, Uri> peers);
     }

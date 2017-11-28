@@ -58,7 +58,6 @@ namespace Server
                 Console.WriteLine(ex);
             }
 
-            System.Console.WriteLine("<enter> para sair...");
             System.Console.ReadLine();
         }
 
@@ -75,7 +74,7 @@ namespace Server
 
         private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL)
         {
-            Console.WriteLine($"Replica mode {PID} {serverURL} {serverURL} {replicaURL}");
+            Console.WriteLine($"Replica mode {PID} {serverURL} {replicaURL}");
             Server server = new Server(replicaURL, serverURL, PID);
         }
 

@@ -34,10 +34,10 @@ namespace PuppetMaster
             ICommand command;
             foreach (string line in lines)
             {
-                Console.WriteLine("*****************************");
                 resolveCommandWithParameters = line.Split(' ');
                 commandName = resolveCommandWithParameters[0];
-                if (commandName != null && commandName.Trim() != "")
+                //check if the command is a string and if is a comment
+                if (commandName != null && commandName.Trim() != "" && !resolveCommandWithParameters[0].StartsWith("#"))
                 {
                     parameters = new List<String>(resolveCommandWithParameters).GetRange(1, resolveCommandWithParameters.Length - 1).ToArray();
                     Console.WriteLine("Read Command: " + resolveCommandWithParameters[0]);
