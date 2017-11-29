@@ -15,8 +15,12 @@ namespace Shared
         public const int HEIGHT = 310;
         public const int COINS = 30;
 
+        private int nextHorizontalPosition = 0;
+        private int nextVerticalPosition = 0;
+        private int spaceX = 0;
+        private int spaceY = 40;
+
         private int lastID = 1;
-        private int initX = 150, initY = 50, space = 40;
 
         private List<IMonster> monsters;
         private List<ICoin> coins;
@@ -76,9 +80,9 @@ namespace Shared
         private void buildInitMonsters()
         {
             // red monster 
-            AddMonster(new MonsterHorizontal(240, 90));
+            AddMonster(new MonsterHorizontal(240, 50));
             // yellow monster
-            AddMonster(new MonsterHorizontal(295, 336));
+            AddMonster(new MonsterHorizontal(250, 270));
             // pink monster
             AddMonster(new MonsterAware(401, 89));
         }
@@ -98,18 +102,21 @@ namespace Shared
         public void AddPlayer(IPlayer player)
         {
             player.ID = lastID++;
-            int x = initX, y = initY;
-
-            player.Alive = true;
-            player.Position = new Point(x, y);
-
-            y *= space;
-            if (y >= Stage.HEIGHT)
+            
+            int maxPlayersVerticalLine = (int) Math.Floor(Stage.HEIGHT / (double) spaceY);
+            int x = 8;
+            nextHorizontalPosition = (players.Count) % maxPlayersVerticalLine;
+            int y = ((players.Count) % maxPlayersVerticalLine) * (int) spaceY;
+            int originalY = (players.Count) * (int) spaceY; // no restriction over axis Y
+            y += Player.HEIGHT / 2; // Player.HEIGHT / 2 is to ensure the player stays all inside the game panel
+            x += nextVerticalPosition + spaceX;
+            if (nextHorizontalPosition == maxPlayersVerticalLine - 1)
             {
-                x = initX + space;
-                y = initY;
+                nextVerticalPosition++;
+                spaceX += 35;
             }
-      
+            player.Alive = true;
+            player.Position = new Point(x, y);   
             players.Add(player);
         }
 

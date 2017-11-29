@@ -56,7 +56,7 @@ namespace Server
             RemotingServices.Marshal(this, "Server", typeof(Server));
         }
         //Master constructor
-        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 2) : this(address, PID)
+        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
             //This server will start as a Master
 
@@ -96,7 +96,7 @@ namespace Server
                 this.currentGameSession = newGameSession;
 
                 //
-                // handle clients and server lists
+                // handle clients and server lists to start next game
                 //
             }
             else
@@ -196,9 +196,20 @@ namespace Server
 
         public void Quit(Uri address)
         {
+            //Get username associated to the given address
+            //string username = this.clients.Where(s => s.Address == address).Select(s => s.Username).FirstOrDefault();
+
             Console.WriteLine(String.Format("Client at {0} is disconnecting.", address));
             this.clients.RemoveAll(p => p.Address.ToString() == address.ToString());
             this.waitingQueue.RemoveAll(p => p.Address.ToString() == address.ToString());
+            //todo: se player está vivo na game session então deve passar a morto
+            // remove players from the current game session
+
+            //
+            //foreach(IPlayer player in this.currentGameSession.Stage.GetPlayers())
+            //{
+            //    if()
+            //}
         }
 
         //REPLICATION

@@ -25,11 +25,11 @@ namespace pacman {
             Application.SetCompatibleTextRenderingDefault(false);
             Application.EnableVisualStyles();
 
-
+            /*
             if (!Debugger.IsAttached)
                 Debugger.Launch();
             Debugger.Break();
-
+            */
             try
             {
                 if (args.Length > 0)
@@ -85,6 +85,7 @@ namespace pacman {
                     form.Hide();
                     FormStage formStage = new FormStage(hub, stage);
                     formStage.Show();
+                    hub.CurrentSession.game.Play(0); // force player to play when in auto mode
                 }));
             };
             try

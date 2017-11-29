@@ -48,6 +48,7 @@
     <Compile Include="ICollide.cs" />
     <Compile Include="IGameSession.cs" />
     <Compile Include="IProcessCreationService.cs" />
+    <Compile Include="IReplica.cs" />
     <Compile Include="MonsterAware.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="ICoin.cs" />

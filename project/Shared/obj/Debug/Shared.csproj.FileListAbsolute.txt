@@ -1,4 +1,0 @@
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Debug\Shared.dll
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Debug\Shared.pdb
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Debug\Shared.dll
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Debug\Shared.pdb

@@ -121,7 +121,7 @@ namespace Server
                 if (action != null)
                     Actions.Add(action);
                 Console.WriteLine("Position player: {0}", player.Position);
-                PlayerMoves[player] = Play.NONE;
+                PlayerMoves[player] = Play.NONE;    // clears player move for next round
             }
 
             //Monsters movement
@@ -252,13 +252,26 @@ namespace Server
                     client = this.Clients.ElementAt(i);
                     Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
                     Console.WriteLine(String.Format("Round Nº{0}", this.Round));
-                    //todo change score actions
-                    client.SendRound(this.Actions, -9999, this.Round);
+
+                    client.SendRound(this.Actions, PlayerMoves.Keys.ToList(), this.Round);
                 }
                 catch (Exception)
                 {
                     this.Clients.RemoveAt(i);
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+
+                    /*todo:
+                     * qual a estrategia a adoptar aqui para tentar reconectar com o cliente?
+                     * 
+                     * Dectar falhas de clientes, lidar com falsos positivos.
+                     * 
+                     * Caso não seja pssível contactar o cliente, na próxima ronda deve de ir uma acção em que o player 
+                     * está morto, e deve ser removido do jogo.
+                     * E deve ser apresentado no chat UMA MENSAGEM no chat a indicar que o jogador saiu do jogo
+                     * 
+                     * garantimos a possibilidade de um cliente voltar a entrar no jogo?
+                     * 
+                     */ 
                 }
             }
             this.Actions = new List<Action>();
