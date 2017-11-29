@@ -11,5 +11,7 @@ namespace Shared
         void ReceiveMessage(string username,IVetorMessage<IChatMessage> message);
 
         void SetPeers(Dictionary<string, Uri> peers);
+
+        void VectorRecoveryRequest(int[] vetor, string adress);
     }
 }

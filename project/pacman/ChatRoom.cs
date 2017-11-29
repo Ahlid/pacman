@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace pacman
 {
     [Serializable]
-    public class Message : EventArgs,IChatMessage
+    public class Message : EventArgs, IChatMessage
     {
 
         public string Username { get; set; }
@@ -30,7 +30,7 @@ namespace pacman
         public delegate void RemovedPeerHandler(IClient e);
         public event RemovedPeerHandler OnPeerRemoved;
         private Session session;
-        private VetorClock<IChatMessage> vetorClock;
+        private VetorClockManager vetorClockManager;
 
         public ChatRoom(Session session)
         {
@@ -43,16 +43,16 @@ namespace pacman
             messagesReceived = new List<Message>();
         }
 
-   
+
 
         //Remoting
         public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
         {
-            
-            this.vetorClock.ReceiveMessage(message);//quando recebe manda para o vetorclock para ele ver
+
+            this.vetorClockManager.ReceiveMessage(username, message);//quando recebe manda para o vetorclock para ele ver
             //se existe dependencias
             //pede a lista e mostra no jogo
-            OnMessageReceived?.Invoke(this.vetorClock.GetMessages());
+            OnMessageReceived?.Invoke(this.vetorClockManager.GetMessages());
         }
 
         public void SetPeers(Dictionary<string, Uri> peers)
@@ -61,7 +61,7 @@ namespace pacman
             int index = 0;
             foreach (string key in peers.Keys)
             {
-                
+
                 Uri address = peers[key];
                 IClient client = (IClient)Activator.GetObject(
                     typeof(IClient),
@@ -72,7 +72,8 @@ namespace pacman
                 if (client.Username == this.session.Username)
                 {
                     //cria o vetor clock com a lista de clientes recebida
-                   this.vetorClock = new VetorClock<IChatMessage>(peers.Keys.Count,index);
+                    this.vetorClockManager = new VetorClockManager(peers.Keys.Count, index, address.ToString());
+                    this.vetorClockManager.SetPeers(peers);
                 }
                 index++;
             }
@@ -80,17 +81,22 @@ namespace pacman
 
         }
 
+        public void VectorRecoveryRequest(int[] vetor, string adress)
+        {
+            this.vetorClockManager.VectorRecoveryRequest(vetor, adress);
+        }
+
 
         public void PublishMessage(string username, string message)
         {
-            
-            
+
+
             //cria a mensagem, dá um tick o clock
-            Message m = new Message(username,message);
-            IVetorMessage<IChatMessage> vetorMessage = this.vetorClock.Tick(m);
+            Message m = new Message(username, message);
+            IVetorMessage<IChatMessage> vetorMessage = this.vetorClockManager.Tick(m);
 
             //todo upadate
-            OnMessageReceived?.Invoke(this.vetorClock.GetMessages());
+            OnMessageReceived?.Invoke(this.vetorClockManager.GetMessages());
 
             for (int i = 0; i < this.Peers.Count; i++)
             {
