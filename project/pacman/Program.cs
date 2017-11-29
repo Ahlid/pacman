@@ -27,12 +27,12 @@ namespace pacman
         {
             Application.SetCompatibleTextRenderingDefault(false);
             Application.EnableVisualStyles();
-
             /*
-            if (!Debugger.IsAttached)
-                Debugger.Launch();
-            Debugger.Break();
-            */
+
+                        if (!Debugger.IsAttached)
+                            Debugger.Launch();
+                        Debugger.Break();
+                   */
             try
             {
                 if (args.Length > 0)

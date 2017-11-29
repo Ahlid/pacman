@@ -1,8 +1,8 @@
-StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001 20 2
+StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001 20 3
 Wait 2000
 StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50001 20 2
 StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50002 20 2
-#StartClient C3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50003 20 6
+StartClient C3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50003 20 2
 #StartClient C4 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50004 20 6
 #StartClient C5 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50005 20 6
 #StartClient C6 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50006 20 6

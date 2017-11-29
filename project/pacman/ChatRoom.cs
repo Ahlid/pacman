@@ -1,8 +1,10 @@
 ﻿using Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace pacman
@@ -89,7 +91,7 @@ namespace pacman
 
         public void PublishMessage(string username, string message)
         {
-
+          
 
             //cria a mensagem, dá um tick o clock
             Message m = new Message(username, message);
@@ -98,28 +100,25 @@ namespace pacman
             //todo upadate
             OnMessageReceived?.Invoke(this.vetorClockManager.GetMessages());
 
-            for (int i = 0; i < this.Peers.Count; i++)
+            foreach (IClient client in this.Peers)
             {
-                try
+
+              
+
+                new Thread(() =>
                 {
-                    IClient client = Peers[i];
-                    if (client.Username == username) continue;
-                    //envia para cada cliente
+                    try
+                    {
+                        if (client.Username == username) return;
+                        //envia para cada cliente
 
-
-                    client.ReceiveMessage(username, vetorMessage);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                /*
-                 * IClient removedClient = Peers[i];
-                 Peers.RemoveAt(i);
-                 OnPeerRemoved?.Invoke(removedClient);
-                 */
-
-
+                        client.ReceiveMessage(username, vetorMessage);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }).Start();
             }
         }
 

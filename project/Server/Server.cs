@@ -32,7 +32,7 @@ namespace Server
         }
 
         //Leader constructor
-        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 2) : this(address, PID)
+        public Server(Uri address, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
             //This server will start as a Master
             this.context.NumPlayers = numPlayers;

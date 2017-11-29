@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Timers;
 using Shared;
+using Timer = System.Timers.Timer;
 
 namespace pacman
 {
@@ -41,17 +43,21 @@ namespace pacman
 
         void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            this.lastAskedIndex = lastAskedIndex++ % this.size;
+            this.lastAskedIndex = lastAskedIndex++ % this.Peers.Count;
 
             IClient client = this.Peers[lastAskedIndex];
-            try
+
+            new Thread(() =>
             {
-                client.VectorRecoveryRequest(this.vetorClock.vector, this.address);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-            }
+                try
+                {
+                    client.VectorRecoveryRequest(this.vetorClock.vector, this.address);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
+                }
+            }).Start();
 
         }
 
@@ -92,15 +98,17 @@ namespace pacman
 
                 foreach (IVetorMessage<IChatMessage> vetorMessage in messages)
                 {
-                    try
+                    new Thread(() =>
                     {
-                        clientRequested.ReceiveMessage(vetorMessage.Message.Username, vetorMessage);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-
+                        try
+                        {
+                            clientRequested.ReceiveMessage(vetorMessage.Message.Username, vetorMessage);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                    }).Start();
                 }
             }
         }

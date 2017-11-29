@@ -39,6 +39,7 @@ namespace pacman
             VectorMessage<T> messageVectorMessage = new VectorMessage<T> { Index = this.Index, Vector = (int[])this.vector.Clone(), Message = message };
 
             this.Messages.Add(messageVectorMessage);
+            this.hashVetorMessages[this.Index + "" + this.counter] = messageVectorMessage;
 
             return messageVectorMessage;
         }
