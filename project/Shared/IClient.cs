@@ -29,9 +29,10 @@ namespace Shared
         /// <summary>
         /// Client receives a stage from the server.
         /// </summary>
-        /// <param name="stage">Stage representation.</param>
+        /// <param name="actions">Actions taken on the round</param>
+        /// <param name="players">Players on game</param>
         /// <param name="round">Round number.</param>
-        void SendRound(List<Action> actions, int score, int round);
+        void SendRound(List<Action> actions, List<IPlayer> players, int round);
         /// <summary>
         /// Client receives indication that the hame has started.
         /// </summary>

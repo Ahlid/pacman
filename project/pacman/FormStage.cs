@@ -41,7 +41,7 @@ namespace pacman {
             roundState = new Dictionary<int, string>();
 
 
-
+            //isto já é convosco.
 
             if (!this.IsHandleCreated)
             {
@@ -51,14 +51,15 @@ namespace pacman {
             this.Invoke(new System.Action(() => {
                 mutex.WaitOne();
                 buildWalls(stage);
+                buildMonsters(stage);   // monsters pass over the coins
                 buildCoins(stage);
-                buildMonsters(stage);
                 buildPlayers(stage);
                 mutex.ReleaseMutex();
             }));
 
-            hub.OnRoundReceived += SendRound;
+            hub.OnRoundReceived += ReceiveRound;
             hub.CurrentChatRoom.OnMessageReceived += updateMessageBox;
+
 
 
             /*
@@ -151,7 +152,7 @@ namespace pacman {
             return new Point(x, y);
         }
 
-        public void SendRound(List<Shared.Action> actions, int score, int round)
+        public void ReceiveRound(List<Shared.Action> actions, List<IPlayer> players, int round)
         {
 
             mutex.WaitOne();
@@ -172,7 +173,6 @@ namespace pacman {
                         {
                             if (stageObjectsType[action.ID] == "player")
                             {
-                              //  this.textBoxChatHistory.Text = pos1.X + " " + pos1.Y + " - " + pos2.X + "  " + pos2.Y;
                                 switch (action.direction)
                                 {
                                     case Shared.Action.Direction.DOWN:
@@ -195,23 +195,43 @@ namespace pacman {
                         break;
                     case Shared.Action.ActionTaken.REMOVE:
                         pictureBox = stageObjects[action.ID];
-                        Invoke(new System.Action(() => panelGame.Controls.Remove(pictureBox)));
+                        Invoke(new System.Action(() => panelGame.Controls.Remove(pictureBox))); // removeu a picture box
+
+                        if(hub.CurrentSession.PlayerId == action.ID)    // This client cant play anymore
+                        {
+                            timer1.Stop(); // stop receiving inputs
+                        }
                         break;
 
                 }
             }
-            //todo: score update
-
+            string scores = "";
+            foreach (IPlayer player in players)
+            {
+                // check if its the player of the current client window
+                if(hub.CurrentSession.Username != player.Username) 
+                {
+                    scores += player.Username + " -- Score: " + player.Score + "\r\n";
+                }
+                else
+                {
+                    this.labelScore.Text = player.Score.ToString();
+                }
+            }
+            this.textboxPlayers.Text = scores;
+            
             this.roundState.Add(round, GetState());
             mutex.ReleaseMutex();
         }
 
         private void textBoxMessage_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter)
+            if(e.KeyCode == Keys.Enter && this.textBoxMessage.Text.Trim() != "")
             {
                 this.hub.PublishMessage(this.textBoxMessage.Text);
                 this.textBoxMessage.Clear();
+            }else if(e.KeyCode == Keys.Enter)
+            {
                 this.textBoxMessage.Enabled = false;
                 this.Select();
             }
@@ -289,8 +309,20 @@ namespace pacman {
         {
             PictureBox newPlayer;
             int i = 1;
-            foreach (IPlayer player in stage.GetPlayers())
+            
+            List<IPlayer> players = stage.GetPlayers();
+            // make the current client the first on the game, it will be on top of the others
+            int index = players.FindIndex(s => s.Username == hub.CurrentSession.Username);
+            var item = players[index];
+            players[index] = players[players.Count - 1];
+            players[players.Count - 1] = item;
+
+            foreach (IPlayer player in players)
             {
+                if(player.Username == hub.CurrentSession.Username)
+                {
+                    hub.CurrentSession.PlayerId = player.ID;
+                }
                 newPlayer = createControl("pacman" + i++, player.Position, Player.WIDTH, Player.HEIGHT);
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
                 stageObjects.Add(player.ID, newPlayer);
@@ -345,6 +377,7 @@ namespace pacman {
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
+            hub.Quit(); // inform server of disconnect action
             Application.Exit();
         }
 
