@@ -41,7 +41,7 @@ namespace pacman {
             roundState = new Dictionary<int, string>();
 
 
-
+            //isto já é convosco.
 
             if (!this.IsHandleCreated)
             {
@@ -58,6 +58,8 @@ namespace pacman {
             }));
 
             hub.OnRoundReceived += ReceiveRound;
+            hub.CurrentChatRoom.OnMessageReceived += updateMessageBox;
+
 
 
             /*
@@ -68,7 +70,21 @@ namespace pacman {
              * 
              * // make the chat as the one on lol -> enter with no text "minimizes the chat bar"
              * 
-             */ 
+             */
+        }
+
+        private void updateMessageBox(List<IChatMessage> messages)
+        {
+            string text = "";
+
+            foreach (Message message in messages)
+            {
+                text += message.Username+" : "+message.Content + "\r\n";
+            }
+
+            this.Invoke(new System.Action(() => {
+                textBoxChatHistory.Text = text;
+            }));
         }
 
 
@@ -91,6 +107,7 @@ namespace pacman {
                     this.textBoxMessage.Enabled = true;
                     this.textBoxMessage.Focus();
                     this.textBoxMessage.Select();
+                    this.textBoxMessage.Text = "";
                     break;
             }
 
@@ -364,5 +381,7 @@ namespace pacman {
             Application.Exit();
         }
 
+       
+        
     }
 }

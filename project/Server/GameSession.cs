@@ -35,10 +35,6 @@ namespace Server
 
         public bool HasGameEnded()
         {
-            //return false;
-            Console.WriteLine("Number of players > 0?: " + (this.Stage.GetPlayers().Count > 0));
-            Console.WriteLine("Number of players alive >0?: " + (this.Stage.GetPlayers().Count(p => p.Alive) > 0));
-            Console.WriteLine("Number of coins >0?: " + (this.Stage.GetCoins().Count > 0));
 
             if (this.Stage.GetPlayers().Count > 0) // if players exist on the game 
             {
@@ -47,7 +43,6 @@ namespace Server
             }
             else
             {
-                Console.Write("no players in the stage?");
                 return true; // there are not players on the game, they all quit or crashed. 
             }
         }
@@ -120,8 +115,7 @@ namespace Server
                 global::Shared.Action action = player.Move(play);
                 if (action != null)
                     Actions.Add(action);
-                Console.WriteLine("Position player: {0}", player.Position);
-                PlayerMoves[player] = Play.NONE;    // clears player move for next round
+                PlayerMoves[player] = Play.NONE;
             }
 
             //Monsters movement
@@ -130,7 +124,6 @@ namespace Server
                 Action action = monster.Step(this.Stage);
                 if (action != null)
                     Actions.Add(action);
-                Console.WriteLine("Monster at : {0}", monster.Position);
             }
         }
 
@@ -202,7 +195,6 @@ namespace Server
                     {
                         //TODO: the player gets a gameover and is removed from the list
                         player.Alive = false;
-                        Console.WriteLine("Player  {0}: REMOVED", player.Username);
                         Actions.Add(new global::Shared.Action()
                         {
                             action = global::Shared.Action.ActionTaken.REMOVE,
@@ -222,20 +214,17 @@ namespace Server
             {
                 clientsP2P[c.Username] = c.Address;
             }
-
-            Console.WriteLine("Clients size: " + Clients.Count);
+            
             for (int i = this.Clients.Count - 1; i >= 0; i--)
             {
                 try
                 {
                     client = this.Clients.ElementAt(i);
-                    Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.Start(this.Stage);
-                    //client.SetPeers(clientsP2P);
+                    client.SetPeers(clientsP2P);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
                     this.Clients.RemoveAt(i);
                     // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
                 }
@@ -285,7 +274,6 @@ namespace Server
                 try
                 {
                     client = this.Clients.ElementAt(i);
-                    Console.WriteLine(String.Format("Sending start signal to client: {0}, at: {1}", client.Username, client.Address));
                     client.End(this.GetWinningPlayer());
                 }
                 catch (Exception)

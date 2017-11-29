@@ -7,30 +7,34 @@ using System.Threading.Tasks;
 
 namespace pacman
 {
-    public class Message : EventArgs
+    [Serializable]
+    public class Message : EventArgs,IChatMessage
     {
-        public string Username { get; private set; }
-        public string Content { get; private set; }
+
+        public string Username { get; set; }
+        public string Content { get; set; }
 
         public Message(string username, string message)
         {
             Username = username;
             Content = message;
         }
+
     }
 
     public class ChatRoom : IChat
     {
         public List<IClient> Peers { get; private set; }
         private List<Message> messagesReceived;
-        public event EventHandler OnMessageReceived;
+        public event MessageReceivedHandler OnMessageReceived;
         public delegate void RemovedPeerHandler(IClient e);
         public event RemovedPeerHandler OnPeerRemoved;
         private Session session;
+        private VetorClock<IChatMessage> vetorClock;
 
         public ChatRoom(Session session)
         {
-            if(session == null)
+            if (session == null)
             {
                 throw new Exception("The session must not be null");
             }
@@ -39,49 +43,76 @@ namespace pacman
             messagesReceived = new List<Message>();
         }
 
-        //Remoting
-        public void SendMessage(string username, string message)
-        {
-            Message newMessage = new Message(username, message);
-            messagesReceived.Add(newMessage);
-            OnMessageReceived?.Invoke(this, newMessage);
-        }
+   
 
         //Remoting
+        public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
+        {
+            
+            this.vetorClock.ReceiveMessage(message);//quando recebe manda para o vetorclock para ele ver
+            //se existe dependencias
+            //pede a lista e mostra no jogo
+            OnMessageReceived?.Invoke(this.vetorClock.GetMessages());
+        }
+
         public void SetPeers(Dictionary<string, Uri> peers)
         {
+
+            int index = 0;
             foreach (string key in peers.Keys)
             {
+                
                 Uri address = peers[key];
                 IClient client = (IClient)Activator.GetObject(
                     typeof(IClient),
-                    address.ToString());
+                    address.ToString() + "Client");
 
                 Peers.Add(client);
+
+                if (client.Username == this.session.Username)
+                {
+                    //cria o vetor clock com a lista de clientes recebida
+                   this.vetorClock = new VetorClock<IChatMessage>(peers.Keys.Count,index);
+                }
+                index++;
             }
+
+
         }
 
 
         public void PublishMessage(string username, string message)
         {
-            Message newMessage = new Message(username, message);
-            messagesReceived.Add(newMessage);
+            
+            
+            //cria a mensagem, dá um tick o clock
+            Message m = new Message(username,message);
+            IVetorMessage<IChatMessage> vetorMessage = this.vetorClock.Tick(m);
 
-            for (int i = Peers.Count; i >= 0; i--)
+            //todo upadate
+            OnMessageReceived?.Invoke(this.vetorClock.GetMessages());
+
+            for (int i = 0; i < this.Peers.Count; i++)
             {
-                try
-                {
-                    IClient client = Peers[i];
-                    client.SendMessage(username, message);
-                }
+                /* try
+                 {*/
+                IClient client = Peers[i];
+                if (client.Username == username) continue;
+                //envia para cada cliente
+                client.ReceiveMessage(username, vetorMessage);
+                /*}
                 catch (Exception)
                 {
-                    IClient removedClient = Peers[i];
+                   /* 
+                    * IClient removedClient = Peers[i];
                     Peers.RemoveAt(i);
                     OnPeerRemoved?.Invoke(removedClient);
-                }
+                    
+                }*/
             }
         }
 
     }
+
+    public delegate void MessageReceivedHandler(List<IChatMessage> messages);
 }

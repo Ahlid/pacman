@@ -41,31 +41,36 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Coin.cs" />
-    <Compile Include="Action.cs" />
     <Compile Include="Exceptions\InvalidUsernameException.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IVetorMessage.cs" />
+    <Compile Include="Stage\Coin.cs" />
+    <Compile Include="Stage\Action.cs" />
+    <Compile Include="Replication\Command.cs" />
     <Compile Include="IChat.cs" />
-    <Compile Include="ICollide.cs" />
-    <Compile Include="IGameSession.cs" />
+    <Compile Include="Stage\ICollide.cs" />
+    <Compile Include="Stage\IGameSession.cs" />
     <Compile Include="IProcessCreationService.cs" />
-    <Compile Include="IReplica.cs" />
-    <Compile Include="MonsterAware.cs" />
+    <Compile Include="Replication\IReplica.cs" />
+    <Compile Include="Replication\LogEntry.cs" />
+    <Compile Include="Stage\MonsterAware.cs" />
     <Compile Include="IClient.cs" />
-    <Compile Include="ICoin.cs" />
-    <Compile Include="IMonster.cs" />
-    <Compile Include="IPlayer.cs" />
+    <Compile Include="Stage\ICoin.cs" />
+    <Compile Include="Stage\IMonster.cs" />
+    <Compile Include="Stage\IPlayer.cs" />
     <Compile Include="IServer.cs" />
-    <Compile Include="IStage.cs" />
-    <Compile Include="IStageObject.cs" />
-    <Compile Include="IWall.cs" />
-    <Compile Include="MonsterHorizontal.cs" />
+    <Compile Include="Stage\IStage.cs" />
+    <Compile Include="Stage\IStageObject.cs" />
+    <Compile Include="Stage\IWall.cs" />
+    <Compile Include="Stage\MonsterHorizontal.cs" />
     <Compile Include="Play.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Stage\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RigidObject.cs" />
-    <Compile Include="Stage.cs" />
-    <Compile Include="Wall.cs" />
+    <Compile Include="Stage\RigidObject.cs" />
+    <Compile Include="Stage\Stage.cs" />
+    <Compile Include="Stage\Wall.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

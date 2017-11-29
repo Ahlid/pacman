@@ -47,7 +47,6 @@
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.ReadOnly = true;
             this.textBoxMessage.Size = new System.Drawing.Size(347, 45);
             this.textBoxMessage.TabIndex = 145;
             this.textBoxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMessage_OnKeyDown);
@@ -68,7 +67,7 @@
             // 
             this.panelGame.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.panelGame.Location = new System.Drawing.Point(16, 39);
-            this.panelGame.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panelGame.Margin = new System.Windows.Forms.Padding(4);
             this.panelGame.Name = "panelGame";
             this.panelGame.Size = new System.Drawing.Size(429, 311);
             this.panelGame.TabIndex = 149;
@@ -115,7 +114,7 @@
             this.Controls.Add(this.textBoxMessage);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormStage";

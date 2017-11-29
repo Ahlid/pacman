@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuppetMaster", "PuppetMaste
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCreationService", "ProcessCreationService\ProcessCreationService.csproj", "{55D9F034-5D3B-4D03-8167-F77FE2555195}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEST", "TEST\TEST.csproj", "{1D35BB2E-2A41-413E-AD2E-CB8C93CBD371}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,8 +41,15 @@ Global
 		{55D9F034-5D3B-4D03-8167-F77FE2555195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55D9F034-5D3B-4D03-8167-F77FE2555195}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55D9F034-5D3B-4D03-8167-F77FE2555195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D35BB2E-2A41-413E-AD2E-CB8C93CBD371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D35BB2E-2A41-413E-AD2E-CB8C93CBD371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D35BB2E-2A41-413E-AD2E-CB8C93CBD371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D35BB2E-2A41-413E-AD2E-CB8C93CBD371}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A246A79E-5342-4AB2-9AFD-282E765D6749}
 	EndGlobalSection
 EndGlobal

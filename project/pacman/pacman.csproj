@@ -73,6 +73,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SimpleGame.cs" />
+    <Compile Include="VectorDependencie.cs" />
+    <Compile Include="VectorMessage.cs" />
+    <Compile Include="VetorClock.cs" />
     <EmbeddedResource Include="AutomaticStartForm.resx">
       <DependentUpon>AutomaticStartForm.cs</DependentUpon>
     </EmbeddedResource>
