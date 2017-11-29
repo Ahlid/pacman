@@ -14,6 +14,8 @@ namespace pacman
         public int[] vector;
         private Dictionary<IVetorMessage<T>, List<VectorDependencie>> waitingVectorMessages;
         private List<IVetorMessage<T>> Messages { get; set; }
+        //receivedIndex + "" + receivedVersion
+        private Dictionary<string, IVetorMessage<T>> hashVetorMessages;
 
         public VetorClock(int size, int index)
         {
@@ -22,6 +24,7 @@ namespace pacman
             this.Messages = new List<IVetorMessage<T>>();
             this.waitingVectorMessages = new Dictionary<IVetorMessage<T>, List<VectorDependencie>>();
             this.counter = 0;
+            this.hashVetorMessages = new Dictionary<string, IVetorMessage<T>>();
             //fill others with zeros
             for (int i = 0; i < size; i++)
             {
@@ -45,6 +48,18 @@ namespace pacman
             int receivedIndex = message.Index; // o index de quem enviou a mensagem
             int receivedVersion = message.Vector[receivedIndex]; //o numero do contador de quem enviou a mensagem nesta mensagem
             List<VectorDependencie> dependencies = new List<VectorDependencie>(); //lista de dependencias para adiconar caso necessario
+
+
+
+
+            //já recebeu esta mensagem
+            if (this.hashVetorMessages.ContainsKey(receivedIndex + "" + receivedVersion))
+            {
+                return;
+            }
+
+            //add to hash table
+            this.hashVetorMessages[receivedIndex + "" + receivedVersion] = message;
 
             //vamos verificar se existe dependencias
             //percorremos todos os campos do vetor que este relogio tem(todos os relogios basicamente)
@@ -147,6 +162,31 @@ namespace pacman
 
             }
 
+        }
+
+        public List<IVetorMessage<T>> GetMissingMessages(int[] compareVetor)
+        {
+            List<IVetorMessage<T>> missingMessages = new List<IVetorMessage<T>>();
+
+            for (int index = 0; index < this.vector.Length; index++)
+            {
+                //se no index a versão é inferior
+                if (compareVetor[index] < this.vector[index])
+                {
+                    int receivedVersion = compareVetor[index];
+                    int expectedVersion = this.vector[index];
+
+                    do
+                    {
+                        receivedVersion++;
+                        IVetorMessage<T> message = this.hashVetorMessages[index + "" + receivedVersion];
+                        missingMessages.Add(message);
+
+                    } while (receivedVersion != expectedVersion);
+                }
+            }
+
+            return missingMessages;
         }
 
         public List<T> GetMessages()
