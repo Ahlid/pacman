@@ -2,9 +2,16 @@ C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Release\Shared.dll
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\bin\Release\Shared.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Release\Shared.dll
 C:\Users\Ricardo Morais\Documents\pacman\project\Shared\obj\Release\Shared.pdb
+<<<<<<< HEAD
 C:\Users\pctm\Documents\pacman\project\Shared\bin\Release\Shared.dll
 C:\Users\pctm\Documents\pacman\project\Shared\bin\Release\Shared.pdb
 C:\Users\pctm\Documents\pacman\project\Shared\obj\Release\Shared.csprojResolveAssemblyReference.cache
 C:\Users\pctm\Documents\pacman\project\Shared\obj\Release\Shared.csproj.CoreCompileInputs.cache
 C:\Users\pctm\Documents\pacman\project\Shared\obj\Release\Shared.dll
 C:\Users\pctm\Documents\pacman\project\Shared\obj\Release\Shared.pdb
+=======
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\bin\Release\Shared.pdb
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Release\Shared.dll
+C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Shared\obj\Release\Shared.pdb
+>>>>>>> 95877041022e96d9b28a56eb707402ddbf7a78db

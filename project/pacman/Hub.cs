@@ -38,7 +38,7 @@ namespace pacman
         //Events
 
         public delegate void StartEventHandler(IStage e);
-        public delegate void RoundActionsEventHandler(List<Shared.Action> actions, int score, int round);
+        public delegate void RoundActionsEventHandler(List<Shared.Action> actions, List<IPlayer> players, int round);
         public delegate void GameEndEvent(IPlayer e);
         public delegate string GetStateHandler(int round);
 
@@ -209,11 +209,12 @@ namespace pacman
             OnStart?.Invoke(stage);
         }
 
-        void IClient.SendRound(List<Shared.Action> actions, int score, int round)
+        /// client receive from the server the result from the previous round and clients needs to update the game
+        void IClient.SendRound(List<Shared.Action> actions, List<IPlayer> players, int round)
         {
             CurrentSession.Round = round;
-            OnRoundReceived?.Invoke(actions, score, round);
-            CurrentSession.game.Play(round);
+            OnRoundReceived?.Invoke(actions, players, round);
+            CurrentSession.game.Play(round);    // force player to play when is in mode auto
         }
 
         void IClient.Died()

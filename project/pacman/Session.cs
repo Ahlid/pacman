@@ -9,6 +9,7 @@ namespace pacman
 {
     public class Session
     {
+        public int PlayerId { get; set; }
         public string Username { get; set; }
         public int Round { get; set; }
         public int Score { get; set; }
@@ -26,6 +27,7 @@ namespace pacman
             Score = 0;
             MsecPerRound = msecPerRound;
             this.game = game;
+            this.PlayerId = -1;
         }
     }
 }

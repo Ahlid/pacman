@@ -41,8 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\InvalidUsernameException.cs" />
     <Compile Include="IMessage.cs" />
-    <Compile Include="InvalidUsernameException.cs" />
     <Compile Include="IVetorMessage.cs" />
     <Compile Include="Stage\Coin.cs" />
     <Compile Include="Stage\Action.cs" />
@@ -70,6 +70,7 @@
     <Compile Include="Stage\Stage.cs" />
     <Compile Include="Stage\Wall.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
