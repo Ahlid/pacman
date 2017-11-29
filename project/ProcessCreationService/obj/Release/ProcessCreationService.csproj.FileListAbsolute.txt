@@ -14,3 +14,12 @@ C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\bin\Rele
 C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.csprojResolveAssemblyReference.cache
 C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.exe
 C:\Users\Ricardo Morais\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.exe.config
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.exe
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Release\ProcessCreationService.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Release\Shared.dll
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\bin\Release\Shared.pdb
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.csprojResolveAssemblyReference.cache
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.csproj.CoreCompileInputs.cache
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.exe
+C:\Users\pctm\Documents\pacman\project\ProcessCreationService\obj\Release\ProcessCreationService.pdb
