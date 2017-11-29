@@ -100,21 +100,26 @@ namespace pacman
 
             for (int i = 0; i < this.Peers.Count; i++)
             {
-                /* try
-                 {*/
-                IClient client = Peers[i];
-                if (client.Username == username) continue;
-                //envia para cada cliente
-                client.ReceiveMessage(username, vetorMessage);
-                /*}
-                catch (Exception)
+                try
                 {
-                   /* 
-                    * IClient removedClient = Peers[i];
-                    Peers.RemoveAt(i);
-                    OnPeerRemoved?.Invoke(removedClient);
-                    
-                }*/
+                    IClient client = Peers[i];
+                    if (client.Username == username) continue;
+                    //envia para cada cliente
+
+
+                    client.ReceiveMessage(username, vetorMessage);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                /*
+                 * IClient removedClient = Peers[i];
+                 Peers.RemoveAt(i);
+                 OnPeerRemoved?.Invoke(removedClient);
+                 */
+
+
             }
         }
 

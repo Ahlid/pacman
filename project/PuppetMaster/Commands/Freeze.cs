@@ -24,7 +24,7 @@ namespace PuppetMaster.Commands
             remoteCallFreeze = new freezeDel(pcs.Freeze);
             asyncResult = remoteCallFreeze.BeginInvoke(pid, null, null);
             asyncResult.AsyncWaitHandle.WaitOne();
-            remoteCallFreeze.EndInvoke(asyncResult);
+            return;
         }
     }
 }

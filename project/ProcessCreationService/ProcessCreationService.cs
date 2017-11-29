@@ -43,24 +43,24 @@ namespace ProcessCreationService
         public void Crash(string PID)
         {
             processes[PID].CloseMainWindow();
-            PIDToClientURL.Remove(PID); 
+            PIDToClientURL.Remove(PID);
             PIDToServerURL.Remove(PID);
         }
 
         public void GlobalStatus()
         {
             Console.WriteLine("Process Status: ");
-            foreach(string key in processes.Keys)
+            foreach (string key in processes.Keys)
             {
                 Process process = processes[key];
-                if(process.HasExited)
+                if (process.HasExited)
                 {
                     Console.WriteLine("PID {0} is down");
                 }
-                else if(processesFrozen[key])
+                else if (processesFrozen[key])
                 {
                     Console.WriteLine("PID {0} is frozen");
-                } 
+                }
                 else
                 {
                     Console.WriteLine("PID {0} is running");
@@ -88,9 +88,9 @@ namespace ProcessCreationService
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = this.pathClientExecutable();
             clientProcess.StartInfo.Arguments = $"not-instructed {PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
-            clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
+            clientProcess.Start();
         }
 
         public void StartClient(string PID, string clientURL, string serverURL, string msecPerRound, string numPlayers, string instructions)
@@ -101,9 +101,9 @@ namespace ProcessCreationService
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
             clientProcess.StartInfo.Arguments = $"instructed {PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
-            clientProcess.Start();
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
+            clientProcess.Start();
         }
 
         public void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers)
@@ -112,9 +112,9 @@ namespace ProcessCreationService
             processesFrozen.Add(PID, false);
             serverProcess.StartInfo.FileName = this.pathServerExecutable();
             serverProcess.StartInfo.Arguments = $"master {PID} {serverURL} {msecPerRound} {numPlayers}";
-            serverProcess.Start();
             processes.Add(PID, serverProcess);
             PIDToServerURL.Add(PID, serverURL);
+            serverProcess.Start();
         }
 
         public void StartReplica(string PID, string serverURL, string replicaURL)
@@ -132,14 +132,15 @@ namespace ProcessCreationService
         public void Freeze(string PID)
         {
             var process = processes[PID];
-
-            if (process.ProcessName == string.Empty)
-                return;
-
-            processesFrozen.Add(PID, true);
-
+            Console.WriteLine("FREEZE");
+            /* if (process.ProcessName == string.Empty)
+                 return;
+                 */
+            processesFrozen[PID] = true;
+            Console.WriteLine(process);
             foreach (ProcessThread pT in process.Threads)
             {
+                Console.WriteLine("Freezing");
                 IntPtr pOpenThread = OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
 
                 if (pOpenThread == IntPtr.Zero)
@@ -157,10 +158,10 @@ namespace ProcessCreationService
         {
             Process process = processes[PID];
 
-            if (process.ProcessName == string.Empty)
-                return;
-
-            processesFrozen.Add(PID, false);
+            /*  if (process.ProcessName == string.Empty)
+                  return;
+                  */
+            processesFrozen[PID] = false;
 
             foreach (ProcessThread pT in process.Threads)
             {
@@ -193,11 +194,11 @@ namespace ProcessCreationService
 
         private bool isEnvDebug()
         {
-            #if DEBUG
-                return true;
-            #else 
-                return false;
-            #endif
+#if DEBUG
+            return true;
+#else
+            return false;
+#endif
         }
     }
 }

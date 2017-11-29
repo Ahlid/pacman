@@ -44,7 +44,14 @@ namespace pacman
             this.lastAskedIndex = lastAskedIndex++ % this.size;
 
             IClient client = this.Peers[lastAskedIndex];
-            client.VectorRecoveryRequest(this.vetorClock.vector, this.address);
+            try
+            {
+                client.VectorRecoveryRequest(this.vetorClock.vector, this.address);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
 
         }
 
@@ -85,7 +92,15 @@ namespace pacman
 
                 foreach (IVetorMessage<IChatMessage> vetorMessage in messages)
                 {
-                    clientRequested.ReceiveMessage(vetorMessage.Message.Username,vetorMessage);
+                    try
+                    {
+                        clientRequested.ReceiveMessage(vetorMessage.Message.Username, vetorMessage);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
                 }
             }
         }
