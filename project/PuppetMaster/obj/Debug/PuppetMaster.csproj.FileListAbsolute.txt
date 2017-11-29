@@ -15,3 +15,11 @@ C:\Users\pctm\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.cspro
 C:\Users\pctm\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.csproj.CoreCompileInputs.cache
 C:\Users\pctm\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.exe
 C:\Users\pctm\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\PuppetMaster.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\bin\Debug\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.csprojResolveAssemblyReference.cache
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\PuppetMaster\obj\Debug\PuppetMaster.pdb

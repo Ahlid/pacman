@@ -10,3 +10,13 @@ C:\Users\pctm\Documents\pacman\project\TEST\obj\Release\TEST.csprojResolveAssemb
 C:\Users\pctm\Documents\pacman\project\TEST\obj\Release\TEST.csproj.CoreCompileInputs.cache
 C:\Users\pctm\Documents\pacman\project\TEST\obj\Release\TEST.exe
 C:\Users\pctm\Documents\pacman\project\TEST\obj\Release\TEST.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\obj\Release\TEST.csprojResolveAssemblyReference.cache
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\TEST.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\TEST.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\TEST.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\pacman.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\Shared.dll
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\pacman.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\bin\Release\Shared.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\obj\Release\TEST.exe
+C:\Users\Ricardo Morais\Documents\pacman\project\TEST\obj\Release\TEST.pdb
