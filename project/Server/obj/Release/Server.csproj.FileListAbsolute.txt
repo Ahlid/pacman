@@ -6,18 +6,3 @@ C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.exe
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.pdb
-<<<<<<< HEAD
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.exe.config
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.exe
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.pdb
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Shared.dll
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Shared.pdb
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.csproj.CoreCompileInputs.cache
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.exe
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.pdb
-=======
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.exe
-C:\Users\artur\Documents\Projectos\Mestrado\[DAD] - Pacman\project\Server\obj\Release\Server.pdb
->>>>>>> 95877041022e96d9b28a56eb707402ddbf7a78db
