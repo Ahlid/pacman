@@ -43,7 +43,7 @@ namespace pacman
 
         void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            this.lastAskedIndex = lastAskedIndex++ % this.Peers.Count;
+            this.lastAskedIndex = ++lastAskedIndex % this.Peers.Count;
 
             IClient client = this.Peers[lastAskedIndex];
 
