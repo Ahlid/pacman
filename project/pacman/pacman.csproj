@@ -76,6 +76,7 @@
     <Compile Include="VectorDependencie.cs" />
     <Compile Include="VectorMessage.cs" />
     <Compile Include="VetorClock.cs" />
+    <Compile Include="VetorClockManager.cs" />
     <EmbeddedResource Include="AutomaticStartForm.resx">
       <DependentUpon>AutomaticStartForm.cs</DependentUpon>
     </EmbeddedResource>

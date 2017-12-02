@@ -251,6 +251,11 @@ namespace pacman
             CurrentChatRoom.SetPeers(peers);
         }
 
+        public void VectorRecoveryRequest(int[] vetor, string adress)
+        {
+            CurrentChatRoom.VectorRecoveryRequest(vetor,adress);
+        }
+
         public void PublishMessage(string message)
         {
             if (CurrentChatRoom == null)

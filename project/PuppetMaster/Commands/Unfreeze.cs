@@ -21,7 +21,7 @@ namespace PuppetMaster.Commands
             IAsyncResult asyncResult;
             IProcessCreationService pcs = processesPCS[pid];
 
-            remoteCallUnfreeze = new unfreezeDel(pcs.Freeze);
+            remoteCallUnfreeze = new unfreezeDel(pcs.Unfreeze);
             asyncResult = remoteCallUnfreeze.BeginInvoke(pid, null, null);
             asyncResult.AsyncWaitHandle.WaitOne();
             remoteCallUnfreeze.EndInvoke(asyncResult);

@@ -228,7 +228,11 @@ namespace pacman {
         {
             if(e.KeyCode == Keys.Enter && this.textBoxMessage.Text.Trim() != "")
             {
-                this.hub.PublishMessage(this.textBoxMessage.Text);
+                string text = this.textBoxMessage.Text;
+                new Thread(() =>
+                        this.hub.PublishMessage(text)
+                ).Start();
+             
                 this.textBoxMessage.Clear();
             }else if(e.KeyCode == Keys.Enter)
             {
