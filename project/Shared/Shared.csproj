@@ -44,6 +44,13 @@
     <Compile Include="Exceptions\InvalidUsernameException.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IVetorMessage.cs" />
+    <Compile Include="Replication\IReplica.cs" />
+    <Compile Include="Replication\LogEntry.cs" />
+    <Compile Include="Replication\Messages\AppendEntries.cs" />
+    <Compile Include="Replication\Messages\AppendEntriesAck.cs" />
+    <Compile Include="Replication\Messages\RequestVote.cs" />
+    <Compile Include="Replication\Messages\RPCVotes.cs" />
+    <Compile Include="Replication\Messages\VoteResponse.cs" />
     <Compile Include="Stage\Coin.cs" />
     <Compile Include="Stage\Action.cs" />
     <Compile Include="Replication\Command.cs" />
@@ -51,8 +58,6 @@
     <Compile Include="Stage\ICollide.cs" />
     <Compile Include="Stage\IGameSession.cs" />
     <Compile Include="IProcessCreationService.cs" />
-    <Compile Include="Replication\IReplica.cs" />
-    <Compile Include="Replication\LogEntry.cs" />
     <Compile Include="Stage\MonsterAware.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="Stage\ICoin.cs" />

@@ -20,7 +20,8 @@ namespace Server
         //Common private constructor
         private Server(Uri address, string PID)
         {
-            this.context = new ServerContext() {
+            this.context = new ServerContext()
+            {
                 Channel = new TcpChannel(address.Port),
                 PID = PID,
                 Address = address
@@ -29,6 +30,7 @@ namespace Server
             //Start services
             ChannelServices.RegisterChannel(this.context.Channel, false);
             RemotingServices.Marshal(this, "Server", typeof(Server));
+
         }
 
         //Leader constructor
@@ -44,7 +46,7 @@ namespace Server
         }
 
         //Follower constructor
-        public Server(Uri address, Uri masterURL, string PID = "not set") : this(address, PID)
+        public Server(Uri address, Uri masterURL, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
             //This server will start as a Follower
             this.strategy = new FollowerStrategy(this.context, masterURL);
@@ -75,14 +77,14 @@ namespace Server
             return ((IServer)strategy).GetLeader();
         }
 
-        public AppendEntriesResult AppendEntries(int term, int leaderID, int prevLogIndex, int prevLogTerm, List<LogEntry> entries, int leaderCommit)
+        public AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
-            return ((IServer)strategy).AppendEntries(term, leaderID, prevLogIndex, prevLogTerm, entries, leaderCommit);
+            return ((IServer)strategy).AppendEntries(appendEntries);
         }
 
-        public RequestVoteResult RequestVote(int term, Uri candidateURL, int lastLogIndex, int lastLogTerm)
+        public VoteResponse RequestVote(RequestVote requestVote)
         {
-            return ((IServer)strategy).RequestVote(term, candidateURL, lastLogIndex, lastLogTerm);
+            return ((IServer)strategy).RequestVote(requestVote);
         }
     }
 

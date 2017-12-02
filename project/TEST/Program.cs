@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using pacman;
+using Server;
 using Shared;
 
 namespace TEST
@@ -12,38 +13,10 @@ namespace TEST
     {
         static void Main(string[] args)
         {
-
-            VetorClock<string> clock = new VetorClock<string>(3, 0);
-            VetorClock<string> clock1 = new VetorClock<string>(3, 1);
-            VetorClock<string> clock2 = new VetorClock<string>(3, 2);
-
-            
-
-            IVetorMessage<string> message1 = clock.Tick("1");
-            clock1.ReceiveMessage(message1);
-            clock2.ReceiveMessage(message1);
-
-            IVetorMessage<string> message2 = clock1.Tick("2");
-            clock2.ReceiveMessage(message2);
-
-            IVetorMessage<string> message3 = clock2.Tick("3");
-            clock1.ReceiveMessage(message3);
-
-            IVetorMessage<string> message4 = clock1.Tick("4");
-            clock2.ReceiveMessage(message4);
-
-            IVetorMessage<string> message5 = clock2.Tick("5");
-            clock.ReceiveMessage(message5);
-
-            IVetorMessage<string> message6 = clock.Tick("6");
-            clock1.ReceiveMessage(message6);
-            clock2.ReceiveMessage(message6);
-
-
-
-
+            Server.Server server = new Server.Server(new Uri("tcp:3001"));
+            Server.Server server2 = new Server.Server(new Uri("tcp:3002"), new Uri("tcp:3001"));
+            Server.Server server3 = new Server.Server(new Uri("tcp:3003"), new Uri("tcp:3001"));
             Console.ReadLine();
-
         }
     }
 }

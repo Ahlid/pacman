@@ -4,22 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Server;
+
 
 namespace Shared
 {
-    public class AppendEntriesResult
-    {
-        public int Term { get; set; }
-        public bool Success { get; set; }
-    }
-
-
-    public class RequestVoteResult
-    {
-        public int Term { get; set; }
-        public bool VoteGranted { get; set; }
-    }
-
 
     public interface IReplica
     {
@@ -53,11 +42,8 @@ namespace Shared
                 will ever apply a different log entry for the same index.
 s
          */
+        AppendEntriesAck AppendEntries(AppendEntries appendEntries);
 
-
-        //Also works as an hearth beat(using an empty entries list)
-        AppendEntriesResult AppendEntries(int term, int leaderID, int prevLogIndex, int prevLogTerm, List<LogEntry> entries, int leaderCommit);
-
-        RequestVoteResult RequestVote(int term, Uri candidateURL, int lastLogIndex, int lastLogTerm);
+        VoteResponse RequestVote(RequestVote requestVote);
     }
 }

@@ -9,6 +9,8 @@ namespace Server
 {
     public class CandidateStrategy : ServerStrategy, IServer
     {
+        private List<Uri> receivedVotes;
+
 
         /* 
          • On conversion to candidate, start election:
@@ -21,12 +23,16 @@ namespace Server
         • If election timeout elapses: start new election
 
             */
-        
 
 
-        public CandidateStrategy(ServerContext context) : base(context, Role.CANDIDATE)
+
+        public CandidateStrategy(ServerContext context, FollowerStrategy prevFollowerStrategy) : base(context, Role.Candidate)
         {
-            
+            this.CurrentTerm = prevFollowerStrategy.CurrentTerm;
+            this.CommitIndex = prevFollowerStrategy.CommitIndex;
+            this.LastApplied = prevFollowerStrategy.LastApplied;
+            this.Logs = prevFollowerStrategy.Logs;
+
         }
 
         public override Uri GetLeader()
@@ -52,6 +58,27 @@ namespace Server
         public override void SetPlay(Uri address, Play play, int round)
         {
             throw new NotImplementedException();
+        }
+
+        //raft
+
+        private void SetFollowerState(long currentTerm, Uri newLeader)
+        {
+
+        }
+
+        private void StartNewElection()
+        {
+            lock (this)
+            {
+                this.CurrentTerm++;
+                this.VotedForUrl = this.context.Address;
+                this.receivedVotes = new List<Uri>();
+                this.receivedVotes.Add(this.VotedForUrl);
+
+
+                //todo send request vote
+            }
         }
 
     }
