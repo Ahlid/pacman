@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared
+namespace pacman
 {
     public interface IChat
     {
-        void ReceiveMessage(string username,IVetorMessage<IChatMessage> message);
-
-        void SetPeers(Dictionary<string, Uri> peers);
+        void ReceiveMessage(string username, IVectorMessage<IMessage> message);
 
         void VectorRecoveryRequest(int[] vetor, string adress);
     }

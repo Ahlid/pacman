@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace pacman
 {
     [Serializable]
-    public class Message : EventArgs, IChatMessage
+    public class Message : EventArgs, IMessage
     {
 
         public string Username { get; set; }
@@ -48,7 +48,7 @@ namespace pacman
 
 
         //Remoting
-        public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
+        public void ReceiveMessage(string username, IVectorMessage<IMessage> message)
         {
 
             this.vetorClockManager.ReceiveMessage(username, message);//quando recebe manda para o vetorclock para ele ver
@@ -56,6 +56,7 @@ namespace pacman
             //pede a lista e mostra no jogo
             OnMessageReceived?.Invoke(this.vetorClockManager.GetMessages());
         }
+
 
         public void SetPeers(Dictionary<string, Uri> peers)
         {
@@ -91,38 +92,34 @@ namespace pacman
 
         public void PublishMessage(string username, string message)
         {
-          
 
             //cria a mensagem, dá um tick o clock
             Message m = new Message(username, message);
-            IVetorMessage<IChatMessage> vetorMessage = this.vetorClockManager.Tick(m);
+            IVectorMessage<IMessage> vetorMessage = this.vetorClockManager.Tick(m);
 
             //todo upadate
             OnMessageReceived?.Invoke(this.vetorClockManager.GetMessages());
 
             foreach (IClient client in this.Peers)
             {
-
-              
-
-                new Thread(() =>
-                {
+                Task.Run(() => {
+                   
                     try
                     {
                         if (client.Username == username) return;
                         //envia para cada cliente
 
-                        client.ReceiveMessage(username, vetorMessage);
+                        ((IChat)client).ReceiveMessage(username, vetorMessage);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
                     }
-                }).Start();
+                });
             }
         }
 
     }
 
-    public delegate void MessageReceivedHandler(List<IChatMessage> messages);
+    public delegate void MessageReceivedHandler(List<IMessage> messages);
 }

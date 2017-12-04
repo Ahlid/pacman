@@ -41,8 +41,10 @@ namespace Server
                     string PID = args[1];
                     Uri serverURL = new Uri(args[2]);
                     Uri replicaURL = new Uri(args[3]);
+                    int msecPerRound = int.Parse(args[4]);
+                    int numPlayers = int.Parse(args[5]);
 
-                    StartReplicaMode(PID, serverURL, replicaURL);
+                    StartReplicaMode(PID, serverURL, replicaURL, msecPerRound, numPlayers);
                 }
                 else if(args.Length == 0)
                 {
@@ -72,10 +74,10 @@ namespace Server
             Server server = new Server(serverURL, PID, msecPerRound, numPlayers);
         }
 
-        private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL)
+        private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL, int msecPerRound, int numPlayers)
         {
-            Console.WriteLine($"Replica mode {PID} {serverURL} {replicaURL}");
-            Server server = new Server(replicaURL, serverURL, PID);
+            Console.WriteLine($"Replica mode {PID} {serverURL} {replicaURL} {msecPerRound} {numPlayers}");
+            Server server = new Server(replicaURL, serverURL, PID, msecPerRound, numPlayers);
         }
 
     }

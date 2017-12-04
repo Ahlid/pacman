@@ -9,7 +9,7 @@ namespace Shared
     /// Interface that Client will have to implement
     /// </summary>
 
-    public interface IClient : IChat
+    public interface IClient
     {
 
         string GetState(int round);
@@ -48,6 +48,8 @@ namespace Shared
         /// <param name="winner"></param>
         void End(IPlayer winner);
 
-        void SetReplicaList(List<Uri> replicaServersURIsList);
+        void SetPeers(Dictionary<string, Uri> peers);
+
+        void SetAvailableServers(List<Uri> replicaServersURIsList);
     }
 }

@@ -23,8 +23,6 @@ namespace ProcessCreationService
                "ProcessCreationService",
                WellKnownObjectMode.Singleton);
 
-
-
             Console.ReadLine();
         }
     }

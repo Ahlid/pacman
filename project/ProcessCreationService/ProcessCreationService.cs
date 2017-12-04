@@ -117,12 +117,12 @@ namespace ProcessCreationService
             serverProcess.Start();
         }
 
-        public void StartReplica(string PID, string serverURL, string replicaURL)
+        public void StartReplica(string PID, string serverURL, string replicaURL, string msecPerRound, string numPlayers)
         {
             Process serverProcess = new Process();
             processesFrozen.Add(PID, false);
             serverProcess.StartInfo.FileName = this.pathServerExecutable();
-            serverProcess.StartInfo.Arguments = $"replica {PID} {serverURL} {replicaURL}";
+            serverProcess.StartInfo.Arguments = $"replica {PID} {serverURL} {replicaURL}  {msecPerRound} {numPlayers}";
             serverProcess.Start();
             processes.Add(PID, serverProcess);
             PIDToServerURL.Add(PID, serverURL);

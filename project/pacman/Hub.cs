@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace pacman
 {
-    public class Hub: MarshalByRefObject, IClient
+    public class Hub: MarshalByRefObject, IClient, IChat
     {
         //Connection Information
         public Uri Address { get; set; }
@@ -233,7 +233,7 @@ namespace pacman
         //IChatRoom
 
 
-        public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
+        public void ReceiveMessage(string username, IVectorMessage<IMessage> message)
         {
             if (CurrentChatRoom == null)
             {
@@ -270,7 +270,7 @@ namespace pacman
             return getStateHandler.Invoke(round);
         }
 
-        public void SetReplicaList(List<Uri> replicaServersURIsList)
+        public void SetAvailableServers(List<Uri> replicaServersURIsList)
         {
             replicaServerList = replicaServersURIsList;
         }

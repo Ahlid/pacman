@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared
+namespace Server
 {
     [Serializable]
     public class LogEntry
     {
         public int Index { get; set; }
-        public Command Command { get; set; }
+        public ICommand Command { get; set; }
         public int Term { get; set; }
     }
 }

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared
+namespace Server
 {
-    [Serializable]
-    public class Command
+    public interface ICommand
     {
-
+        void Execute(ServerContext context);
     }
 }

@@ -7,12 +7,13 @@ using System.Threading;
 using System.Timers;
 using Shared;
 using Timer = System.Timers.Timer;
+using System.Threading.Tasks;
 
 namespace pacman
 {
     public class VetorClockManager : IChat
     {
-        private VetorClock<IChatMessage> vetorClock;
+        private VetorClock<IMessage> vetorClock;
         private BackgroundWorker checkerBackgroundWorker;
         public List<IClient> Peers { get; private set; }
         private int index;
@@ -25,7 +26,7 @@ namespace pacman
             this.lastAskedIndex = -1;
             this.size = size;
             this.address = address;
-            this.vetorClock = new VetorClock<IChatMessage>(size, index);
+            this.vetorClock = new VetorClock<IMessage>(size, index);
             this.Peers = new List<IClient>();
             this.index = index;
             checkerBackgroundWorker = new BackgroundWorker();
@@ -47,22 +48,21 @@ namespace pacman
 
             IClient client = this.Peers[lastAskedIndex];
 
-            new Thread(() =>
-            {
+            Task.Run(() => {
                 try
                 {
-                    client.VectorRecoveryRequest(this.vetorClock.vector, this.address);
+                    ((IChat)client).VectorRecoveryRequest(this.vetorClock.vector, this.address);
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message);
                 }
-            }).Start();
+            });
 
         }
 
 
-        public void ReceiveMessage(string username, IVetorMessage<IChatMessage> message)
+        public void ReceiveMessage(string username, IVectorMessage<IMessage> message)
         {
             this.vetorClock.ReceiveMessage(message);
         }
@@ -94,31 +94,31 @@ namespace pacman
 
             if (clientRequested != null)
             {
-                List<IVetorMessage<IChatMessage>> messages = this.vetorClock.GetMissingMessages(vetor);
+                List<IVectorMessage<IMessage>> messages = this.vetorClock.GetMissingMessages(vetor);
 
-                foreach (IVetorMessage<IChatMessage> vetorMessage in messages)
+                foreach (IVectorMessage<IMessage> vetorMessage in messages)
                 {
-                    new Thread(() =>
+                    Task.Run(() => 
                     {
                         try
                         {
-                            clientRequested.ReceiveMessage(vetorMessage.Message.Username, vetorMessage);
+                            ((IChat)clientRequested).ReceiveMessage(vetorMessage.Message.Username, vetorMessage);
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e.Message);
                         }
-                    }).Start();
+                    });
                 }
             }
         }
 
-        public List<IChatMessage> GetMessages()
+        public List<IMessage> GetMessages()
         {
             return this.vetorClock.GetMessages();
         }
 
-        public IVetorMessage<IChatMessage> Tick(Message message)
+        public IVectorMessage<IMessage> Tick(Message message)
         {
             return this.vetorClock.Tick(message);
         }

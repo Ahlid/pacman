@@ -73,7 +73,7 @@ namespace pacman {
              */
         }
 
-        private void updateMessageBox(List<IChatMessage> messages)
+        private void updateMessageBox(List<IMessage> messages)
         {
             string text = "";
 
@@ -215,10 +215,19 @@ namespace pacman {
                 }
                 else
                 {
-                    this.labelScore.Text = player.Score.ToString();
+                    Task.Run(() => 
+                    {
+                        string score = player.Score.ToString();
+                        this.Invoke(new System.Action(() => {
+                            this.labelScore.Text = score;
+                        }));
+                    });
+                    
                 }
             }
-            this.textboxPlayers.Text = scores;
+            this.Invoke(new System.Action(() => {
+                this.textboxPlayers.Text = scores;
+            }));
             
             this.roundState.Add(round, GetState());
             mutex.ReleaseMutex();
@@ -229,10 +238,7 @@ namespace pacman {
             if(e.KeyCode == Keys.Enter && this.textBoxMessage.Text.Trim() != "")
             {
                 string text = this.textBoxMessage.Text;
-                new Thread(() =>
-                        this.hub.PublishMessage(text)
-                ).Start();
-             
+                Task.Run(() => this.hub.PublishMessage(text));
                 this.textBoxMessage.Clear();
             }else if(e.KeyCode == Keys.Enter)
             {

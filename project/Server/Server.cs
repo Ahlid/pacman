@@ -10,12 +10,10 @@ using System.Threading;
 
 namespace Server
 {
-    public class Server : MarshalByRefObject, IServer
+    public class Server : MarshalByRefObject, IServer, IReplica
     {
-
         private ServerContext context;
         private ServerStrategy strategy;
-
 
         //Common private constructor
         private Server(Uri address, string PID)
@@ -30,7 +28,6 @@ namespace Server
             //Start services
             ChannelServices.RegisterChannel(this.context.Channel, false);
             RemotingServices.Marshal(this, "Server", typeof(Server));
-
         }
 
         //Leader constructor
@@ -39,8 +36,6 @@ namespace Server
             //This server will start as a Master
             this.context.NumPlayers = numPlayers;
             this.context.RoundIntervalMsec = roundIntervalMsec;
-            this.context.CurrentGameSession = new GameSession(numPlayers);
-            this.context.GameSessionsTable[this.context.CurrentGameSession.ID] = this.context.CurrentGameSession;
             this.context.RoundIntervalMsec = roundIntervalMsec;
             this.strategy = new LeaderStrategy(this.context);
         }
@@ -49,42 +44,45 @@ namespace Server
         public Server(Uri address, Uri masterURL, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
             //This server will start as a Follower
+            this.context.NumPlayers = numPlayers;
+            this.context.RoundIntervalMsec = roundIntervalMsec;
+            this.context.RoundIntervalMsec = roundIntervalMsec;
             this.strategy = new FollowerStrategy(this.context, masterURL);
         }
 
         public JoinResult Join(string username, Uri address)
         {
-            return ((IServer)strategy).Join(username, address);
+            return strategy.Join(username, address);
         }
 
         public void SetPlay(Uri address, Play play, int round)
         {
-            ((IServer)strategy).SetPlay(address, play, round);
+            strategy.SetPlay(address, play, round);
         }
 
         public void Quit(Uri address)
         {
-            ((IServer)strategy).Quit(address);
+            strategy.Quit(address);
         }
 
         public void RegisterReplica(Uri ReplicaServerURL)
         {
-            ((IServer)strategy).RegisterReplica(ReplicaServerURL);
+            strategy.RegisterReplica(ReplicaServerURL);
         }
 
         public Uri GetLeader()
         {
-            return ((IServer)strategy).GetLeader();
+            return strategy.GetLeader();
         }
 
         public AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
-            return ((IServer)strategy).AppendEntries(appendEntries);
+            return strategy.AppendEntries(appendEntries);
         }
 
         public VoteResponse RequestVote(RequestVote requestVote)
         {
-            return ((IServer)strategy).RequestVote(requestVote);
+            return strategy.RequestVote(requestVote);
         }
     }
 

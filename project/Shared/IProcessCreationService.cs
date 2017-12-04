@@ -15,7 +15,7 @@ namespace Shared
 
         void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers);
 
-        void StartReplica(string PID, string serverURL, string replicaURL);
+        void StartReplica(string PID, string serverURL, string replicaURL, string msecPerRound, string numPlayers);
 
         void Freeze(string PID);
 

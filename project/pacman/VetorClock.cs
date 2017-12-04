@@ -12,19 +12,19 @@ namespace pacman
         public int counter;
         public int Index { get; }
         public int[] vector;
-        private Dictionary<IVetorMessage<T>, List<VectorDependencie>> waitingVectorMessages;
-        private List<IVetorMessage<T>> Messages { get; set; }
+        private Dictionary<IVectorMessage<T>, List<VectorDependencies>> waitingVectorMessages;
+        private List<IVectorMessage<T>> Messages { get; set; }
         //receivedIndex + "" + receivedVersion
-        private Dictionary<string, IVetorMessage<T>> hashVetorMessages;
+        private Dictionary<string, IVectorMessage<T>> hashVetorMessages;
 
         public VetorClock(int size, int index)
         {
             this.Index = index;
             this.vector = new int[size];
-            this.Messages = new List<IVetorMessage<T>>();
-            this.waitingVectorMessages = new Dictionary<IVetorMessage<T>, List<VectorDependencie>>();
+            this.Messages = new List<IVectorMessage<T>>();
+            this.waitingVectorMessages = new Dictionary<IVectorMessage<T>, List<VectorDependencies>>();
             this.counter = 0;
-            this.hashVetorMessages = new Dictionary<string, IVetorMessage<T>>();
+            this.hashVetorMessages = new Dictionary<string, IVectorMessage<T>>();
             //fill others with zeros
             for (int i = 0; i < size; i++)
             {
@@ -32,7 +32,7 @@ namespace pacman
             }
         }
 
-        public IVetorMessage<T> Tick(T message)
+        public IVectorMessage<T> Tick(T message)
         {
             lock (this)
             {
@@ -47,15 +47,15 @@ namespace pacman
             }
         }
 
-        public void ReceiveMessage(IVetorMessage<T> message)
+        public void ReceiveMessage(IVectorMessage<T> message)
         {
             lock (this)
             {
                 int receivedIndex = message.Index; // o index de quem enviou a mensagem
                 int receivedVersion =
                     message.Vector[receivedIndex]; //o numero do contador de quem enviou a mensagem nesta mensagem
-                List<VectorDependencie>
-                    dependencies = new List<VectorDependencie>(); //lista de dependencias para adiconar caso necessario
+                List<VectorDependencies>
+                    dependencies = new List<VectorDependencies>(); //lista de dependencias para adiconar caso necessario
 
 
 
@@ -98,7 +98,7 @@ namespace pacman
                             do
                             {
                                 aux++;
-                                dependencies.Add(new VectorDependencie
+                                dependencies.Add(new VectorDependencies
                                 {
                                     Index = receivedIndex,
                                     Version = aux
@@ -120,7 +120,7 @@ namespace pacman
                         do
                         {
                             aux++;
-                            dependencies.Add(new VectorDependencie { Index = i, Version = aux });
+                            dependencies.Add(new VectorDependencies { Index = i, Version = aux });
                         } while (message.Vector[i] != aux);
 
                     }
@@ -154,7 +154,7 @@ namespace pacman
                 //vamos verificar se tem esta dependencia
                 //aqui eu acabei de receber uma messagem no index = index e versão = versao
                 //vou selecionar uma dependencia na lista que seja igual ao index e á versão
-                VectorDependencie vetor = this.waitingVectorMessages[message]
+                VectorDependencies vetor = this.waitingVectorMessages[message]
                     .FirstOrDefault(m => m.Index == index && m.Version == version);//explica esta
 
                 //ver se a messagem depende da que foi recebida
@@ -176,11 +176,11 @@ namespace pacman
 
         }
 
-        public List<IVetorMessage<T>> GetMissingMessages(int[] compareVetor)
+        public List<IVectorMessage<T>> GetMissingMessages(int[] compareVetor)
         {
             lock (this)
             {
-                List<IVetorMessage<T>> missingMessages = new List<IVetorMessage<T>>();
+                List<IVectorMessage<T>> missingMessages = new List<IVectorMessage<T>>();
 
                 for (int index = 0; index < this.vector.Length; index++)
                 {
@@ -193,7 +193,7 @@ namespace pacman
                         do
                         {
                             receivedVersion++;
-                            IVetorMessage<T> message = this.hashVetorMessages[index + "" + receivedVersion];
+                            IVectorMessage<T> message = this.hashVetorMessages[index + "" + receivedVersion];
                             missingMessages.Add(message);
 
                         } while (receivedVersion != expectedVersion);

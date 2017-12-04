@@ -7,7 +7,6 @@ using Shared;
 
 namespace pacman
 {
-
     public delegate void OnPlayDelegate();
 
     public interface IGame

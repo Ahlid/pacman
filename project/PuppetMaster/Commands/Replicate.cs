@@ -9,7 +9,7 @@ namespace PuppetMaster.Commands
 {
     public class Replicate : AsyncCommand
     {
-        private delegate void StartReplicaDel(string PID, string serverURL, string replicaURL);
+        private delegate void StartReplicaDel(string PID, string serverURL, string replicaURL, string msecPerRound, string numPlayers);
         private StartReplicaDel remoteCallStartReplica;
         public Dictionary<string, IProcessCreationService> processesPCS { get; set; }
         public string masterServerUrl;
@@ -24,7 +24,7 @@ namespace PuppetMaster.Commands
             IProcessCreationService pcs = processesPCS[pid];
 
             remoteCallStartReplica = new StartReplicaDel(pcs.StartReplica);
-            asyncResult = remoteCallStartReplica.BeginInvoke(parameters[0], masterServerUrl, parameters[3], null, null);
+            asyncResult = remoteCallStartReplica.BeginInvoke(parameters[0], masterServerUrl, parameters[3], parameters[4], parameters[5], null, null);
             asyncResult.AsyncWaitHandle.WaitOne();
         }
     }

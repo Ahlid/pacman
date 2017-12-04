@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Server.ServerContext;
 
 namespace Server
 {
     public class CandidateStrategy : ServerStrategy, IServer
     {
         private List<Uri> receivedVotes;
-
+        readonly long EletionTimeout = 1000;
 
         /* 
          • On conversion to candidate, start election:
@@ -28,10 +29,10 @@ namespace Server
 
         public CandidateStrategy(ServerContext context, FollowerStrategy prevFollowerStrategy) : base(context, Role.Candidate)
         {
-            this.CurrentTerm = prevFollowerStrategy.CurrentTerm;
-            this.CommitIndex = prevFollowerStrategy.CommitIndex;
-            this.LastApplied = prevFollowerStrategy.LastApplied;
-            this.Logs = prevFollowerStrategy.Logs;
+            //this.CurrentTerm = prevFollowerStrategy.CurrentTerm;
+            //this.CommitIndex = prevFollowerStrategy.CommitIndex;
+            //this.LastApplied = prevFollowerStrategy.LastApplied;
+            //this.Logs = prevFollowerStrategy.Logs;
 
         }
 
@@ -71,15 +72,19 @@ namespace Server
         {
             lock (this)
             {
-                this.CurrentTerm++;
-                this.VotedForUrl = this.context.Address;
+                this.context.CurrentTerm++;
+                this.context.VotedForUrl = this.context.Address;
                 this.receivedVotes = new List<Uri>();
-                this.receivedVotes.Add(this.VotedForUrl);
+                this.receivedVotes.Add(this.context.VotedForUrl);
 
 
                 //todo send request vote
             }
         }
 
+        public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

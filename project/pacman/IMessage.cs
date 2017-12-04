@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Shared
+namespace pacman
 {
-  
-    public interface IChatMessage
+    public interface IMessage
     {
          string Username { get;  set; }
          string Content { get;  set; }
