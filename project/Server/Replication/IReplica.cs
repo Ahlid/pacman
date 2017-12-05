@@ -39,5 +39,7 @@ s
         AppendEntriesAck AppendEntries(AppendEntries appendEntries);
 
         VoteResponse RequestVote(RequestVote requestVote);
+
+        int ReceiveHearthBeath(Uri from, int term);
     }
 }

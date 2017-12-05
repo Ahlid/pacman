@@ -65,6 +65,9 @@ namespace Server
         public bool GameStartRequest { get; set; } //Used to request a start(requesting a start takes time to be commited, no more StartGame entries should be created)
         public bool HasGameStarted { get; set; }
 
+        //Follower Only
+        public System.Timers.Timer electionTimer;        //How much time to wait for the election to start.
+
 
         //Leader Only
         public System.Timers.Timer Timer { get; set; }

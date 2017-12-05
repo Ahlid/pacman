@@ -70,10 +70,14 @@ namespace Server
         }
 
 
-        private void StartNewElection() { 
+        private void StartNewElection() {
 
+            if (this.context.CurrentRole != Role.Candidate)
+            {
+                return;
+            }
 
-            bool done;
+                bool done;
             
             lock (this.context)
             {
@@ -219,6 +223,17 @@ namespace Server
                 FollowerStrategy follower = stepDown(appendEntries.Leader, appendEntries.LeaderTerm);
                 return follower.AppendEntries(appendEntries);
             
+        }
+
+        public override int ReceiveHearthBeath(Uri from, int term)
+        {
+
+            if (term > this.context.CurrentTerm)
+            {
+                this.stepDown(from, term);
+            }
+            
+            return this.context.CurrentTerm;
         }
     }
 }

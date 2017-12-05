@@ -44,6 +44,23 @@ namespace Server
             this.strategy = new LeaderStrategy(this.context);
         }
 
+        public Server(Uri address, ServerStrategy strategy, ServerContext context, string PID = "not set")
+        {
+            this.context = context;
+            this.context.Channel = new TcpChannel(address.Port);
+            this.context.PID = PID;
+            this.context.Address = address;
+            this.context.SwitchStrategy = (prev, next) =>
+            {
+                this.strategy = next;
+            };
+
+            //Start services
+            ChannelServices.RegisterChannel(this.context.Channel, false);
+            RemotingServices.Marshal(this, "Server", typeof(Server));
+            this.strategy = strategy;
+        }
+
         //Follower constructor
         public Server(Uri address, Uri masterURL, string PID = "not set", int roundIntervalMsec = 20, int numPlayers = 3) : this(address, PID)
         {
@@ -87,6 +104,11 @@ namespace Server
         public VoteResponse RequestVote(RequestVote requestVote)
         {
             return strategy.RequestVote(requestVote);
+        }
+
+        public int ReceiveHearthBeath(Uri from, int term)
+        {
+            return strategy.ReceiveHearthBeath(from, term);
         }
     }
 

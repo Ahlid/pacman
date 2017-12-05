@@ -13,9 +13,12 @@ namespace Server
     public class LeaderStrategy : ServerStrategy, IServer
     {
 
+        private System.Timers.Timer timer;
+
         public LeaderStrategy(ServerContext context) : base(context, ServerContext.Role.Leader)
         {
 
+           
             Console.WriteLine("\n****LEADER*****\n");
             //start hearthbeat
             this.context.LeaderTimer = new System.Timers.Timer(ServerStrategy.LeaderTimeout);
@@ -42,9 +45,31 @@ namespace Server
 
                 context.Timer.Start();
             }
+            timer = new System.Timers.Timer();
+            timer.Interval = ServerStrategy.LeaderTimeout;
+            timer.Elapsed += (sender, e) => { SendHearthBeatTo(); };
+            timer.AutoReset = true;
+            timer.Start();
 
             //Set hearthbeat on start
-            this.SendHearthBeat();
+           // this.SendHearthBeat();
+        }
+
+        private void SendHearthBeatTo()
+        {
+            Console.WriteLine("#############################SENDING HEATH BEAT##################");
+            foreach (Uri peer in this.context.OtherServersUrls)
+            {
+                
+                Task.Run(() =>
+                {
+                    int ack = ((IReplica)this.context.OtherServers[peer]).ReceiveHearthBeath(this.context.Address, this.context.CurrentTerm);
+                    if (ack > this.context.CurrentTerm)
+                    {
+                        this.stepDown(ack);
+                    }
+                });
+            }
         }
 
         //Transitates to the next round
@@ -149,33 +174,33 @@ namespace Server
 
         public override void RegisterReplica(Uri replicaServerURL)
         {
-            lock (this.context)
+            // lock (this.context)
+            // {
+            this.context.OtherServersUrls.Add(replicaServerURL);
+            this.context.nextIndex[replicaServerURL] = 0;//Next log entry to send to the server is the first
+            this.context.matchIndex[replicaServerURL] = 0;//Last known log entry index is none
+
+            IServer replica = (IServer)Activator.GetObject(
+                typeof(IServer),
+                replicaServerURL.ToString() + "Server");
+
+            this.context.OtherServers[replicaServerURL] = replica;
+
+            List<Uri> serverList = new List<Uri>(this.context.OtherServersUrls);
+            serverList.Add(this.context.Address);
+
+            //Generate the log entry
+            ICommand command = new ServerListChangedCommand(serverList);
+            LogEntry entry = new LogEntry()
             {
-                this.context.OtherServersUrls.Add(replicaServerURL);
-                this.context.nextIndex[replicaServerURL] = 0;//Next log entry to send to the server is the first
-                this.context.matchIndex[replicaServerURL] = 0;//Last known log entry index is none
+                Command = command,
+                Index = this.context.Logs.Count,
+                Term = this.context.CurrentTerm
+            };
+            this.context.Logs.Add(entry);
 
-                IServer replica = (IServer)Activator.GetObject(
-                    typeof(IServer),
-                    replicaServerURL.ToString() + "Server");
-
-                this.context.OtherServers[replicaServerURL] = replica;
-
-                List<Uri> serverList = new List<Uri>(this.context.OtherServersUrls);
-                serverList.Add(this.context.Address);
-
-                //Generate the log entry
-                ICommand command = new ServerListChangedCommand(serverList);
-                LogEntry entry = new LogEntry()
-                {
-                    Command = command,
-                    Index = this.context.Logs.Count,
-                    Term = this.context.CurrentTerm
-                };
-                this.context.Logs.Add(entry);
-
-                Task.Run(() => SendAppendEntries());
-            }
+            Task.Run(() => SendAppendEntries());
+            // }
         }
 
         private void SendHearthBeat()
@@ -204,7 +229,7 @@ namespace Server
                         do
                         {
                             int lastLogIndex = this.context.Logs.Count - 1;
-                            int prevIndex = Math.Max(this.context.nextIndex[peer] -1, 0); // agrupar com o último index
+                            int prevIndex = Math.Max(this.context.nextIndex[peer] - 1, 0); // agrupar com o último index
                             if (lastLogIndex >= prevIndex)
                             {
                                 List<LogEntry> copyEntries = new List<LogEntry>(); //copiar as entries que faltam
@@ -239,7 +264,7 @@ namespace Server
                                         Console.WriteLine("  APPEND ENTRIES WAS SUCESSFULL");
                                         //atualizar os valores de match
                                         this.context.matchIndex[peer] = this.context.Logs.Count - 1;
-                                        this.context.nextIndex[peer] = this.context.Logs.Count ;
+                                        this.context.nextIndex[peer] = this.context.Logs.Count;
                                         break;
                                     }
                                     else if (this.context.CurrentTerm == ack.Term && !ack.Success)
@@ -279,7 +304,7 @@ namespace Server
                         base.CheckLogs();
                     });
 
-                   // Task.Run(() => { });
+                    // Task.Run(() => { });
                 }
             } //lock
         }
@@ -318,7 +343,7 @@ namespace Server
                 //parar os timers
                 this.context.LeaderTimer.Stop();
                 this.context.Timer.Stop();
-
+                timer.Stop();
                 this.context.SwitchStrategy(this, new FollowerStrategy(this.context, this.context.Address));
             }
         }
@@ -342,6 +367,11 @@ namespace Server
         }
 
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int ReceiveHearthBeath(Uri from, int term)
         {
             throw new NotImplementedException();
         }

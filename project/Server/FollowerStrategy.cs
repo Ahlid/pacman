@@ -22,38 +22,49 @@ namespace Server
         public Uri MasterAddress { get; set; }
         public IServer Master { get; set; }
 
-        //How much time to wait for the election to start.
-        private System.Timers.Timer electionTimer;
-
-
         public FollowerStrategy(ServerContext context, Uri masterURL) : base(context, Role.Follower)
         {
-
             Console.WriteLine("\n****FOLLOWER*****\n");
 
             this.MasterAddress = masterURL;
 
-            electionTimer = new System.Timers.Timer(ServerStrategy.ElectionTimeout);
-            electionTimer.Elapsed += electionStart;
-            electionTimer.AutoReset = false;
+            this.context.electionTimer = new System.Timers.Timer(ServerStrategy.ElectionTimeout);
+            this.context.electionTimer.Elapsed += electionStart;
+            this.context.electionTimer.AutoReset = false;
 
+            Console.WriteLine($"{this.context.hasRegistered}");
             this.Master = (IServer)Activator.GetObject(
                 typeof(IServer),
                 masterURL.ToString() + "Server");
+
             if (!this.context.hasRegistered)
             {
-                ((IReplica)this.Master).RegisterReplica(this.context.Address);
-                this.context.hasRegistered = true;
+                do
+                {
+                    try
+                    {
+                        ((IReplica)this.Master).RegisterReplica(this.context.Address);
+                        this.context.hasRegistered = true;
+                    }
+                    catch (Exception) { }
+
+                } while (!this.context.hasRegistered);
+                Console.WriteLine("  FOLLOWER REGISTER");
+            }
+            else
+            {
+                this.context.electionTimer.Enabled = true;
             }
 
         }
 
         private void electionStart(Object source, ElapsedEventArgs e)
         {
-            electionTimer.Stop();
-            //todo - make sure every follower function stops
-            this.context.SwitchStrategy(this, new CandidateStrategy(this.context));
+            this.context.electionTimer.Stop();
 
+            //todo - make sure every follower function stops
+            if (this.context.CurrentRole == Role.Follower)
+                this.context.SwitchStrategy(this, new CandidateStrategy(this.context));
         }
 
         public override Uri GetLeader()
@@ -110,9 +121,9 @@ namespace Server
                     RPC from current leader or granting vote to candidate:
                     convert to candidate
                  * */
-                 //granting vote means restart election timer
-                electionTimer.Stop();
-                electionTimer.Start(); //Restart election timer
+                //granting vote means restart election timer
+                this.context.electionTimer.Stop();
+                this.context.electionTimer.Start(); //Restart election timer
 
                 return response;
             }
@@ -134,13 +145,14 @@ namespace Server
                 return response;
             }
             */
-            }
+        }
 
 
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
             lock (this.context)
             {
+
                 //If RPC request or response contains term T > currentTerm:
                 //set currentTerm = T, convert to follower (§5.1)
                 if (appendEntries.LeaderTerm > this.context.CurrentTerm)
@@ -149,8 +161,8 @@ namespace Server
                 }
 
                 //Received HearthBeat from the leader
-                electionTimer.Stop();
-                electionTimer.Start(); //Restart election timer
+                this.context.electionTimer.Stop();
+                this.context.electionTimer.Start(); //Restart election timer
 
                 //Console.WriteLine("A: " + (appendEntries.LeaderTerm < this.context.CurrentTerm));
                 //Console.WriteLine("B: " + (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex && appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm));
@@ -160,7 +172,6 @@ namespace Server
                 if (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex &&
                     appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm)
                     return new AppendEntriesAck() { Success = false, Term = this.context.CurrentTerm, Node = this.context.Address };
-
 
                 foreach (LogEntry entry in appendEntries.LogEntries)
                 {
@@ -178,7 +189,6 @@ namespace Server
                     }
                     else
                     {
-
                         Console.WriteLine($" APPENDING ENTRY WiTH INDEX {entry.Index}");
                         this.context.Logs.Add(entry);
                     }
@@ -204,5 +214,21 @@ namespace Server
             }
         }
 
+        public override int ReceiveHearthBeath(Uri from, int term)
+        {
+
+            if (term > this.context.CurrentTerm)
+            {
+                this.context.CurrentTerm = term;
+                this.Master = (IServer)Activator.GetObject(
+                   typeof(IServer),
+                   from.ToString() + "Server");
+            }
+
+            this.context.electionTimer.Stop();
+            this.context.electionTimer.Start(); //Restart election timer
+
+            return this.context.CurrentTerm;
+        }
     }
 }

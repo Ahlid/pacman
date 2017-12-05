@@ -19,8 +19,8 @@ namespace Server
         //Persistent State on all servers:
 
         //timeout de eleição
-        protected static readonly int ElectionTimeout = 1000;//1s
-        protected static readonly int LeaderTimeout = 100;//1s
+        protected static readonly int ElectionTimeout = 500;//1s
+        protected static readonly int LeaderTimeout = 30;//1s
 
         /*
          All Servers:
@@ -98,6 +98,8 @@ namespace Server
         }
 
         public abstract AppendEntriesAck AppendEntries(AppendEntries appendEntries);
+
+        public abstract int ReceiveHearthBeath(Uri from, int term);
 
         public abstract void RegisterReplica(Uri ReplicaServerURL);
 

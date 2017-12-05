@@ -42,8 +42,12 @@ namespace Server
                         typeof(IServer), uri.ToString() + "Server");
                     context.OtherServers.Add(uri, replica);
                 }
-                    
             } 
+
+            if(context.CurrentRole == ServerContext.Role.Follower)
+            {
+                context.electionTimer.Start();
+            }
 
         }
     }
