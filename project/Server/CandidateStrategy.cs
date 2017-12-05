@@ -11,8 +11,7 @@ namespace Server
     public class CandidateStrategy : ServerStrategy, IServer
     {
         private List<Uri> receivedVotes;
-        readonly long EletionTimeout = 1000;
-
+        
         /* 
          • On conversion to candidate, start election:
             • Increment currentTerm
@@ -25,15 +24,24 @@ namespace Server
 
             */
 
+        private System.Timers.Timer timer;
+        private bool stopElecting;
 
 
-        public CandidateStrategy(ServerContext context, FollowerStrategy prevFollowerStrategy) : base(context, Role.Candidate)
+        public CandidateStrategy(ServerContext context) : base(context, Role.Candidate)
         {
-            //this.CurrentTerm = prevFollowerStrategy.CurrentTerm;
-            //this.CommitIndex = prevFollowerStrategy.CommitIndex;
-            //this.LastApplied = prevFollowerStrategy.LastApplied;
-            //this.Logs = prevFollowerStrategy.Logs;
+            Console.WriteLine("\n****CANDIDATE*****\n");
 
+            if(!System.Diagnostics.Debugger.IsAttached)
+            System.Diagnostics.Debugger.Launch();
+
+
+            timer = new System.Timers.Timer();
+            timer.Interval = new Random().Next(150, 300);
+            timer.Elapsed += (sender, e) => { StartNewElection(); };
+            timer.AutoReset = false;
+            Task.Run(() => { StartNewElection(); });
+            stopElecting = false;
         }
 
         public override Uri GetLeader()
@@ -61,30 +69,154 @@ namespace Server
             throw new NotImplementedException();
         }
 
-        //raft
 
-        private void SetFollowerState(long currentTerm, Uri newLeader)
-        {
+        private void StartNewElection() { 
 
-        }
 
-        private void StartNewElection()
-        {
-            lock (this)
+            bool done;
+            
+            lock (this.context)
             {
+                Console.WriteLine("\n  STARTING ELECTION");
                 this.context.CurrentTerm++;
                 this.context.VotedForUrl = this.context.Address;
                 this.receivedVotes = new List<Uri>();
-                this.receivedVotes.Add(this.context.VotedForUrl);
-
-
-                //todo send request vote
+                this.receivedVotes.Add(this.context.VotedForUrl); //self vote
+                 done = false;
             }
+
+            int electionTerm = this.context.CurrentTerm;
+                Console.WriteLine($"  COMMIT INDEX: {this.context.CommitIndex}");
+                Console.WriteLine($"  TERM: {this.context.CurrentTerm}");
+
+                Console.WriteLine($"  NUMBER OF SERVERS KNOWN: {this.context.OtherServers.Count}");
+                foreach (Uri uri in this.context.OtherServersUrls)
+                {
+                    Console.WriteLine($"  KNOWS: {uri}");
+                }
+
+                foreach (IServer server in this.context.OtherServers.Values)
+                {
+                    Task.Run(() => {
+                        Console.WriteLine($"  SENDING ELECTION REQUEST");
+                        try
+                        {
+                            RequestVote requestVote;
+                            lock (this.context)
+                            {
+                                requestVote = new RequestVote()
+                                {
+                                    Candidate = this.context.Address,
+                                    LastLogIndex = this.context.Logs.Count - 1,
+                                    LastLogTerm = this.context.Logs.Count == 0 ? 1 : this.context.Logs.Last().Term,
+                                    Term = this.context.CurrentTerm
+                                };
+                            }
+
+                                VoteResponse response = ((IReplica)server).RequestVote(requestVote);
+
+                            if (done || this.stopElecting || electionTerm != this.context.CurrentTerm)
+                            {
+                                return;
+                            }
+
+                            if (response.Vote == RPCVotes.VoteNo)
+                            {
+                                if(response.VoterTerm > this.context.CurrentTerm)
+                                {
+                                done = true;
+                                this.stepDown(response.Voter, response.VoterTerm);
+                                }
+                                Console.WriteLine("  VOTE: NO");
+                             return;
+                            }
+
+                            Console.WriteLine("  VOTE: YES");
+
+                            if (!this.receivedVotes.Contains(response.Voter))
+                            {
+                                this.receivedVotes.Add(response.Voter);
+                            }
+
+
+                            int majority = this.context.OtherServersUrls.Count / 2 + 1;
+                            Console.WriteLine($"  MAJORITY {majority}\n  VOTES RECEIVED {this.receivedVotes.Count}");
+                            if (majority >= this.receivedVotes.Count)
+                            {
+                                done = true;
+                                this.stopElecting = true;
+                                timer.Stop();
+
+                                //We have a majority
+                                Console.WriteLine("EMERGING AS LEADER");
+                                Console.WriteLine("With term "+this.context.CurrentTerm);
+                                this.context.SwitchStrategy(this, new LeaderStrategy(this.context));
+                                return;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            return;
+                        }
+                    });
+                    //{
+                      
+                //    });
+                }
+                if (!stopElecting)
+                {
+                    timer.Interval = new Random().Next(100, 300);
+                    timer.Start();
+                }
+
+            
+        }
+        public override VoteResponse RequestVote(RequestVote requestVote)
+        {
+            lock(this.context)
+            {
+               
+
+                if (requestVote.Term > this.context.CurrentTerm)
+                {
+
+                    Console.WriteLine("#################### Received vote request from someone with higher term");
+                   // this.timer.Stop();
+                    //this.timer.Start();
+                   // this.context.CurrentTerm = requestVote.Term;
+                    stepDown(requestVote.Candidate,requestVote.Term);
+                    
+                }
+
+                return new VoteResponse()
+                {
+                    Vote = RPCVotes.VoteNo,
+                    Voter = this.context.Address,
+                    VoterTerm = this.context.CurrentTerm
+                };
+            }    
+        }
+
+        private FollowerStrategy stepDown(Uri leader, int term) {
+
+            lock (this.context) { 
+                timer.Stop();
+                this.stopElecting = true;
+                //go back to follower
+                this.context.CurrentTerm = term;
+                FollowerStrategy follower = new FollowerStrategy(this.context, leader);
+                this.context.SwitchStrategy(this, follower);
+                return follower;
+            }
+
         }
 
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
-            throw new NotImplementedException();
+           
+                FollowerStrategy follower = stepDown(appendEntries.Leader, appendEntries.LeaderTerm);
+                return follower.AppendEntries(appendEntries);
+            
         }
     }
 }

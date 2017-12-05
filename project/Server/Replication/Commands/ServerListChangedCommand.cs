@@ -17,20 +17,32 @@ namespace Server
         }
         public void Execute(ServerContext context)
         {
-            context.ReplicaServersURIsList = this.newList;
+            context.OtherServersUrls = this.newList;
+            context.OtherServersUrls.Remove(context.Address);
+            Console.WriteLine($"SETTING SERVER LIST size {context.OtherServersUrls.Count}");
 
-            if(context.CurrentRole == ServerContext.Role.Leader)
+            if (context.CurrentRole == ServerContext.Role.Leader)
             {
                 IEnumerable<IClient> clients = context.sessionClients == null ?
                     context.pendingClients : context.pendingClients.Concat(context.sessionClients);
 
-                //Executes after committing
                 foreach (IClient client in clients)
                 {
-                    List<Uri> servers = new List<Uri>(context.ReplicaServersURIsList);
+                    List<Uri> servers = new List<Uri>(context.OtherServersUrls);
                     servers.Add(context.Address);
                     client.SetAvailableServers(servers);
                 }
+            }
+            else
+            {
+                context.OtherServers.Clear();
+                foreach (Uri uri in context.OtherServersUrls)
+                {
+                    IServer replica = (IServer)Activator.GetObject(
+                        typeof(IServer), uri.ToString() + "Server");
+                    context.OtherServers.Add(uri, replica);
+                }
+                    
             }
         }
     }

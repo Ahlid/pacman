@@ -25,36 +25,36 @@ namespace Server
         //How much time to wait for the election to start.
         private System.Timers.Timer electionTimer;
 
-        public FollowerStrategy(ServerContext context, LeaderStrategy prevLeaderStrategy) : base(context, Role.Follower)
-        {
-            this.context = context;
-            //this.Logs = prevLeaderStrategy.Logs;
-            //this.CommitIndex = prevLeaderStrategy.CommitIndex;
-            //this.CurrentTerm = prevLeaderStrategy.CurrentTerm;
-            //this.LastApplied = prevLeaderStrategy.LastApplied;
-            //this.VotedForUrl = prevLeaderStrategy.VotedForUrl;
-        }
 
         public FollowerStrategy(ServerContext context, Uri masterURL) : base(context, Role.Follower)
         {
+
+            Console.WriteLine("\n****FOLLOWER*****\n");
+
             this.MasterAddress = masterURL;
 
             electionTimer = new System.Timers.Timer(ServerStrategy.ElectionTimeout);
             electionTimer.Elapsed += electionStart;
             electionTimer.Enabled = true;
+            electionTimer.AutoReset = false;
 
             this.Master = (IServer)Activator.GetObject(
                 typeof(IServer),
                 masterURL.ToString() + "Server");
-
-            ((IReplica)this.Master).RegisterReplica(this.context.Address);
+            if(!this.context.hasRegistered)
+            {
+                ((IReplica)this.Master).RegisterReplica(this.context.Address);
+                this.context.hasRegistered = true;
+            }
+            
         }
 
         private void electionStart(Object source, ElapsedEventArgs e)
         {
-            Console.WriteLine("Election has started");
             electionTimer.Stop();
-            new CandidateStrategy(this.context, this);
+            //todo - make sure every follower function stops
+            this.context.SwitchStrategy(this, new CandidateStrategy(this.context));
+           
         }
 
         public override Uri GetLeader()
@@ -82,28 +82,46 @@ namespace Server
             throw new Exception("Followers receive plays.");
         }
 
+        public override VoteResponse RequestVote(RequestVote requestVote)
+        {
+            lock(this.context)
+            {
+                VoteResponse response = base.RequestVote(requestVote);
+
+                if (requestVote.Term > this.context.CurrentTerm)
+                {
+                    this.context.CurrentTerm = requestVote.Term;
+                }
+
+                return response;
+            }
+        }
+
+
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
             lock (this.context)
             {
 
-                Console.WriteLine("Refresh timer");
                 //Received HearthBeat from the leader
                 electionTimer.Stop();
                 electionTimer.Start(); //Restart election timer
 
-                
+                //Console.WriteLine("A: " + (appendEntries.LeaderTerm < this.context.CurrentTerm));
+                //Console.WriteLine("B: " + (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex && appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm));
 
                 if (appendEntries.LeaderTerm < this.context.CurrentTerm)
                     return new AppendEntriesAck() { Success = false, Term = this.context.CurrentTerm, Node = this.context.Address };
-                if (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex && appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm)
+                if (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex && 
+                    appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm)
                     return new AppendEntriesAck() { Success = false, Term = this.context.CurrentTerm, Node = this.context.Address };
 
-                Console.WriteLine("Follower number of entries:  " + appendEntries.LogEntries.Count);
+                
                 foreach (LogEntry entry in appendEntries.LogEntries)
                 {
                     if (this.context.Logs.Count > entry.Index)
                     {
+
                         if (entry.Term != this.context.Logs[entry.Index].Term)
                         {
                             //Remove all the logs from logs from this point on
@@ -115,9 +133,8 @@ namespace Server
                     }
                     else
                     {
-                        //appending the entry
-                        Console.WriteLine($"Follower: Appending the entry index {entry.Index}");
-                        //
+                        
+                        Console.WriteLine($" APPENDING ENTRY WiTH INDEX {entry.Index}");
                         this.context.Logs.Add(entry);
                     }
 
@@ -126,6 +143,7 @@ namespace Server
                 if(appendEntries.LeaderCommitIndex > this.context.CommitIndex)
                 {
                     this.context.CommitIndex = Math.Min(appendEntries.LeaderCommitIndex, this.context.Logs.Last().Index);
+                    Console.WriteLine($" SETTING COMMIT INDEX TO {this.context.CommitIndex}");
                 }
 
                 Task.Run(() => { base.CheckLogs(); });

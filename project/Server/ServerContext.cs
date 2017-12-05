@@ -11,6 +11,9 @@ namespace Server
 {
     public class ServerContext
     {
+        public delegate void SwitchStrategyDelegate(ServerStrategy previous, ServerStrategy next);
+        public SwitchStrategyDelegate SwitchStrategy;
+
         public TcpChannel Channel { get; set; }
         public Uri Address { get; set; } //Server address
         public string PID { get; set; } //Assigned Process ID
@@ -19,11 +22,24 @@ namespace Server
         public enum Role { Leader, Candidate, Follower }
         public Role CurrentRole { get; set; }
 
+        public bool hasRegistered;
+        public List<Uri> OtherServersUrls { get; set; }
+        public Dictionary<Uri, IServer> OtherServers { get; set; }
 
-        public List<Uri> ReplicaServersURIsList { get; set; }
-        public Dictionary<Uri, IServer> Replicas { get; set; }
+        private int _CurrentTerm = 0;
+        //latest term server has seen(initialized to 0 on first boot, increases monotonically)
+        public int CurrentTerm {
+            get { return _CurrentTerm; }
+            set {
+                if(_CurrentTerm != value)
+                {
+                    //Changed terms
+                    this.VotedForUrl = null;
+                }
+                _CurrentTerm = value;
+            }
+        } 
 
-        public int CurrentTerm { get; set; } //latest term server has seen(initialized to 0 on first boot, increases monotonically)
         public Uri VotedForUrl { get; set; }// candidateId that received vote in current term(or null if none)
         //log entries; each entry contains command for state machine, and term when entry was received by leader(first index is 1)
         public List<LogEntry> Logs { get; set; }
@@ -39,7 +55,6 @@ namespace Server
 
         public Dictionary<Uri, int> nextIndex;   //for each server, index of the next log entry to send to that server(initialized to leader last log index + 1)
         public Dictionary<Uri, int> matchIndex;  //for each server, index of highest log known to be replicated on server(initialized to 0, increases monotonically)
-
 
 
         //Session
@@ -60,14 +75,15 @@ namespace Server
 
         public ServerContext()
         {
-            ReplicaServersURIsList = new List<Uri>();
-            Replicas = new Dictionary<Uri, IServer>();
+            Console.WriteLine("Creating context");
+            OtherServersUrls = new List<Uri>();
+            OtherServers = new Dictionary<Uri, IServer>();
 
             //start dictionaries
             this.nextIndex = new Dictionary<Uri, int>();
             this.matchIndex = new Dictionary<Uri, int>();
 
-            foreach (Uri uri in this.ReplicaServersURIsList)
+            foreach (Uri uri in this.OtherServersUrls)
             {
                 this.nextIndex[uri] = this.Logs.Count;
                 this.matchIndex[uri] = 0;

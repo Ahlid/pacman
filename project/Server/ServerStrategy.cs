@@ -20,7 +20,7 @@ namespace Server
 
         //timeout de eleição
         protected static readonly long ElectionTimeout = 2000;//1s
-        protected static readonly long LeaderTimeout =  ElectionTimeout/ 3;//1s
+        protected static readonly long LeaderTimeout = 600;//1s
 
         /*
          All Servers:
@@ -50,15 +50,24 @@ namespace Server
 
         public virtual VoteResponse RequestVote(RequestVote requestVote)
         {
+            Console.WriteLine("  ## WAS REQUESTED TO VOTE ##");
             //If I'm in a bigger term than the one requesting votes, I won't vote for him
             if (requestVote.Term < this.context.CurrentTerm)
             {
-                return new VoteResponse() { Voter = this.context.Address, VoterTerm = this.context.CurrentTerm, Vote = RPCVotes.VoteNo };
+                Console.WriteLine("  ## VOTED NO BECAUSE I HAVE HIGHER TERM ##");
+                return new VoteResponse() {
+                    Voter = this.context.Address,
+                    VoterTerm = this.context.CurrentTerm,
+                    Vote = RPCVotes.VoteNo
+                };
             }
 
+          
             //If I haven't voted yet
-            if (this.context.VotedForUrl == null && this.context.CommitIndex <= requestVote.LastLogIndex)
+            if (this.context.VotedForUrl == null || this.context.VotedForUrl == requestVote.Candidate &&
+                this.context.Logs.Count - 1 <= requestVote.LastLogIndex)
             {
+                Console.WriteLine("  ## VOTED YES BECAUSE CANDIDATE HAS HIGHER OR EQUAL LOG INDEX ##");
                 this.context.VotedForUrl = requestVote.Candidate;
                 return new VoteResponse()
                 {
@@ -66,6 +75,18 @@ namespace Server
                     Voter = this.context.Address,
                     VoterTerm = this.context.CurrentTerm
                 };
+            }
+
+            if (this.context.VotedForUrl != requestVote.Candidate) {
+                Console.WriteLine("  ## VOTED NO BECAUSE I VOTED FOR ANOTHER CANDIDATE ##");
+            }
+            else
+            {
+                //todo - MIGHT DEPEND ON BEING A LEADER OR A CANDIDATE
+
+                //go back to follower
+                ServerStrategy follower = new FollowerStrategy(this.context, null);
+                this.context.SwitchStrategy(this, follower);
             }
 
             return new VoteResponse()

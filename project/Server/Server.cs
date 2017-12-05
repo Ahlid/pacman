@@ -22,7 +22,11 @@ namespace Server
             {
                 Channel = new TcpChannel(address.Port),
                 PID = PID,
-                Address = address
+                Address = address,
+                SwitchStrategy = (prev, next) =>
+                {
+                    this.strategy = next;
+                }
             };
 
             //Start services

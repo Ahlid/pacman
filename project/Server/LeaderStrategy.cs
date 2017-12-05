@@ -13,51 +13,53 @@ namespace Server
     public class LeaderStrategy : ServerStrategy, IServer
     {
 
-        //criação normal de um lider
         public LeaderStrategy(ServerContext context) : base(context, ServerContext.Role.Leader)
         {
+
+            Console.WriteLine("\n****LEADER*****\n");
             //start hearthbeat
             this.context.LeaderTimer = new System.Timers.Timer(ServerStrategy.LeaderTimeout);
-            this.context.LeaderTimer.Elapsed += (sender, e) =>  { this.SendHearthBeat(); };
+            this.context.LeaderTimer.Elapsed += (sender, e) => { this.SendHearthBeat(); };
             this.context.LeaderTimer.AutoReset = false;
             this.context.LeaderTimer.Enabled = true;
 
             //Configure but not start
             this.context.Timer = new System.Timers.Timer(this.context.RoundIntervalMsec);
             this.context.Timer.Elapsed += (sender, e) => { this.NextRound(this.context.sessionClients); };
+            this.context.Timer.AutoReset = false;
 
-            //sempre que ele emerge como lider manda logo um hearthbeat
-            this.SendHearthBeat();   
+            this.context.nextIndex.Clear();
+            this.context.matchIndex.Clear();
+            foreach (Uri uri in this.context.OtherServersUrls)
+            {
+                this.context.nextIndex[uri] = 0;//Next log entry to send to the server is the first
+                this.context.matchIndex[uri] = 0;
+            }
+
+            if (this.context.HasGameStarted)
+            {
+                //Start the game timer
+
+                context.Timer.Start();
+            }
+
+            //Set hearthbeat on start
+            this.SendHearthBeat();
         }
-
-        // aqui é quando ele era um candidate e emerge como lider
-        public LeaderStrategy(ServerContext context, CandidateStrategy prevCandidateStrategy) : this(context)
-        {
-            //aqui é copiar os valorer porque eles não se perdem ok
-            //this.context = context;
-            //this.context.Logs = prevCandidateStrategy.Logs;
-            //this.context.CommitIndex = prevCandidateStrategy.CommitIndex;
-            //this.CurrentTerm = prevCandidateStrategy.CurrentTerm;
-            //this.LastApplied = prevCandidateStrategy.LastApplied;
-            //this.VotedForUrl = prevCandidateStrategy.VotedForUrl;
-
-            //todo - Copy the rest of the game session information
-        }
-
 
         //Transitates to the next round
         private void NextRound(List<IClient> sessionClients)
         {
             if (this.context.stateMachine.HasGameEnded())
             {
-                Console.WriteLine("Game has ended!");
+                Console.WriteLine("  GAME HAS ENDED");
                 //TODO: Create a new game if the pending clients are enough
 
                 // TODO: handle clients and server lists
                 // TODO: Generate Log Entry and multicast AppendEntries
                 return;
             }
-            Console.WriteLine($"TIme {this.context.RoundIntervalMsec}");
+
             ICommand command;
             command = new RoundCommand(this.context.plays);
             this.context.plays = new Dictionary<Uri, Play>();
@@ -70,7 +72,6 @@ namespace Server
             this.context.Logs.Add(entry);
             Task.Run(() => SendAppendEntries());
         }
-
 
         private void broadcastEndGame(List<IClient> sessionClients)
         {
@@ -90,7 +91,6 @@ namespace Server
             }
         }
 
-
         //Remote
         public override Uri GetLeader()
         {
@@ -100,18 +100,15 @@ namespace Server
         //Remote
         public override JoinResult Join(string username, Uri address)
         {
-            lock(this.context)
+            lock (this.context)
             {
-                Console.WriteLine("lock");
-                Console.WriteLine($"Username {username} Address {address.ToString()}");
                 if (this.context.pendingClients.Exists(c => c.Username == username))
                 {
                     // TODO: Lauch exception to the client (username already exists)
                     return JoinResult.REJECTED_USERNAME;
                 }
 
-                Console.WriteLine(address.ToString());
-                Console.WriteLine(string.Format("Sending to client '{0}' that he has just been queued", username));
+                Console.WriteLine($"  CLIENT '{username} - {address.ToString()}' HAS BEEN QUEUED");
 
                 ICommand command = new JoinCommand(address);
                 LogEntry entry = new LogEntry()
@@ -124,27 +121,26 @@ namespace Server
 
                 Task.Run(() => SendAppendEntries());
 
-                Console.WriteLine("unlock");
                 return JoinResult.QUEUED;
-            } 
+            }
         }
 
         public override void SetPlay(Uri address, Play play, int round)
         {
             //lock (this.context) //This lock is blocking the game for some reason, maybe its a flood of SetPlay's that try to acquire the lock
             //{
-                if (this.context.stateMachine == null || !this.context.HasGameStarted)
-                {
-                    throw new Exception("Game hasn't started yet");
-                }
+            if (this.context.stateMachine == null || !this.context.HasGameStarted)
+            {
+                throw new Exception("Game hasn't started yet");
+            }
 
-                this.context.plays[address] = play;
+            this.context.plays[address] = play;
             //}
         }
 
         public override void Quit(Uri address)
         {
-            Console.WriteLine(String.Format("Client at {0} is disconnecting.", address));
+            Console.WriteLine($"  CLIENT '{address.ToString()}' HAS DISCONNETED");
             this.context.pendingClients.RemoveAll(p => p.Address.ToString() == address.ToString());
             this.context.sessionClients.RemoveAll(p => p.Address.ToString() == address.ToString());
         }
@@ -153,10 +149,9 @@ namespace Server
 
         public override void RegisterReplica(Uri replicaServerURL)
         {
-            lock(this.context)
+            lock (this.context)
             {
-                Console.WriteLine("lock");
-                this.context.ReplicaServersURIsList.Add(replicaServerURL);
+                this.context.OtherServersUrls.Add(replicaServerURL);
                 this.context.nextIndex[replicaServerURL] = 0;//Next log entry to send to the server is the first
                 this.context.matchIndex[replicaServerURL] = 0;//Last known log entry index is none
 
@@ -164,10 +159,13 @@ namespace Server
                     typeof(IServer),
                     replicaServerURL.ToString() + "Server");
 
-                this.context.Replicas[replicaServerURL] = replica;
+                this.context.OtherServers[replicaServerURL] = replica;
+
+                List<Uri> serverList = new List<Uri>(this.context.OtherServersUrls);
+                serverList.Add(this.context.Address);
 
                 //Generate the log entry
-                ICommand command = new ServerListChangedCommand(this.context.ReplicaServersURIsList);
+                ICommand command = new ServerListChangedCommand(serverList);
                 LogEntry entry = new LogEntry()
                 {
                     Command = command,
@@ -177,130 +175,169 @@ namespace Server
                 this.context.Logs.Add(entry);
 
                 Task.Run(() => SendAppendEntries());
-
-
-                Console.WriteLine("unlock");
             }
         }
 
         private void SendHearthBeat()
         {
+            Console.WriteLine("  SENDING HEARTHBEAT");
             SendAppendEntries();
             this.context.LeaderTimer.Start(); //Restart leader timer
         }
-
-
-
 
         //send entries to one peer
         private void SendAppendEntries() //Can throw exception, in that case the append must be retried later
         {
             lock (this.context)
             {
-                if (this.context.matchIndex.Count == 0)
-                {
-                    this.context.CommitIndex = this.context.Logs.Count;
-                }
+                //if (this.context.matchIndex.Count == 0)
+                //{
+                //    this.context.CommitIndex = this.context.Logs.Count;
+                //}
 
-                Console.WriteLine("lock");
-                foreach (Uri peer in this.context.ReplicaServersURIsList)
+                Console.WriteLine($"  NUMBER OF SERVERS KNOWN: {this.context.OtherServersUrls.Count}");
+                foreach (Uri peer in this.context.OtherServersUrls)
                 {
-                    do
+                    Task.Run(() =>
                     {
-                        int prevIndex = Math.Max(this.context.nextIndex[peer] - 1, 0); // agrupar com o último index
 
-                        if (this.context.matchIndex[peer] >= this.context.nextIndex[peer])
+                        do
                         {
-                            List<LogEntry> copyEntries = new List<LogEntry>(); //copiar as entries que faltam
-                            Console.WriteLine("this.context.nextIndex[peer] " + this.context.nextIndex[peer]);
-                            for (int i = this.context.nextIndex[peer]; i < this.context.Logs.Count; i++)
+                            int prevIndex = Math.Max(this.context.nextIndex[peer] - 1, 0); // agrupar com o último index
+                            if (this.context.matchIndex[peer] +1 >= this.context.nextIndex[peer])
                             {
-                                copyEntries.Add(this.context.Logs[i]);
-                            }
+                                List<LogEntry> copyEntries = new List<LogEntry>(); //copiar as entries que faltam
 
-                            try
+                                for (int i = this.context.nextIndex[peer]; i < this.context.Logs.Count; i++)
+                                {
+                                    copyEntries.Add(this.context.Logs[i]);
+                                }
+
+                                try
+                                {
+                                    Console.WriteLine($"  $$$ SENDING APPEND ENTRIES to {peer} $$$");
+                                    AppendEntriesAck ack = ((IReplica)this.context.OtherServers[peer]).AppendEntries(new AppendEntries()
+                                    {
+                                        Leader = this.context.Address,
+                                        LeaderTerm = this.context.CurrentTerm,
+                                        PrevLogIndex = prevIndex,
+                                        PrevLogTerm = this.context.Logs[prevIndex].Term,
+                                        LeaderCommitIndex = this.context.CommitIndex,
+                                        LogEntries = copyEntries
+                                    });
+
+                                    //se tem um maior termo temos de deixar de ser lider
+                                    if (ack.Term > this.context.CurrentTerm)
+                                    {
+                                        //baixar para follower
+                                        this.stepDown(ack.Term);
+                                        break;
+                                    }
+                                    else if (this.context.CurrentTerm == ack.Term && ack.Success) //Success
+                                    {
+                                        Console.WriteLine("  APPEND ENTRIES WAS SUCESSFULL");
+                                        //atualizar os valores de match
+                                        this.context.matchIndex[peer] = this.context.Logs.Count - 1;
+                                        this.context.nextIndex[peer] = this.context.Logs.Count - 1;
+                                        break;
+                                    }
+                                    else if (this.context.CurrentTerm == ack.Term && !ack.Success)
+                                    {
+                                        Console.WriteLine("  APPEND ENTRIES WAS UNSUCCESSFULL");
+                                        this.context.nextIndex[peer]--;
+                                    }
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"  SERVER {peer} IS UNREACHABLE");
+                                    break;
+                                }
+                            }
+                            else
                             {
-                                AppendEntriesAck ack = ((IReplica)this.context.Replicas[peer]).AppendEntries(new AppendEntries()
+                                Console.WriteLine("***********INFINITE LOOP***********");
+                                AppendEntriesAck ack = ((IReplica)this.context.OtherServers[peer]).AppendEntries(new AppendEntries()
                                 {
                                     Leader = this.context.Address,
                                     LeaderTerm = this.context.CurrentTerm,
                                     PrevLogIndex = prevIndex,
                                     PrevLogTerm = this.context.Logs[prevIndex].Term,
                                     LeaderCommitIndex = this.context.CommitIndex,
-                                    LogEntries = copyEntries
+                                    LogEntries = new List<LogEntry>()
                                 });
-
-                                //se tem um maior termo temos de deixar de ser lider
-                                if (ack.Term > this.context.CurrentTerm)
-                                {
-                                    //baixar para follower
-                                    this.StepDown(ack.Term);
-                                    break;
-                                }
-                                else if (this.context.CurrentTerm == ack.Term && ack.Success) //Success
-                                {
-                                    Console.WriteLine();
-                                    //atualizar os valores de match
-                                    this.context.matchIndex[peer] = this.context.Logs.Count - 1;
-                                    this.context.nextIndex[peer] = this.context.Logs.Count - 1;
-                                    break;
-                                }
-                                else if (this.context.CurrentTerm == ack.Term && !ack.Success)
-                                {
-                                    //aqui diziam pra fazer isto no algoritmo mas nao entendi o porque
-                                    this.context.nextIndex[peer]--; //isto aqui é porque o gajo vai ter que agarrar mais um log, e vai aumentando a cada vez que falha
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex);
                                 break;
                             }
-                        }
-                        
-                    } while (true);
 
-                    List<int> sortedMatches = this.context.matchIndex.Values.ToList();
-                    sortedMatches.OrderByDescending(i => i);
-                    int index = (int)sortedMatches.Count / 2;
-                    this.context.CommitIndex = sortedMatches.ElementAt(index);
+                        } while (true);
 
-                    Task.Run(() => { base.CheckLogs(); });
+                        List<int> sortedMatches = this.context.matchIndex.Values.ToList();
+                        sortedMatches.OrderByDescending(i => i);
+                        int index = (int)sortedMatches.Count / 2;
+                        this.context.CommitIndex = sortedMatches.ElementAt(index);
+                        base.CheckLogs();
+                    });
 
-                    Console.WriteLine("unlock");
-
+                   // Task.Run(() => { });
                 }
-                
             } //lock
         }
 
-        private void StepDown(int term)
+        public override VoteResponse RequestVote(RequestVote requestVote)
+        {
+            lock (this.context)
+            {
+                if (this.context.CurrentTerm < requestVote.Term)
+                {
+                    //this.context.CurrentTerm = requestVote.Term;
+                    stepDown(requestVote.Term);
+                }
+
+            }
+
+            return new VoteResponse()
+            {
+                Vote = RPCVotes.VoteNo,
+                Voter = this.context.Address,
+                VoterTerm = this.context.CurrentTerm
+            };
+        }
+
+        private void stepDown(int term)
         {
             lock (this)//prender este objeto 
             {
+
+                Console.WriteLine("STEP DOWN LEADER");
+                Console.WriteLine("Term " + this.context.CurrentTerm);
+                Console.WriteLine("TO " + term);
+
                 this.context.CurrentTerm = term; //atualizar o termo
 
                 //parar os timers
                 this.context.LeaderTimer.Stop();
                 this.context.Timer.Stop();
-                //aqui baixar a follower mas esta mandeira pareceu-me estranha, criaste o follower e deixaste ai?
-                //sim a partir daqui deixas de ser lider e passar a ser follower,  sima mas nao guardaste 
-                //fiquei confuso onde tinha de guardar... 
-                //como acedes ai a partir daqui?? Temos que arranjar maneira.
-                //esta foi uma das cenas que me deixou confuso, Podes passar um delegate para a estrategia.
-                new FollowerStrategy(this.context, this);
+
+                this.context.SwitchStrategy(this, new FollowerStrategy(this.context, this.context.Address));
             }
         }
 
         public void ReceiveCommand(ICommand command)
         {
-            this.context.Logs.Add(new LogEntry()
+            lock (this.context)
             {
-                Command = command,
-                Term = this.context.CurrentTerm,
-                Index = this.context.Logs.Count
-            });
+                this.context.Logs.Add(new LogEntry()
+                {
+                    Command = command,
+                    Term = this.context.CurrentTerm,
+                    Index = this.context.Logs.Count
+                });
+
+
+            }
+
+            this.SendAppendEntries();
+
         }
 
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
