@@ -43,7 +43,8 @@ namespace Server
                     context.OtherServers.Add(uri, replica);
                 }
                     
-            }
+            } 
+
         }
     }
 }

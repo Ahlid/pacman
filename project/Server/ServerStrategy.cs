@@ -19,8 +19,8 @@ namespace Server
         //Persistent State on all servers:
 
         //timeout de eleição
-        protected static readonly long ElectionTimeout = 2000;//1s
-        protected static readonly long LeaderTimeout = 600;//1s
+        protected static readonly int ElectionTimeout = 1000;//1s
+        protected static readonly int LeaderTimeout = 100;//1s
 
         /*
          All Servers:

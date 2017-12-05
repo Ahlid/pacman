@@ -32,9 +32,9 @@ namespace Server
         {
             Console.WriteLine("\n****CANDIDATE*****\n");
 
-            if(!System.Diagnostics.Debugger.IsAttached)
+            /*if(!System.Diagnostics.Debugger.IsAttached)
             System.Diagnostics.Debugger.Launch();
-
+            */
 
             timer = new System.Timers.Timer();
             timer.Interval = new Random().Next(150, 300);
@@ -115,6 +115,8 @@ namespace Server
 
                                 VoteResponse response = ((IReplica)server).RequestVote(requestVote);
 
+                            
+
                             if (done || this.stopElecting || electionTerm != this.context.CurrentTerm)
                             {
                                 return;
@@ -165,7 +167,7 @@ namespace Server
                 }
                 if (!stopElecting)
                 {
-                    timer.Interval = new Random().Next(100, 300);
+                    timer.Interval = new Random().Next(ServerStrategy.LeaderTimeout, ServerStrategy.ElectionTimeout);
                     timer.Start();
                 }
 

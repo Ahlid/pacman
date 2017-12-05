@@ -35,18 +35,17 @@ namespace Server
 
             electionTimer = new System.Timers.Timer(ServerStrategy.ElectionTimeout);
             electionTimer.Elapsed += electionStart;
-            electionTimer.Enabled = true;
             electionTimer.AutoReset = false;
 
             this.Master = (IServer)Activator.GetObject(
                 typeof(IServer),
                 masterURL.ToString() + "Server");
-            if(!this.context.hasRegistered)
+            if (!this.context.hasRegistered)
             {
                 ((IReplica)this.Master).RegisterReplica(this.context.Address);
                 this.context.hasRegistered = true;
             }
-            
+
         }
 
         private void electionStart(Object source, ElapsedEventArgs e)
@@ -54,7 +53,7 @@ namespace Server
             electionTimer.Stop();
             //todo - make sure every follower function stops
             this.context.SwitchStrategy(this, new CandidateStrategy(this.context));
-           
+
         }
 
         public override Uri GetLeader()
@@ -84,8 +83,47 @@ namespace Server
 
         public override VoteResponse RequestVote(RequestVote requestVote)
         {
+
+            //If RPC request or response contains term T > currentTerm:
+            //set currentTerm = T, convert to follower (§5.1)
+            if (requestVote.Term > this.context.CurrentTerm)
+            {
+                this.context.CurrentTerm = requestVote.Term;
+            }
+
+            VoteResponse response = new VoteResponse { Voter = this.context.Address, VoterTerm = this.context.CurrentTerm };
+
+            //Reply false if term < currentTerm (§5.1)
+            if (requestVote.Term < this.context.CurrentTerm)
+            {
+                response.Vote = RPCVotes.VoteNo;
+                return response;
+            }
+            //f votedFor is null or candidateId, and candidate’s log is at
+            //least as up - to - date as receiver’s log, grant vote(§5.2, §5.4)
+            if (this.context.VotedForUrl == null && requestVote.LastLogIndex >= this.context.Logs.Count - 1)
+            {
+                response.Vote = RPCVotes.VoteYes;
+                this.context.VotedForUrl = requestVote.Candidate;
+                /*
+                 If election timeout elapses without receiving AppendEntries
+                    RPC from current leader or granting vote to candidate:
+                    convert to candidate
+                 * */
+                 //granting vote means restart election timer
+                electionTimer.Stop();
+                electionTimer.Start(); //Restart election timer
+
+                return response;
+            }
+
+            response.Vote = RPCVotes.VoteNo;
+            return response;
+
+            /*
             lock(this.context)
             {
+              
                 VoteResponse response = base.RequestVote(requestVote);
 
                 if (requestVote.Term > this.context.CurrentTerm)
@@ -95,13 +133,20 @@ namespace Server
 
                 return response;
             }
-        }
+            */
+            }
 
 
         public override AppendEntriesAck AppendEntries(AppendEntries appendEntries)
         {
             lock (this.context)
             {
+                //If RPC request or response contains term T > currentTerm:
+                //set currentTerm = T, convert to follower (§5.1)
+                if (appendEntries.LeaderTerm > this.context.CurrentTerm)
+                {
+                    this.context.CurrentTerm = appendEntries.LeaderTerm;
+                }
 
                 //Received HearthBeat from the leader
                 electionTimer.Stop();
@@ -112,11 +157,11 @@ namespace Server
 
                 if (appendEntries.LeaderTerm < this.context.CurrentTerm)
                     return new AppendEntriesAck() { Success = false, Term = this.context.CurrentTerm, Node = this.context.Address };
-                if (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex && 
+                if (appendEntries.LogEntries.Count - 1 > appendEntries.PrevLogIndex &&
                     appendEntries.LogEntries[appendEntries.PrevLogIndex].Term != appendEntries.PrevLogTerm)
                     return new AppendEntriesAck() { Success = false, Term = this.context.CurrentTerm, Node = this.context.Address };
 
-                
+
                 foreach (LogEntry entry in appendEntries.LogEntries)
                 {
                     if (this.context.Logs.Count > entry.Index)
@@ -133,14 +178,14 @@ namespace Server
                     }
                     else
                     {
-                        
+
                         Console.WriteLine($" APPENDING ENTRY WiTH INDEX {entry.Index}");
                         this.context.Logs.Add(entry);
                     }
 
                 }
 
-                if(appendEntries.LeaderCommitIndex > this.context.CommitIndex)
+                if (appendEntries.LeaderCommitIndex > this.context.CommitIndex)
                 {
                     this.context.CommitIndex = Math.Min(appendEntries.LeaderCommitIndex, this.context.Logs.Last().Index);
                     Console.WriteLine($" SETTING COMMIT INDEX TO {this.context.CommitIndex}");

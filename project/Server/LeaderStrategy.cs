@@ -203,8 +203,9 @@ namespace Server
 
                         do
                         {
-                            int prevIndex = Math.Max(this.context.nextIndex[peer] - 1, 0); // agrupar com o último index
-                            if (this.context.matchIndex[peer] +1 >= this.context.nextIndex[peer])
+                            int lastLogIndex = this.context.Logs.Count - 1;
+                            int prevIndex = Math.Max(this.context.nextIndex[peer] -1, 0); // agrupar com o último index
+                            if (lastLogIndex >= prevIndex)
                             {
                                 List<LogEntry> copyEntries = new List<LogEntry>(); //copiar as entries que faltam
 
@@ -238,7 +239,7 @@ namespace Server
                                         Console.WriteLine("  APPEND ENTRIES WAS SUCESSFULL");
                                         //atualizar os valores de match
                                         this.context.matchIndex[peer] = this.context.Logs.Count - 1;
-                                        this.context.nextIndex[peer] = this.context.Logs.Count - 1;
+                                        this.context.nextIndex[peer] = this.context.Logs.Count ;
                                         break;
                                     }
                                     else if (this.context.CurrentTerm == ack.Term && !ack.Success)
