@@ -71,8 +71,9 @@ namespace Server
 
         //Leader Only
         public System.Timers.Timer Timer { get; set; }
-        public System.Timers.Timer LeaderTimer { get; set; } //timer do leader
         public Dictionary<Uri, Play> plays;
+        public System.Timers.Timer LeaderTimer { get; set; } //timer do leader
+
 
         public static volatile Mutex Mutex = new Mutex(false);
 

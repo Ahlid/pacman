@@ -17,8 +17,6 @@ namespace Server
 
         public LeaderStrategy(ServerContext context) : base(context, ServerContext.Role.Leader)
         {
-
-           
             Console.WriteLine("\n****LEADER*****\n");
             //start hearthbeat
             this.context.LeaderTimer = new System.Timers.Timer(ServerStrategy.LeaderTimeout);

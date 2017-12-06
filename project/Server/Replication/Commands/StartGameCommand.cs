@@ -21,7 +21,6 @@ namespace Server
                 Console.WriteLine($"pending {client.Address}");
             }
 
-
             context.sessionClients = context.pendingClients.Take(context.NumPlayers).ToList(); //get the first N clients
             context.pendingClients = context.pendingClients.Skip(context.NumPlayers).ToList();
 

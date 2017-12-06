@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CandidateStrategy.cs" />
     <Compile Include="GameStateMachine.cs" />
+    <Compile Include="RaftServer.cs" />
     <Compile Include="Replication\Commands\RoundCommand.cs" />
     <Compile Include="Replication\Commands\StartGameCommand.cs" />
     <Compile Include="Replication\Commands\JoinCommand.cs" />
