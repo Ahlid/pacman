@@ -352,7 +352,7 @@ namespace TEST
 
             foreach (Raft peer in this.peers)
             {
-
+                
 
                 // NOTE: me here is this server's identifier
                 // NOTE: if the RPC fails, it counts as granted = false
