@@ -1,6 +1,4 @@
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\pacman.exe.config
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\pacman.exe
-C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\pacman.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\Shared.dll
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\Shared.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Release\pacman.csprojResolveAssemblyReference.cache
@@ -11,3 +9,5 @@ C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Release\pacman.Prope
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Release\pacman.csproj.GenerateResource.Cache
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Release\pacman.exe
 C:\Users\Ricardo Morais\Documents\pacman\project\pacman\obj\Release\pacman.pdb
+C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\pacman.exe.config
+C:\Users\Ricardo Morais\Documents\pacman\project\pacman\bin\Release\pacman.pdb
