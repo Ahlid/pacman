@@ -229,7 +229,7 @@ namespace Server
 
     public class RaftServer : MarshalByRefObject, IRaft, IServer
     {
-        public static int ElectionTime = 300;
+        public static int ElectionTime = 4000;
         public static int LeaderTime = ElectionTime / 4;
 
         public System.Timers.Timer electionTimer;
@@ -440,6 +440,7 @@ namespace Server
         {
             lock (this)
             {
+                Console.WriteLine("RECEIVED <3");
  
                 // step down before handling RPC if need be
                 if (term > this.currentTerm)
@@ -458,6 +459,10 @@ namespace Server
                 {
                     return new Tuple<int, int, int, bool>(this.currentTerm, this.log.Count, -1, false);
                 }
+
+                //  reset election timer
+                this.electionTimer.Stop();
+                this.electionTimer.Start();
 
                 int ourPrevLogTerm;
                 if (prevLogIndex > 0)
@@ -543,7 +548,7 @@ namespace Server
             this.currentTerm = term;
             this.state = State.FOLLOWER;
             this.votedFor = null;
-            this.leaderTimer.Stop();
+            this.RoundTimer.Stop();
 
             foreach (Uri peerUri2 in this.peerURIs)
             {
@@ -551,11 +556,11 @@ namespace Server
                 matchIndex[peerUri2] = -1;
             }
 
-            //Randomize election timer and repeat
+          /*  //Randomize election timer and repeat
             int time = new Random().Next(ElectionTime, (int)1.5 * ElectionTime);
             electionTimer.Interval = time;
             electionTimer.Start();
-
+            */
         }
 
 
@@ -570,12 +575,14 @@ namespace Server
                 matchIndex[peerUri2] = -1;
             }
 
-            this.RoundTimer.Start();
+            
             // reset election timer
             this.electionTimer.Stop();
+            this.electionTimer.Start();
             
             // trigger sending of AppendEntries
             this.OnHeartbeatTimerOrSendTrigger();
+            this.RoundTimer.Start();
         }
 
         //
@@ -586,8 +593,7 @@ namespace Server
 
         public void OnElectionTimer()
         {
-            lock(this)
-            {
+           
 
                 if (this.state == State.LEADER)
                 {
@@ -658,6 +664,11 @@ namespace Server
 
                             nVotes++;
 
+                            Console.WriteLine("####### RECEIVED VOTE ######");
+                            Console.WriteLine(term);
+                            Console.WriteLine(granted);
+                            Console.WriteLine("####### RECEIVED VOTE ######");
+
                             if (term > this.currentTerm)
                             {
                                 ToFollower(term);
@@ -695,7 +706,7 @@ namespace Server
                 electionTimer.Interval = time;
                 electionTimer.Start();
 
-            }
+            
 
         }
 
@@ -705,13 +716,15 @@ namespace Server
             // that you can retry AppendEntries to one peer without sending to all
             // peers.
 
-            lock(this)
-            {
+            
                 if (state != State.LEADER)
                 {
                     //Não percebi a necessidade disto.
+                    this.leaderTimer.Start();
                     return;
                 }
+
+                Console.WriteLine("SENDING HEARTBEAT");
 
                 foreach (Uri peerUri in this.peerURIs)
                 {
@@ -767,6 +780,7 @@ namespace Server
                         try
                         {
                             res = peers[peerUri].AppendEntries(sendTerm, this.Address, prevLogIndex, prevLogTerm, entries, this.commitIndex);
+                            Console.WriteLine("RESPONSE HEARTBEAT");
                         }
                         catch(Exception ex)
                         {
@@ -873,7 +887,7 @@ namespace Server
                         }
 
                     });
-                }
+                
             }
             this.leaderTimer.Start();
         }
@@ -920,7 +934,7 @@ namespace Server
         //Transitates to the next round
         private void NextRound(List<IClient> sessionClients)
         {
-            Console.WriteLine("HEHEH");
+            Console.WriteLine("ROUND COMPUTING");
             if (this.stateMachine.HasGameEnded())
             {
                 Console.WriteLine("  GAME HAS ENDED");
@@ -943,6 +957,7 @@ namespace Server
             this.OnCommand(command, out accepted, out commitedAt);
 
             OnHeartbeatTimerOrSendTrigger();
+            this.RoundTimer.Start();
         }
 
         //TODO - Revisit
