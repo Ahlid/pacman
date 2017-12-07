@@ -73,6 +73,10 @@ namespace Server
             //Assume that the playerMoves has a play for every play, with default Play.NONE
             foreach (Player player in this.Stage.GetPlayers())
             {
+                if (!player.Alive)
+                {
+                    continue;
+                }
                 Play play = PlayerMoves[player];
                 global::Shared.Action action = player.Move(play);
                 if (action != null)
@@ -100,6 +104,10 @@ namespace Server
         {
             foreach (Player player in this.Stage.GetPlayers())
             {
+                if (!player.Alive)
+                {
+                    continue;
+                }
                 foreach (Coin coin in this.Stage.GetCoins())
                 {
                     bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
@@ -118,13 +126,17 @@ namespace Server
                 }
             }
         }
-
-        // todo: check if player is alive, if is alive then do calculus. 
+ 
         // if died after computing then send message to him saying: game over
         private void ComputeCollisionsPlayerWall()
         {
             foreach (Player player in this.Stage.GetPlayers())
             {
+                if (!player.Alive)
+                {
+                    continue;
+                    
+                }
                 foreach (Wall wall in this.Stage.GetWalls())
                 {
                     bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
@@ -132,7 +144,7 @@ namespace Server
 
                     if (colliding)
                     {
-                        //TODO: The player gets a gameover and is removed from the list
+                        
                         player.Alive = false;
                         Actions.Add(new global::Shared.Action()
                         {
@@ -148,6 +160,11 @@ namespace Server
         {
             foreach (Player player in this.Stage.GetPlayers())
             {
+
+                if (!player.Alive)
+                {
+                    continue;
+                }
                 foreach (IMonster monster in this.Stage.GetMonsters())
                 {
                     bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,

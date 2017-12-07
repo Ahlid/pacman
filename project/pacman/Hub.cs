@@ -184,8 +184,6 @@ namespace pacman
             }
         }
 
-
-
         public void Quit()
         {
             try

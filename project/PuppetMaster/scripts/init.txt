@@ -1,17 +1,17 @@
-StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001 20 3
+StartServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001 20 6
 Wait 2000
 StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50001 20 3
 StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50002 20 3
 StartClient C3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50003 20 3
-#StartClient C4 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50007 20 6
-#StartClient C5 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50008 20 6
-#StartClient C6 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50009 20 6
+StartClient C4 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50007 20 6
+StartClient C5 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50008 20 6
+StartClient C6 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50009 20 6
 Wait 6000
-Replicate R1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50004 20 3
+Replicate R1 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50004 20 6
 Wait 2000
-Replicate R2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50005 20 3
+Replicate R2 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50005 20 6
 Wait 2000
-#Replicate R3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50006 20 3
-#Replicate R4 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50007 20 3
+#Replicate R3 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50006 20 6
+#Replicate R4 tcp://127.0.0.1:20001/ProcessCreationService S1 tcp://127.0.0.1:50007 20 6
 Wait 10000
 #Crash S1

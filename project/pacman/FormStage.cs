@@ -15,8 +15,10 @@ using System.Windows.Forms;
 
 
 
-namespace pacman {
-    public partial class FormStage : Form {
+namespace pacman
+{
+    public partial class FormStage : Form
+    {
 
         // arranjar maneira de declarar os eventos à mão para key down e key up para quando o jogo for automatico 
         // nao dar para jogar!, apenas para falar no chat
@@ -31,7 +33,8 @@ namespace pacman {
 
         private Hub hub;
 
-        public FormStage(Hub hub, IStage stage) {
+        public FormStage(Hub hub, IStage stage)
+        {
 
             InitializeComponent();
             this.hub = hub;
@@ -48,7 +51,8 @@ namespace pacman {
                 this.CreateHandle();
             }
 
-            this.Invoke(new System.Action(() => {
+            this.Invoke(new System.Action(() =>
+            {
                 mutex.WaitOne();
                 buildWalls(stage);
                 buildMonsters(stage);   // monsters pass over the coins
@@ -79,16 +83,18 @@ namespace pacman {
 
             foreach (Message message in messages)
             {
-                text += message.Username+" : "+message.Content + "\r\n";
+                text += message.Username + " : " + message.Content + "\r\n";
             }
 
-            this.Invoke(new System.Action(() => {
+            this.Invoke(new System.Action(() =>
+            {
                 textBoxChatHistory.Text = text;
             }));
         }
 
 
-        private void keyIsDown(object sender, KeyEventArgs e) {
+        private void keyIsDown(object sender, KeyEventArgs e)
+        {
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -104,6 +110,7 @@ namespace pacman {
                     play = Play.DOWN;
                     break;
                 case Keys.Enter:
+                    play = Play.NONE;
                     this.textBoxMessage.Enabled = true;
                     this.textBoxMessage.Focus();
                     this.textBoxMessage.Select();
@@ -113,30 +120,50 @@ namespace pacman {
 
         }
 
-        private void keyIsUp(object sender, KeyEventArgs e) {
+        private void keyIsUp(object sender, KeyEventArgs e)
+        {
 
 
             switch (e.KeyCode)
             {
                 case Keys.Left:
+                    if (play == Play.LEFT)
+                    {
+                        play = Play.NONE;
+                    }
+                    break;
                 case Keys.Right:
+                    if (play == Play.RIGHT)
+                    {
+                        play = Play.NONE;
+                    }
+                    break;
                 case Keys.Up:
+                    if (play == Play.UP)
+                    {
+                        play = Play.NONE;
+                    }
+                    break;
                 case Keys.Down:
-                    play = Play.NONE;
+                    if (play == Play.DOWN)
+                    {
+                        play = Play.NONE;
+                    }
                     break;
             }
         }
 
 
         //Running every 20 ms
-        private void timer1_Tick(object sender, EventArgs e) {
+        private void timer1_Tick(object sender, EventArgs e)
+        {
 
             /*
              *  a cada 20 ms vai buscar a jogada que está no jogo
              *  
-             */ 
+             */
 
-            if(play != Play.NONE)
+            if (play != Play.NONE)
             {
                 //hub.SetPlay(play);
                 //hub.SetPlay(this.hub.CurrentSession.game.Move);
@@ -164,7 +191,7 @@ namespace pacman {
                     case Shared.Action.ActionTaken.MOVE:
                         pictureBox = stageObjects[action.ID];
 
-                        Point pos1 = new Point(action.position.X - action.width / 2, action.position.Y - action.height /2);
+                        Point pos1 = new Point(action.position.X - action.width / 2, action.position.Y - action.height / 2);
                         Point pos2 = fit(pos1);
                         int x = pos2.X;
                         int y = pos2.Y;
@@ -197,7 +224,7 @@ namespace pacman {
                         pictureBox = stageObjects[action.ID];
                         Invoke(new System.Action(() => panelGame.Controls.Remove(pictureBox))); // removeu a picture box
 
-                        if(hub.CurrentSession.PlayerId == action.ID)    // This client cant play anymore
+                        if (hub.CurrentSession.PlayerId == action.ID)    // This client cant play anymore
                         {
                             timer1.Stop(); // stop receiving inputs
                         }
@@ -209,38 +236,41 @@ namespace pacman {
             foreach (IPlayer player in players)
             {
                 // check if its the player of the current client window
-                if(hub.CurrentSession.Username != player.Username) 
+                if (hub.CurrentSession.Username != player.Username)
                 {
                     scores += player.Username + " -- Score: " + player.Score + "\r\n";
                 }
                 else
                 {
-                    Task.Run(() => 
+                    Task.Run(() =>
                     {
                         string score = player.Score.ToString();
-                        this.Invoke(new System.Action(() => {
+                        this.Invoke(new System.Action(() =>
+                        {
                             this.labelScore.Text = score;
                         }));
                     });
-                    
+
                 }
             }
-            this.Invoke(new System.Action(() => {
+            this.Invoke(new System.Action(() =>
+            {
                 this.textboxPlayers.Text = scores;
             }));
-            
+
             this.roundState.Add(round, GetState());
             mutex.ReleaseMutex();
         }
 
         private void textBoxMessage_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter && this.textBoxMessage.Text.Trim() != "")
+            if (e.KeyCode == Keys.Enter && this.textBoxMessage.Text.Trim() != "")
             {
                 string text = this.textBoxMessage.Text;
                 Task.Run(() => this.hub.PublishMessage(text));
                 this.textBoxMessage.Clear();
-            }else if(e.KeyCode == Keys.Enter)
+            }
+            else if (e.KeyCode == Keys.Enter)
             {
                 this.textBoxMessage.Enabled = false;
                 this.Select();
@@ -291,7 +321,7 @@ namespace pacman {
             PictureBox pictureBox = new PictureBox();
             pictureBox.Size = new Size(fit(new Point(width, height)));
             pictureBox.BackColor = Color.Transparent;
-            pictureBox.Location = fit(new Point(position.X - width / 2, position.Y - height / 2)); 
+            pictureBox.Location = fit(new Point(position.X - width / 2, position.Y - height / 2));
             pictureBox.Margin = new Padding(0);
             pictureBox.Padding = new Padding(0);
             pictureBox.Name = name;
@@ -319,7 +349,7 @@ namespace pacman {
         {
             PictureBox newPlayer;
             int i = 1;
-            
+
             List<IPlayer> players = stage.GetPlayers();
             // make the current client the first on the game, it will be on top of the others
             int index = players.FindIndex(s => s.Username == hub.CurrentSession.Username);
@@ -329,7 +359,7 @@ namespace pacman {
 
             foreach (IPlayer player in players)
             {
-                if(player.Username == hub.CurrentSession.Username)
+                if (player.Username == hub.CurrentSession.Username)
                 {
                     hub.CurrentSession.PlayerId = player.ID;
                 }
@@ -337,7 +367,8 @@ namespace pacman {
                 newPlayer.Image = global::pacman.Properties.Resources.Left;
                 stageObjects.Add(player.ID, newPlayer);
                 stageObjectsType.Add(player.ID, "player");
-                Invoke(new System.Action(() => {
+                Invoke(new System.Action(() =>
+                {
                     panelGame.Controls.Add(newPlayer);
                     panelGame.Controls.SetChildIndex(newPlayer, 0);
                 }));
@@ -391,7 +422,7 @@ namespace pacman {
             Application.Exit();
         }
 
-       
-        
+
+
     }
 }
