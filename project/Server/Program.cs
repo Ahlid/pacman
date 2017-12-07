@@ -13,8 +13,7 @@ namespace Server
 {
     class Program
     {
-        const string MASTER_MODE = "master";
-        const string REPLICA_MODE = "replica";
+
 
         static void Main(string[] args)
         {
@@ -25,30 +24,33 @@ namespace Server
             //Debugger.Break();
 
             try
-            { 
+            {
 
-                if(args.Length > 0 && args[0] == MASTER_MODE)
+                if (args.Length > 0)
                 {
-                    string PID = args[1];
-                    Uri serverURL = new Uri(args[2]);
-                    int msecPerRound = int.Parse(args[3]);
-                    int numPlayers = int.Parse(args[4]);
+                    for (int i = 0; i < args.Count(); i++) {
+                        Console.WriteLine($"i {i} arg {args[i]}");
+                    }
 
-                    StartMasterMode(PID, serverURL, msecPerRound, numPlayers);
-                }
-                else if(args.Length > 0 && args[0] == REPLICA_MODE)
-                {
-                    string PID = args[1];
-                    Uri serverURL = new Uri(args[2]);
-                    Uri replicaURL = new Uri(args[3]);
-                    int msecPerRound = int.Parse(args[4]);
-                    int numPlayers = int.Parse(args[5]);
 
-                    StartReplicaMode(PID, serverURL, replicaURL, msecPerRound, numPlayers);
+                    string PID = args[0];
+                    Uri serverURI = new Uri(args[1]);
+                    int msecPerRound = int.Parse(args[2]);
+                    int numPlayers = int.Parse(args[3]);
+
+                    List<Uri> serverURLs = new List<Uri>();
+                    foreach (string serverURL in args.Skip(4))
+                    {
+                        serverURLs.Add(new Uri(serverURL));
+                    }
+
+                    Console.WriteLine($"Starting {PID} {msecPerRound} {numPlayers}");
+                    RaftServer server = new RaftServer(serverURI, numPlayers, msecPerRound);
+                    server.Start(serverURLs);
                 }
                 else if(args.Length == 0)
                 {
-                    StartMasterModeDefault();
+                    RaftServer server = new RaftServer(new Uri("tcp://127.0.0.1:30001"), 2, 20);
                 }
                 else
                 {
@@ -62,23 +64,5 @@ namespace Server
 
             System.Console.ReadLine();
         }
-
-        private static void StartMasterModeDefault()
-        {
-            Server server = new Server(new Uri("tcp://127.0.0.1:30001"));
-        }
-
-        private static void StartMasterMode(string PID, Uri serverURL, int msecPerRound, int numPlayers)
-        {
-            Console.WriteLine($"Master Mode {PID} {serverURL} {msecPerRound} {numPlayers}");
-            Server server = new Server(serverURL, PID, msecPerRound, numPlayers);
-        }
-
-        private static void StartReplicaMode(string PID, Uri serverURL, Uri replicaURL, int msecPerRound, int numPlayers)
-        {
-            Console.WriteLine($"Replica mode {PID} {serverURL} {replicaURL} {msecPerRound} {numPlayers}");
-            Server server = new Server(replicaURL, serverURL, PID, msecPerRound, numPlayers);
-        }
-
     }
 }

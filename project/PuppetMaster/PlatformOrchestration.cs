@@ -6,22 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using PuppetMaster.Commands;
 using Shared;
+using System.Threading;
 
 namespace PuppetMaster
 {
     public class PlatformOrchestration
     {
-        // pid - remote service of server and replicas
+        // MAP PID - PCS   remote service of server and replicas
         private Dictionary<String, IProcessCreationService> processesPCS;
         
-        // pid - url of master servers
-        private Dictionary<string, string> masterServersUrl;
+        //Map PID - URI
+        private Dictionary<string, string> serverURIs = new Dictionary<string, string>();
+
+        private string msecRound = "20";
+        private string numPlayers = "2";
 
 
         public PlatformOrchestration()
         {
             this.processesPCS = new Dictionary<string, IProcessCreationService>();
-            this.masterServersUrl = new Dictionary<string, string>();
         }
 
 
@@ -45,8 +48,7 @@ namespace PuppetMaster
                     Console.WriteLine();
                     try
                     {
-                        command = createCommand(commandName, parameters);
-                        command.Execute(parameters);
+                        execute(commandName, parameters);
                     }
                     catch (ArgumentException e)
                     {
@@ -68,8 +70,7 @@ namespace PuppetMaster
                 Console.WriteLine();
                 try
                 {
-                    ICommand command = createCommand(commandName, parameters);
-                    command.Execute(parameters);
+                    execute(commandName, parameters);
                 }
                 catch (ArgumentException e)
                 {
@@ -77,93 +78,140 @@ namespace PuppetMaster
                     Console.WriteLine("*" + e.Message + "*");
                     Console.WriteLine();
                 }
-
             }
         }
 
-        private ICommand createCommand(string commandName, string[] parameters)
+        private void execute(string commandName, string[] parameters)
         {
-            ICommand command;
-            string masterServerUrl;
 
             switch (commandName)
             {
-                case "StartClient":
-                    // find the server url to which im going to connect
-                    masterServerUrl = findServerToConnect(parameters[2]);
-                    if (masterServerUrl != "")
+                case "Configure":
+                    msecRound = parameters[0];
+                    numPlayers = parameters[1];
+                    break;
+                case "CreateServer":
+                    saveProcessPCS(parameters[0], parameters[1]);
+                    serverURIs.Add(parameters[0], parameters[2]);
+                    break;
+                case "StartServers":
+                    foreach(string pid in this.serverURIs.Keys)
                     {
-                        StartClient cli = new StartClient();
-                        cli.masterServerUrl = masterServerUrl;
-                        cli.processesPCS = processesPCS;
-                        command = cli;
-                        saveProcessPCS(parameters[0], parameters[1]);
-                    } else
-                    {
-                        throw new ArgumentException(String.Format("Couldn't start client because server with PID: '{0}' doesn't exist!", parameters[2]));
+                        StartServer(pid, serverURIs[pid], this.serverURIs.Values.ToList(), msecRound, numPlayers);
                     }
                     break;
-                case "StartServer":
-                    StartServer sv = new StartServer();
-                    sv.processesPCS = processesPCS;
-                    command = sv;
-                    saveProcessPCS(parameters[0], parameters[1]);
-                    this.masterServersUrl.Add(parameters[0], parameters[2]); // save pid - server url
-                    break;
-                case "Replicate":
+                case "StartClient":
                     // find the server url to which im going to connect
-                    masterServerUrl = findServerToConnect(parameters[2]);
-                    if (masterServerUrl != "")
+                    if (parameters.Length < 4) // there is not instructions
                     {
-                        Replicate rep = new Replicate();
-                        rep.masterServerUrl = masterServerUrl;
-                        rep.processesPCS = processesPCS;
-                        command = rep;
+                        StartClientNotInstructed(parameters[0], parameters[2], serverURIs.Values.ToList());
                         saveProcessPCS(parameters[0], parameters[1]);
+                        return;
+                    }
+
+                    string instructions = "";
+                    string uniformFilepath = @"../../scripts/" + parameters[3];
+                    // check if the file exists
+                    if (File.Exists(uniformFilepath))
+                    {
+                        Console.WriteLine("*** Reading client moves trace file ***");
+                        string[] lines = File.ReadAllLines(uniformFilepath);
+                        foreach (string line in lines)
+                        {
+                            instructions += line + "\n";
+                        }
+                        Console.WriteLine("*** Finished reading client moves trace file ***");
+                    }
+          
+                    if (instructions != "")
+                    {
+                        StartClientInstructed(parameters[0], parameters[2], instructions, serverURIs.Values.ToList());
+                        saveProcessPCS(parameters[0], parameters[1]);
+                        return;
                     }
                     else
                     {
-                        throw new ArgumentException(String.Format("Couldn't start replica because server with PID: '{0}' doesn't exist!", parameters[2]));
+                        Console.WriteLine("No file or no instructions");
+                        return;
                     }
+
                     break;
+                
                 case "GlobalStatus":
                     GlobalStatus gs = new GlobalStatus();
                     gs.processesPCS = processesPCS;
-                    command = gs;
+                    gs.Execute(parameters);
                     break;
                 case "Crash":
                     Crash c = new Crash();
                     c.processesPCS = processesPCS;
-                    command = c;
+                    c.Execute(parameters);
                     break;
                 case "Freeze":
                     Freeze f = new Freeze();
                     f.processesPCS = processesPCS;
-                    command = f;
+                    f.Execute(parameters);
                     break;
                 case "Unfreeze":
                     Unfreeze u = new Unfreeze();
                     u.processesPCS = processesPCS;
-                    command = u;
+                    u.Execute(parameters);
                     break;
                 case "InjectDelay":
                     InjectDelay id = new InjectDelay();
                     id.processesPCS = processesPCS;
-                    command = id;
+                    id.Execute(parameters);
                     break;
                 case "LocalState":
                     LocalState ls = new LocalState();
                     ls.processesPCS = processesPCS;
-                    command = ls;
+                    ls.Execute(parameters);
                     break;
                 case "Wait":
-                    command = new Wait();
+                    new Wait().Execute(parameters);
                     break;
 
                 default:
                     throw new ArgumentException("Invalid command!");
             }
-            return command;
+        }
+
+        private delegate void StartServerDelegate(string PID, string serverURL, string msecPerRound, string numPlayers, List<string> serverURLs);
+
+        void StartServer(string PID, string serverURI, List<string> serverURIs, string msecPerRound, string numPlayers)
+        {
+            Thread t = new Thread(delegate ()
+            {
+                StartServerDelegate remoteCallStartServer;
+                remoteCallStartServer = new StartServerDelegate(processesPCS[PID].StartServer);
+                IAsyncResult asyncResult = remoteCallStartServer.BeginInvoke(PID, serverURI, msecRound, numPlayers, serverURIs, null, null);
+                asyncResult.AsyncWaitHandle.WaitOne();
+            });
+            t.Start();
+        }
+
+        private delegate void StartClientDelegate(string PID, string clientURL, List<string> serverURLs);
+        void StartClientNotInstructed(string PID, string clientURI, List<string> serverURIs)
+        {
+            Thread t = new Thread(delegate ()
+            {
+                StartClientDelegate remote = new StartClientDelegate(processesPCS[PID].StartClient);
+                IAsyncResult asyncResult = remote.BeginInvoke(PID, clientURI, serverURIs, null, null);
+                asyncResult.AsyncWaitHandle.WaitOne();
+            });
+            t.Start();
+        }
+
+        private delegate void StartClientWithInstructionsDelegate(string PID, string clientURL, string instructions, List<string> serverURLs);
+        void StartClientInstructed(string PID, string clientURI, string instructions, List<string> serverURIs)
+        {
+            Thread t = new Thread(delegate ()
+            {
+                StartClientWithInstructionsDelegate remote = new StartClientWithInstructionsDelegate(processesPCS[PID].StartClient);
+                IAsyncResult asyncResult = remote.BeginInvoke(PID, clientURI, instructions, serverURIs, null, null);
+                asyncResult.AsyncWaitHandle.WaitOne();
+            });
+            t.Start();
         }
 
         private void saveProcessPCS(string pid, string url)
@@ -173,19 +221,6 @@ namespace PuppetMaster
                 url);
             // pid, pcs remove service
             this.processesPCS.Add(pid, pcs);
-        }
-
-        private string findServerToConnect(string PID)
-        {            
-            foreach (KeyValuePair<string, string> server in this.masterServersUrl)
-            {
-                // do something with entry.Value or entry.Key
-                if(server.Key == PID)
-                {
-                    return server.Value; // return server url
-                }
-            }
-            return "";
         }
 
     }

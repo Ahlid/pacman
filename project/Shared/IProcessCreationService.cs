@@ -9,13 +9,11 @@ namespace Shared
 {
     public interface IProcessCreationService
     {
-        void StartClient(string PID, string clientURL, string serverURL, string msecPerRound, string numPlayers, string instructions);
+        void StartClient(string PID, string clientURL, string instructions, List<string> serverURLs);
 
-        void StartClient(string PID, string clientURL, string serverURL, string msecPerRound, string numPlayers);
+        void StartClient(string PID, string clientURL, List<string> serverURLs);
 
-        void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers);
-
-        void StartReplica(string PID, string serverURL, string replicaURL, string msecPerRound, string numPlayers);
+        void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers, List<string> serverURLs);
 
         void Freeze(string PID);
 

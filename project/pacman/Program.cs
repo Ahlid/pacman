@@ -41,24 +41,28 @@ namespace pacman
                     {
                         string PID = args[1];
                         Uri clientURL = new Uri(args[2]);
-                        Uri serverURL = new Uri(args[3]);
-                        int msecPerRound = int.Parse(args[4]);
-                        int numPlayers = int.Parse(args[5]);
+                        List<Uri> serverURLs = new List<Uri>();
+                        foreach(string serverURL in args.Skip(3))
+                        {
+                            serverURLs.Add(new Uri(serverURL));
+                        }
 
-                        var base64EncodedBytes = System.Convert.FromBase64String(args[6]);
+                        var base64EncodedBytes = System.Convert.FromBase64String(args[3]);
                         string instructions = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
 
-                        instructedClient(PID, clientURL, serverURL, msecPerRound, numPlayers, instructions);
+                        instructedClient(PID, clientURL, serverURLs, instructions);
                     }
                     else if (args[0] == NOT_INSTRUCTED)
                     {
                         string PID = args[1];
                         Uri clientURL = new Uri(args[2]);
-                        Uri serverURL = new Uri(args[3]);
-                        int msecPerRound = int.Parse(args[4]);
-                        int numPlayers = int.Parse(args[5]);
+                        List<Uri> serverURLs = new List<Uri>();
+                        foreach (string serverURL in args.Skip(3))
+                        {
+                            serverURLs.Add(new Uri(serverURL));
+                        }
 
-                        notInstructedClient(PID, clientURL, serverURL, msecPerRound, numPlayers);
+                        notInstructedClient(PID, clientURL, serverURLs);
                     }
 
                 }
@@ -73,13 +77,13 @@ namespace pacman
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.ToString());
             }
         }
 
-        private static void instructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers, string instructions)
+        private static void instructedClient(string PID, Uri clientURL, List<Uri> serverURLs, string instructions)
         {
-            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new AutomatedGame(instructions));
+            Hub hub = new Hub(serverURLs, clientURL, new AutomatedGame(instructions));
             Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
             {
@@ -91,6 +95,7 @@ namespace pacman
                     hub.CurrentSession.game.Play(0); // force player to play when in auto mode
                 }));
             };
+
             try
             {
                 JoinResult result = hub.Join(PID);
@@ -103,9 +108,9 @@ namespace pacman
             }
         }
 
-        private static void notInstructedClient(string PID, Uri clientURL, Uri serverURL, int msecPerRound, int numPlayers)
+        private static void notInstructedClient(string PID, Uri clientURL, List<Uri> serverURLs)
         {
-            Hub hub = new Hub(serverURL, clientURL, msecPerRound, new SimpleGame());
+            Hub hub = new Hub(serverURLs, clientURL, new SimpleGame());
 
             Form form = new AutomaticStartForm();
             hub.OnStart += (stage) =>
@@ -132,7 +137,9 @@ namespace pacman
 
         private static void defaultClient()
         {
-            Hub hub = new Hub(new Uri("tcp://127.0.0.1:30001"), 20);
+            List<Uri> serverURIs = new List<Uri>();
+            serverURIs.Add(new Uri("tcp://127.0.0.1:30001"));
+            Hub hub = new Hub(serverURIs);
             FormWelcome form = new FormWelcome(hub);
             Application.Run(form);
         }
