@@ -26,6 +26,10 @@ namespace TEST
         static void Main(string[] args)
         {
 
+            Console.WriteLine(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
+            Console.ReadLine();
+
+            return;
             Uri r1URI = new Uri("tcp://127.0.0.1:50006");
             Uri r2URI = new Uri("tcp://127.0.0.1:50007");
             Uri r3URI = new Uri("tcp://127.0.0.1:50008");
