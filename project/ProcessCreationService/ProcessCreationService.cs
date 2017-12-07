@@ -82,52 +82,50 @@ namespace ProcessCreationService
             return client.GetState(int.Parse(roundID));
         }
 
-        public void StartClient(string PID, string clientURL, string serverUR, string msecPerRound, string numPlayers)
+        public void StartClient(string PID, string clientURL, List<string> serverURLs)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = this.pathClientExecutable();
-            clientProcess.StartInfo.Arguments = $"not-instructed {PID} {clientURL} {serverUR} {msecPerRound} {numPlayers}";
-            processes.Add(PID, clientProcess);
+            string arguments = $"not-instructed {PID} {clientURL}";
+            foreach (string url in serverURLs)
+                arguments += " " + url;
+            clientProcess.StartInfo.Arguments = arguments;
+            processes[PID] = clientProcess;
             PIDToClientURL.Add(PID, clientURL);
             clientProcess.Start();
         }
 
-        public void StartClient(string PID, string clientURL, string serverURL, string msecPerRound, string numPlayers, string instructions)
+        public void StartClient(string PID, string clientURL, string instructions, List<string> serverURLs)
         {
             Process clientProcess = new Process();
             processesFrozen.Add(PID, false);
             clientProcess.StartInfo.FileName = this.pathClientExecutable();
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(instructions);
             string base64Instructions = System.Convert.ToBase64String(plainTextBytes);
-            clientProcess.StartInfo.Arguments = $"instructed {PID} {clientURL} {serverURL} {msecPerRound} {numPlayers} {base64Instructions}";
+            string arguments = $"instructed {PID} {clientURL} {base64Instructions}";
+            foreach (string url in serverURLs)
+                arguments += " " + url;
+            clientProcess.StartInfo.Arguments = arguments;
             processes.Add(PID, clientProcess);
             PIDToClientURL.Add(PID, clientURL);
             clientProcess.Start();
         }
 
-        public void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers)
+        public void StartServer(string PID, string serverURL, string msecPerRound, string numPlayers, List<string> serverURLs)
         {
             Process serverProcess = new Process();
-            processesFrozen.Add(PID, false);
+            processesFrozen[PID] = false;
             serverProcess.StartInfo.FileName = this.pathServerExecutable();
-            serverProcess.StartInfo.Arguments = $"master {PID} {serverURL} {msecPerRound} {numPlayers}";
-            processes.Add(PID, serverProcess);
-            PIDToServerURL.Add(PID, serverURL);
+            string arguments = $"{PID} {serverURL} {msecPerRound} {numPlayers}";
+            foreach (string url in serverURLs)
+                arguments += " " + url;
+            Console.WriteLine($"Starting server with args {arguments}");
+            serverProcess.StartInfo.Arguments = arguments;
+            processes[PID] = serverProcess;
+            PIDToServerURL[PID]= serverURL;
             serverProcess.Start();
         }
-
-        public void StartReplica(string PID, string serverURL, string replicaURL, string msecPerRound, string numPlayers)
-        {
-            Process serverProcess = new Process();
-            processesFrozen.Add(PID, false);
-            serverProcess.StartInfo.FileName = this.pathServerExecutable();
-            serverProcess.StartInfo.Arguments = $"replica {PID} {serverURL} {replicaURL}  {msecPerRound} {numPlayers}";
-            serverProcess.Start();
-            processes.Add(PID, serverProcess);
-            PIDToServerURL.Add(PID, serverURL);
-        }
-
 
         public void Freeze(string PID)
         {

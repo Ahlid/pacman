@@ -12,17 +12,205 @@ using System.Timers;
 namespace Server
 {
 
+    [Serializable]
     public class RaftLog
     {
         public int Term { get; set; }
         public RaftCommand Command { get; set; }
     }
 
-    public class RaftCommand
+    [Serializable]
+    public abstract class RaftCommand
     {
         public string Name { get; set; }
-        public delegate void Command();
-        public Command Execute { get; set; }
+        public abstract void Execute(RaftServer server);
+    }
+
+    [Serializable]
+    public class JoinCommand : RaftCommand
+    {
+        private Uri address;
+        public JoinCommand(Uri address)
+        {
+            this.address = address;
+        }
+
+        public override void Execute(RaftServer server)
+        {
+            Console.WriteLine("Join Commited.");
+            IClient client = (IClient)Activator.GetObject(
+                typeof(IClient),
+                address.ToString() + "Client");
+
+            server.pendingClients.Add(client);
+            Console.WriteLine("ADDDED NOW PENDING: " + server.pendingClients.Count);
+
+            if (server.state == State.LEADER)
+            {
+                //Have enough players
+                if (!server.HasGameStarted && !server.GameStartRequest &&
+                server.pendingClients.Count >= server.NumPlayers)
+                {
+                    server.GameStartRequest = true; // this is used to make sure no more startgame logs are created before the startgame entry is commited
+
+                    //Make start log
+
+                    StartCommand startCommand = new StartCommand()
+                    {
+                        Name = "Start"
+                    };
+
+                    RaftLog startLog = new RaftLog()
+                    {
+                        Term = server.currentTerm,
+                        Command =  startCommand 
+                    };
+
+                    server.log.Add(startLog);
+
+                    if (server.peerURIs.Count == 1)
+                    {
+                        //I'm the only one, I can commit everything
+                        server.commitIndex = server.log.Count - 1;
+                        Task.Run(() => server.StateMachine(server.log[server.commitIndex].Command));
+                    }
+
+                    Task.Run(() => server.OnHeartbeatTimerOrSendTrigger());
+
+                }
+            }
+        }
+    }
+
+    [Serializable]
+    public class StartCommand : RaftCommand
+    {
+        public override void Execute(RaftServer server)
+        {
+            server.GameStartRequest = false; //request fullfilled
+            Console.WriteLine("Game start commited.");
+            //In the leader it might be necessary to lock 
+            try
+            {
+                foreach (IClient client2 in server.pendingClients)
+                {
+                    Console.WriteLine($"pending {client2.Address}");
+                }
+
+
+                server.sessionClients = server.pendingClients.Take(server.NumPlayers).ToList(); //get the first N clients
+                server.pendingClients = server.pendingClients.Skip(server.NumPlayers).ToList();
+                server.playerList = new List<IPlayer>();
+                Console.WriteLine($"Numplayers {server.NumPlayers}");
+
+                server.HasGameStarted = true;
+                foreach (IClient client2 in server.sessionClients)
+                {
+                    Console.WriteLine($"Address session players {client2.Address}");
+                    IPlayer player = new Player();
+                    player.Address = client2.Address;
+                    player.Alive = true;
+                    player.Score = 0;
+                    player.Username = client2.Username;
+                    server.playerList.Add(player);
+                }
+                Console.WriteLine("Creating State Machine");
+                server.stateMachine = new GameStateMachine(server.NumPlayers, server.playerList);
+
+                if (server.state == State.LEADER)
+                {
+                    Console.WriteLine("Contacting Clients");
+                    //Broadcast the start signal to the client
+                    Dictionary<string, Uri> clientsP2P = new Dictionary<string, Uri>();
+                    foreach (IClient c in server.sessionClients)
+                    {
+                        clientsP2P[c.Username] = c.Address;
+                    }
+                    //Communication with the client must be done with the leader
+                    for (int i = server.sessionClients.Count - 1; i >= 0; i--)
+                    {
+                        try
+                        {
+                            IClient client2 = server.sessionClients.ElementAt(i);
+                            client2.Start(server.stateMachine.Stage); //Signal the start
+                            client2.SetPeers(clientsP2P); //Set the peers for the P2P chat
+                        }
+                        catch (Exception e)
+                        {
+                            server.sessionClients.RemoveAt(i);
+                            //todo : maybe remove from the whole list of clients
+                            // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+                        }
+                    }
+
+                    //Start the game timer
+                    server.RoundTimer.AutoReset = false;
+                    server.RoundTimer.Start();
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+
+    [Serializable]
+    public class NewRoundCommand : RaftCommand
+    {
+        public override void Execute(RaftServer server)
+        {
+            Console.WriteLine("number players:" + server.stateMachine.Stage.GetPlayers().Count);
+
+
+            foreach (Uri address in server.plays.Keys)
+            {
+                IPlayer player = server.stateMachine
+                    .Stage.GetPlayers().First(p => p.Address.ToString() == address.ToString());
+                server.stateMachine.SetPlay(player, server.plays[address]);
+            }
+
+            server.plays.Clear();
+            if (server.state == State.LEADER)
+            {
+                List<Shared.Action> actionList = server.stateMachine.NextRound();
+
+                IClient client;
+                for (int i = server.sessionClients.Count - 1; i >= 0; i--)
+                {
+                    try
+                    {
+                        client = server.sessionClients.ElementAt(i);
+                        client.SendRound(actionList, server.playerList, server.stateMachine.Round);
+                        Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
+                        Console.WriteLine(String.Format("Round Nº{0}", server.stateMachine.Round));
+                    }
+                    catch (Exception)
+                    {
+                        server.sessionClients.RemoveAt(i);
+
+
+                        // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
+
+                        /*todo:
+                         * qual a estrategia a adoptar aqui para tentar reconectar com o cliente?
+                         * 
+                         * Dectar falhas de clientes, lidar com falsos positivos.
+                         * 
+                         * Caso não seja pssível contactar o cliente, na próxima ronda deve de ir uma acção em que o player 
+                         * está morto, e deve ser removido do jogo.
+                         * E deve ser apresentado no chat UMA MENSAGEM no chat a indicar que o jogador saiu do jogo
+                         * 
+                         * garantimos a possibilidade de um cliente voltar a entrar no jogo?
+                         * 
+                         */
+                    }
+                }
+
+                server.RoundTimer.Start(); //Start the timer
+
+            };
+        }
     }
 
     public enum State
@@ -34,14 +222,15 @@ namespace Server
     {
         Tuple<int, bool> RequestVote(int term, Uri candidateID, int lastLogIndex, int lastLogTerm);
         Tuple<int, int, int, bool> AppendEntries(int term, Uri leaderID, int prevLogIndex, int prevLogTerm, List<RaftLog> entries, int leaderCommit);
+        String Test();
     }
 
     public class RaftServer : MarshalByRefObject, IRaft, IServer
     {
-        public static int ElectionTime = 250;
+        public static int ElectionTime = 300;
         public static int LeaderTime = ElectionTime / 4;
 
-        private System.Timers.Timer electionTimer;
+        public System.Timers.Timer electionTimer;
         private System.Timers.Timer leaderTimer;
 
         //
@@ -51,15 +240,15 @@ namespace Server
         //
 
         // This is the term this Raft server is currently in
-        private int currentTerm;
+        public int currentTerm;
 
         // This is the Raft peer that this server has voted for in *this* term (if any)
-        private Uri votedFor;
+        public Uri votedFor;
 
         // The log is a list of {term, command} tuples, where the command is an opaque
         // value which only holds meaning to the replicated state machine running on
         // top of Raft.
-        private List<RaftLog> log;
+        public List<RaftLog> log;
 
         //
         // ============================================================================
@@ -68,32 +257,32 @@ namespace Server
         //
 
         // The state this server is currently in, can be FOLLOWER, CANDIDATE, or LEADER
-        private State state;
+        public State state;
 
         // The Raft entries up to and including this index are considered committed by
         // Raft, meaning they will not change, and can safely be applied to the state
         // machine.
-        private int commitIndex;
+        public int commitIndex;
 
         // The last command in the log to be applied to the state machine.
-        private int lastApplied;
+        public int lastApplied;
 
         // nextIndex is a guess as to how much of our log (as leader) matches that of
         // each other peer. This is used to determine what entries to send to each peer
         // next.
-        private Dictionary<Uri, int> nextIndex;
+        public Dictionary<Uri, int> nextIndex;
 
         // matchIndex is a measurement of how much of our log (as leader) we know to be
         // replicated at each other server. This is used to determine when some prefix
         // of entries in our log from the current term has been replicated to a
         // majority of servers, and is thus safe to apply.
-        private Dictionary<Uri, int> matchIndex;
+        public Dictionary<Uri, int> matchIndex;
 
-        private Uri Address { get; set; }
-        private TcpChannel Channel { get; set; }
+        public Uri Address { get; set; }
+        public TcpChannel Channel { get; set; }
 
-        private List<Uri> peerURIs;
-        private Dictionary<Uri, IRaft> peers;
+        public List<Uri> peerURIs;
+        public Dictionary<Uri, IRaft> peers;
 
 
         //Base server
@@ -122,6 +311,11 @@ namespace Server
             RemotingServices.Marshal(this, "Server", typeof(RaftServer));
         }
 
+        public String Test()
+        {
+            return "BOT";
+        }
+
         public void Start(List<Uri> peerURIs)
         {
             this.peerURIs = peerURIs;
@@ -134,6 +328,8 @@ namespace Server
             this.lastApplied = -1;
             this.matchIndex = new Dictionary<Uri, int>();
             this.nextIndex = new Dictionary<Uri, int>();
+            this.pendingClients = new List<IClient>();
+            this.plays = new Dictionary<Uri, Play>();
 
             foreach (Uri peerUri in this.peerURIs)
             {
@@ -143,8 +339,11 @@ namespace Server
                 IRaft peer = (IRaft)Activator.GetObject(
                     typeof(IRaft),
                     peerUri.ToString() + "Server");
-                peers.Add(peerUri, peer);
+                peers[peerUri] = peer;
+
+                Console.WriteLine(peers[peerUri].Test());
             }
+
 
             electionTimer = new System.Timers.Timer(ElectionTime);
             electionTimer.Elapsed += OnElectionTimer;
@@ -154,7 +353,7 @@ namespace Server
             leaderTimer.Elapsed += OnHeartbeatTimerOrSendTrigger;
             leaderTimer.AutoReset = true;
 
-            //leaderTimer.Start();
+            leaderTimer.Start();
             electionTimer.Start();
 
             RoundTimer = new System.Timers.Timer(this.RoundIntervalMsec);
@@ -162,7 +361,7 @@ namespace Server
             RoundTimer.AutoReset = false;
 
             Console.WriteLine("Started Server " + this.Address);
-
+            Console.WriteLine(this.peers.Count);
         }
 
         private void OnHeartbeatTimerOrSendTrigger(object sender, ElapsedEventArgs e)
@@ -178,12 +377,12 @@ namespace Server
         // This function updates the state machine as a result of the command we pass
         // it. In order to build a replicated state machine, we need to call
         // stateMachine with the same commands, in the same order, on all servers.
-        void StateMachine(RaftCommand command)
+        public void StateMachine(RaftCommand command)
         {
             Console.WriteLine("################# COMMAND #############");
             Console.WriteLine(command.Name);
             Console.WriteLine("################# COMMAND #############");
-            command.Execute();
+            command.Execute(this);
         }
 
         //
@@ -196,7 +395,7 @@ namespace Server
             RequestVote(term, candidateID, lastLogIndex, lastLogTerm)
     -> (term, voteGranted)
             */
-
+        /*
         public void RegisterPeer(Uri serverUri)
         {
             // lock (this.context)
@@ -263,55 +462,59 @@ namespace Server
 
             // }
         }
+        */
 
         public Tuple<int, bool> RequestVote(int term, Uri candidateID, int lastLogIndex, int lastLogTerm)
         {
-            Console.WriteLine("HUHUHUHUHUHUH");
-            // step down before handling RPC if need be
-            if (term > this.currentTerm)
+            lock (this)
             {
-                ToFollower(term);
+
+
+                // step down before handling RPC if need be
+                if (term > this.currentTerm)
+                {
+                    ToFollower(term);
+                }
+
+                // don't vote for out-of-date candidates
+                if (term < this.currentTerm)
+                {
+                    return new Tuple<int, bool>(this.currentTerm, false);
+                }
+
+                // don't double vote
+                if (this.votedFor != null && this.votedFor != candidateID)
+                {
+                    return new Tuple<int, bool>(this.currentTerm, false);
+                }
+
+                // check how up-to-date our log is
+                int ourLastLogIndex = this.log.Count - 1;
+                int ourLastLogTerm = -1;
+
+                if (this.log.Count > 0)
+                {
+                    ourLastLogTerm = this.log[ourLastLogIndex].Term;
+                }
+
+                // reject leaders with old logs
+                if (lastLogTerm < ourLastLogTerm)
+                {
+                    return new Tuple<int, bool>(this.currentTerm, false);
+                }
+
+                // reject leaders with short logs
+                if (lastLogTerm == ourLastLogTerm && lastLogIndex < ourLastLogIndex)
+                {
+                    return new Tuple<int, bool>(this.currentTerm, false);
+                }
+
+                this.votedFor = candidateID;
+                this.electionTimer.Stop();
+                this.electionTimer.Start();
+                // TODO: persist Raft state
+                return new Tuple<int, bool>(this.currentTerm, true);
             }
-
-            // don't vote for out-of-date candidates
-            if (term < this.currentTerm)
-            {
-                return new Tuple<int, bool>(this.currentTerm, false);
-            }
-
-            // don't double vote
-            if (this.votedFor != null && this.votedFor != candidateID)
-            {
-                return new Tuple<int, bool>(this.currentTerm, false);
-            }
-
-            // check how up-to-date our log is
-            int ourLastLogIndex = this.log.Count - 1;
-            int ourLastLogTerm = -1;
-
-            if (this.log.Count > 0)
-            {
-                ourLastLogTerm = this.log[ourLastLogIndex].Term;
-            }
-
-            // reject leaders with old logs
-            if (lastLogTerm < ourLastLogTerm)
-            {
-                return new Tuple<int, bool>(this.currentTerm, false);
-            }
-
-            // reject leaders with short logs
-            if (lastLogTerm == ourLastLogTerm && lastLogIndex < ourLastLogIndex)
-            {
-                return new Tuple<int, bool>(this.currentTerm, false);
-            }
-
-            this.votedFor = candidateID;
-            this.electionTimer.Stop();
-            this.electionTimer.Start();
-            // TODO: persist Raft state
-            return new Tuple<int, bool>(this.currentTerm, true);
-
         }
 
         /*
@@ -321,114 +524,114 @@ namespace Server
 
         public Tuple<int, int, int, bool> AppendEntries(int term, Uri leaderID, int prevLogIndex, int prevLogTerm, List<RaftLog> entries, int leaderCommit)
         {
-
-            Console.WriteLine("RECEIVED <3");
-            // step down before handling RPC if need be
-            if (term > this.currentTerm)
+            lock (this)
             {
-                ToFollower(term);
-            }
-
-            //outdated term
-            if (term < this.currentTerm)
-            {
-                return new Tuple<int, int, int, bool>(this.currentTerm, -1, -1, false);
-            }
-
-            //  reset election timer
-            this.electionTimer.Stop();
-            this.electionTimer.Start();
-
-            if (prevLogIndex >= this.log.Count)
-            {
-                return new Tuple<int, int, int, bool>(this.currentTerm, this.log.Count, -1, false);
-            }
-
-            int ourPrevLogTerm;
-            if (prevLogIndex > 0)
-            {
-                ourPrevLogTerm = log[prevLogIndex].Term;
-            }
-            else
-            {
-                ourPrevLogTerm = -1;
-            }
-
-
-            if (prevLogIndex >= 0 && ourPrevLogTerm != prevLogTerm)
-            {
-                int firstOfTerm = prevLogIndex;
-
-                for (int i = prevLogIndex; i >= 0; i--)
+                // step down before handling RPC if need be
+                if (term > this.currentTerm)
                 {
-                    if (log[i].Term != ourPrevLogTerm)
+                    ToFollower(term);
+                }
+
+                //outdated term
+                if (term < this.currentTerm)
+                {
+                    return new Tuple<int, int, int, bool>(this.currentTerm, -1, -1, false);
+                }
+
+                //  reset election timer
+                this.electionTimer.Stop();
+                this.electionTimer.Start();
+
+                if (prevLogIndex >= this.log.Count)
+                {
+                    return new Tuple<int, int, int, bool>(this.currentTerm, this.log.Count, -1, false);
+                }
+
+                int ourPrevLogTerm;
+                if (prevLogIndex > 0)
+                {
+                    ourPrevLogTerm = log[prevLogIndex].Term;
+                }
+                else
+                {
+                    ourPrevLogTerm = -1;
+                }
+
+
+                if (prevLogIndex >= 0 && ourPrevLogTerm != prevLogTerm)
+                {
+                    int firstOfTerm = prevLogIndex;
+
+                    for (int i = prevLogIndex; i >= 0; i--)
                     {
+                        if (log[i].Term != ourPrevLogTerm)
+                        {
+                            break;
+                        }
+                        firstOfTerm = i;
+                    }
+
+                    return new Tuple<int, int, int, bool>(this.currentTerm, firstOfTerm, ourPrevLogTerm, false);
+
+                }
+
+
+                /*
+                    for i from 0 to length(entries) {
+                    index = prevLogIndex + i + 1
+                        if index >= length(log) or log[index].term != entries[i].term {
+                        log = log[:index] ++ entries[i:]
+                        break
+                    }
+                }
+                    */
+
+                //remove logs with wrong index or term and append entries
+                for (int i = 0; i < entries.Count; i++)
+                {
+                    int index = prevLogIndex + i + 1;
+                    if (index >= this.log.Count || log[index].Term != entries[i].Term)
+                    {
+
+                        this.log = this.log.Take(index).ToList();
+
+                        while (i < entries.Count)
+                        {
+                            this.log.Add(entries[i]);
+                            i++;
+                        }
+
                         break;
+
                     }
-                    firstOfTerm = i;
                 }
 
-                return new Tuple<int, int, int, bool>(this.currentTerm, firstOfTerm, ourPrevLogTerm, false);
+                // TODO: persist Raft state
 
-            }
-
-
-            /*
-                for i from 0 to length(entries) {
-                index = prevLogIndex + i + 1
-                    if index >= length(log) or log[index].term != entries[i].term {
-                    log = log[:index] ++ entries[i:]
-                    break
-                }
-            }
-                */
-
-            //remove logs with wrong index or term and append entries
-            for (int i = 0; i < entries.Count; i++)
-            {
-                int index = prevLogIndex + i + 1;
-                if (index >= this.log.Count || log[index].Term != entries[i].Term)
+                if (leaderCommit > this.commitIndex)
                 {
+                    this.commitIndex = this.log.Count - 1;
 
-                    this.log = this.log.Take(index).ToList();
-
-                    while (i < entries.Count)
+                    if (this.commitIndex > leaderCommit)
                     {
-                        this.log.Add(entries[i]);
-                        i++;
+                        this.commitIndex = leaderCommit;
+
                     }
-
-                    break;
-
                 }
-            }
 
-            // TODO: persist Raft state
-
-            if (leaderCommit > this.commitIndex)
-            {
-                this.commitIndex = this.log.Count - 1;
-
-                if (this.commitIndex > leaderCommit)
+                if (commitIndex > lastApplied)
                 {
-                    this.commitIndex = leaderCommit;
 
+                    for (int i = this.lastApplied + 1; i <= this.commitIndex; i++)
+                    {
+                        this.StateMachine(this.log[i].Command);
+                        this.lastApplied = i;
+                    }
                 }
+
+                return new Tuple<int, int, int, bool>(this.currentTerm, -1, -1, true);
+
             }
-
-            if (commitIndex > lastApplied)
-            {
-
-                for (int i = this.lastApplied + 1; i <= this.commitIndex; i++)
-                {
-                    this.StateMachine(this.log[i].Command);
-                    this.lastApplied = i;
-                }
-            }
-
-            return new Tuple<int, int, int, bool>(this.currentTerm, -1, -1, true);
-
-
         }
 
         public void ToFollower(int term)
@@ -459,6 +662,7 @@ namespace Server
 
             RoundTimer.Start();
             // reset election timer
+            this.electionTimer.Stop();
             this.electionTimer.Start();
             // trigger sending of AppendEntries
             this.OnHeartbeatTimerOrSendTrigger();
@@ -504,14 +708,28 @@ namespace Server
                     Tuple<int, bool> res;
                     if (this.log.Count > 0)
                     {
-                        res = peers[peerUri].RequestVote(electionTerm, this.Address, this.log.Count - 1,
-                            this.log[this.log.Count - 1].Term);
+                        try
+                        {
+                            res = peers[peerUri].RequestVote(electionTerm, this.Address, this.log.Count - 1,
+                                this.log[this.log.Count - 1].Term);
+                        }
+                        catch(Exception)
+                        {
+                            return;
+                        }
 
                     }
                     else
                     {
-                        res = peers[peerUri].RequestVote(electionTerm, this.Address, this.log.Count - 1,
+                        try
+                        {
+                            res = peers[peerUri].RequestVote(electionTerm, this.Address, this.log.Count - 1,
                             this.currentTerm);
+                        }
+                        catch (Exception)
+                        {
+                            return;
+                        }
                     }
 
                     int term = res.Item1;
@@ -549,6 +767,7 @@ namespace Server
                         return;
                     }
 
+                    Console.WriteLine("My votes");
                     Console.WriteLine(votes);
                     if (nVotes == this.peers.Count && votes <= this.peers.Count / 2)
                     {
@@ -579,11 +798,11 @@ namespace Server
             // that you can retry AppendEntries to one peer without sending to all
             // peers.
 
-            
+
             if (state != State.LEADER)
             {
                 //Não percebi a necessidade disto.
-                //this.leaderTimer.Start();
+                this.leaderTimer.Start();
                 return;
             }
 
@@ -620,6 +839,10 @@ namespace Server
                     {
                         prevLogTerm = log[prevLogIndex].Term;
                     }
+                    else
+                    {
+                        prevLogTerm = this.currentTerm;
+                    }
 
                     int sendTerm = this.currentTerm;
 
@@ -634,8 +857,34 @@ namespace Server
                         Console.WriteLine();
                     }
 
-                    Tuple<int, int, int, bool> res = peers[peerUri].AppendEntries(sendTerm, this.Address, prevLogIndex, prevLogTerm, entries, this.commitIndex);
+                    /*
+                    Console.WriteLine("HEARTBEAT REQUEST");
+                    Console.WriteLine(peerUri);
+  if (!System.Diagnostics.Debugger.IsAttached)
+                          System.Diagnostics.Debugger.Launch();
+  
 
+
+                    Console.WriteLine(peers[peerUri].Test());
+                    Console.WriteLine(sendTerm);
+                    Console.WriteLine(this.Address);
+                    Console.WriteLine(prevLogIndex);
+                    Console.WriteLine(prevLogTerm);
+                    
+                    Console.WriteLine(this.commitIndex);
+                    Console.WriteLine("HEARTBEAT REQUEST SENT");*/
+                    Console.WriteLine("HEARTBEAT REQUEST SENT");
+                    Console.WriteLine(entries.Count);
+                    Tuple<int, int, int, bool> res;
+                    try
+                    {
+                        res = peers[peerUri].AppendEntries(sendTerm, this.Address, prevLogIndex, prevLogTerm, entries, this.commitIndex);
+                    }
+                    catch(Exception ex)
+                    {
+                        return;
+                    } 
+                    Console.WriteLine("HEARTBEAT RESPONSE");
 
                     int term = res.Item1;
                     int conflitIndex = res.Item2;
@@ -686,6 +935,7 @@ namespace Server
 
                         return;
                     }
+                    
 
                     matchIndex[peerUri] = prevLogIndex + entries.Count;
                     nextIndex[peerUri] = matchIndex[peerUri] + 1;
@@ -697,7 +947,7 @@ namespace Server
                             break;
                         }
 
-                        int replicas = 0;
+                        int replicas = 1;
 
                         foreach (Uri peerUri2 in this.peerURIs)
                         {
@@ -706,11 +956,12 @@ namespace Server
                                 replicas += 1;
                             }
                         }
-
+                        Console.WriteLine($"Replicas {replicas}");
+                        Console.WriteLine($"CONDITION {replicas > this.peers.Count / 2}");
                         if (replicas > this.peers.Count / 2)
                         {
                             commitIndex = n;
-                            //not sure about this
+                            
                             this.StateMachine(this.log[commitIndex].Command);
                             break;
                         }
@@ -753,9 +1004,9 @@ namespace Server
         //Remote
         public Uri GetLeader()
         {
-            if(this.state == State.LEADER)
+            if (this.state == State.LEADER)
                 return this.Address;  //Send my address
-            //todo - send the leader
+                                      //todo - send the leader
             return null;
         }
 
@@ -765,6 +1016,7 @@ namespace Server
             if (this.stateMachine.HasGameEnded())
             {
                 Console.WriteLine("  GAME HAS ENDED");
+                Console.WriteLine(this.stateMachine.Stage.GetPlayers().Count > 0);
                 //TODO: Create a new game if the pending clients are enough
 
                 // TODO: handle clients and server lists
@@ -773,67 +1025,26 @@ namespace Server
             }
 
 
-            RaftCommand.Command command = () =>
+            NewRoundCommand command = new NewRoundCommand()
             {
-                Console.WriteLine("number players:" + this.stateMachine.Stage.GetPlayers().Count);
-
-                foreach (Uri address in plays.Keys)
-                {
-                    IPlayer player = this.stateMachine
-                        .Stage.GetPlayers().First(p => p.Address.ToString() == address.ToString());
-                    this.stateMachine.SetPlay(player, plays[address]);
-                }
-
-                if (this.state == State.LEADER)
-                {
-                    List<Shared.Action> actionList = this.stateMachine.NextRound();
-
-                    IClient client;
-                    for (int i = this.sessionClients.Count - 1; i >= 0; i--)
-                    {
-                        try
-                        {
-                            client = this.sessionClients.ElementAt(i);
-                            client.SendRound(actionList, this.playerList, this.stateMachine.Round);
-                            Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
-                            Console.WriteLine(String.Format("Round Nº{0}", this.stateMachine.Round));
-                        }
-                        catch (Exception)
-                        {
-                            this.sessionClients.RemoveAt(i);
-
-
-                            // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
-
-                            /*todo:
-                             * qual a estrategia a adoptar aqui para tentar reconectar com o cliente?
-                             * 
-                             * Dectar falhas de clientes, lidar com falsos positivos.
-                             * 
-                             * Caso não seja pssível contactar o cliente, na próxima ronda deve de ir uma acção em que o player 
-                             * está morto, e deve ser removido do jogo.
-                             * E deve ser apresentado no chat UMA MENSAGEM no chat a indicar que o jogador saiu do jogo
-                             * 
-                             * garantimos a possibilidade de um cliente voltar a entrar no jogo?
-                             * 
-                             */
-                        }
-                    }
-
-                    this.RoundTimer.Start(); //Start the timer
-
-                };
-
-
+                Name = "New Round"
             };
 
             RaftLog log = new RaftLog()
             {
                 Term = this.currentTerm,
-                Command = new RaftCommand() { Name = "New Round", Execute = command }
+                Command = command
             };
 
             this.log.Add(log);
+
+            if (this.peerURIs.Count == 1)
+            {
+                //I'm the only one, I can commit everything
+                commitIndex = this.log.Count - 1;
+                Task.Run(() => this.StateMachine(this.log[commitIndex].Command));
+            }
+
 
             Task.Run(() => OnHeartbeatTimerOrSendTrigger());
         }
@@ -876,113 +1087,27 @@ namespace Server
 
                 Console.WriteLine($"  CLIENT '{username} - {address.ToString()}' HAS BEEN QUEUED");
 
-                RaftCommand.Command command = () =>
+                JoinCommand command = new JoinCommand(address)
                 {
-                    Console.WriteLine("Join Commited.");
-                    IClient client = (IClient)Activator.GetObject(
-                        typeof(IClient),
-                        address.ToString() + "Client");
-
-                    this.pendingClients.Add(client);
-                    Console.WriteLine("ADDDED NOW PENDING: " + this.pendingClients.Count);
-
-                    if (this.state == State.LEADER)
-                    {
-                        //Have enough players
-                        if (!this.HasGameStarted && !this.GameStartRequest &&
-                            this.pendingClients.Count >= this.NumPlayers)
-                        {
-                            this.GameStartRequest = true; // this is used to make sure no more startgame logs are created before the startgame entry is commited
-
-                            //Make start log
-
-                            RaftCommand.Command startCommand = () =>
-                            {
-                                this.GameStartRequest = false; //request fullfilled
-                                Console.WriteLine("Game start commited.");
-                                //In the leader it might be necessary to lock 
-
-                                foreach (IClient client2 in this.pendingClients)
-                                {
-                                    Console.WriteLine($"pending {client2.Address}");
-                                }
-
-
-                                this.sessionClients = this.pendingClients.Take(this.NumPlayers).ToList(); //get the first N clients
-                                this.pendingClients = this.pendingClients.Skip(this.NumPlayers).ToList();
-
-                                Console.WriteLine($"Numplayers {this.NumPlayers}");
-
-                                this.HasGameStarted = true;
-                                foreach (IClient client2 in this.sessionClients)
-                                {
-                                    Console.WriteLine($"Address session players {client2.Address}");
-                                    IPlayer player = new Player();
-                                    player.Address = client2.Address;
-                                    player.Alive = true;
-                                    player.Score = 0;
-                                    player.Username = client2.Username;
-                                    this.playerList.Add(player);
-                                }
-
-                                this.stateMachine = new GameStateMachine(this.NumPlayers, this.playerList);
-
-                                if (this.state == State.LEADER)
-                                {
-
-                                    //Broadcast the start signal to the client
-                                    Dictionary<string, Uri> clientsP2P = new Dictionary<string, Uri>();
-                                    foreach (IClient c in this.sessionClients)
-                                    {
-                                        clientsP2P[c.Username] = c.Address;
-                                    }
-                                    //Communication with the client must be done with the leader
-                                    for (int i = this.sessionClients.Count - 1; i >= 0; i--)
-                                    {
-                                        try
-                                        {
-                                            IClient client2 = this.sessionClients.ElementAt(i);
-                                            client2.Start(this.stateMachine.Stage); //Signal the start
-                                            client2.SetPeers(clientsP2P); //Set the peers for the P2P chat
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            this.sessionClients.RemoveAt(i);
-                                            //todo : maybe remove from the whole list of clients
-                                            // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.
-                                        }
-                                    }
-
-                                    //Start the game timer
-                                    this.RoundTimer.AutoReset = false;
-                                    this.RoundTimer.Start();
-                                }
-                            };
-
-                            RaftLog startLog = new RaftLog()
-                            {
-                                Term = this.currentTerm,
-                                Command = new RaftCommand() { Name = "Start Game", Execute = startCommand }
-                            };
-
-                            this.log.Add(startLog);
-
-                            Task.Run(() => OnHeartbeatTimerOrSendTrigger());
-
-
-                        }
-                    }
+                    Name = "Join"
                 };
 
                 RaftLog log = new RaftLog()
                 {
                     Term = this.currentTerm,
-                    Command = new RaftCommand() { Name = "Join", Execute = command }
+                    Command = command
                 };
 
                 this.log.Add(log);
 
-                Task.Run(() => OnHeartbeatTimerOrSendTrigger());
+                if (this.peerURIs.Count == 1)
+                {
+                    //I'm the only one, I can commit everything
+                    commitIndex = this.log.Count - 1;
+                    Task.Run(() => this.StateMachine(this.log[commitIndex].Command));
+                }
+
+                Task.Run(() => { OnHeartbeatTimerOrSendTrigger(); });
 
                 return JoinResult.QUEUED;
             }
@@ -1015,5 +1140,5 @@ namespace Server
             this.pendingClients.RemoveAll(p => p.Address.ToString() == address.ToString());
             this.sessionClients.RemoveAll(p => p.Address.ToString() == address.ToString());
         }
-    } 
+    }
 }

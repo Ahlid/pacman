@@ -45,29 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CandidateStrategy.cs" />
     <Compile Include="GameStateMachine.cs" />
     <Compile Include="RaftServer.cs" />
-    <Compile Include="Replication\Commands\RoundCommand.cs" />
-    <Compile Include="Replication\Commands\StartGameCommand.cs" />
-    <Compile Include="Replication\Commands\JoinCommand.cs" />
-    <Compile Include="FollowerStrategy.cs" />
-    <Compile Include="Replication\Commands\ServerListChangedCommand.cs" />
-    <Compile Include="Replication\IReplica.cs" />
-    <Compile Include="Replication\Messages\HearthBeatAck.cs" />
-    <Compile Include="ServerContext.cs" />
-    <Compile Include="ServerStrategy.cs" />
-    <Compile Include="LeaderStrategy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Replication\ICommand.cs" />
-    <Compile Include="Replication\LogEntry.cs" />
-    <Compile Include="Replication\Messages\AppendEntries.cs" />
-    <Compile Include="Replication\Messages\AppendEntriesAck.cs" />
-    <Compile Include="Replication\Messages\RequestVote.cs" />
-    <Compile Include="Replication\Messages\RPCVotes.cs" />
-    <Compile Include="Replication\Messages\VoteResponse.cs" />
-    <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
