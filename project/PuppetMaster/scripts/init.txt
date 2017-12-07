@@ -3,7 +3,7 @@ Configure 20 1
 
 CreateServer S1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30001
 CreateServer S2 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30002
-CreateServer S3 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30003
+#CreateServer S3 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30003
 #CreateServer S4 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30004
 #CreateServer S5 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:30005
 

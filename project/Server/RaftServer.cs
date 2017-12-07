@@ -332,6 +332,7 @@ namespace Server
             this.nextIndex = new Dictionary<Uri, int>();
             this.pendingClients = new List<IClient>();
             this.plays = new Dictionary<Uri, Play>();
+            
 
             foreach (Uri peerUri in this.peerURIs)
             {
@@ -582,7 +583,8 @@ namespace Server
             
             // trigger sending of AppendEntries
             this.OnHeartbeatTimerOrSendTrigger();
-            this.RoundTimer.Start();
+            if(this.HasGameStarted)
+                this.RoundTimer.Start();
         }
 
         //
