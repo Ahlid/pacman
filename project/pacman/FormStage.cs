@@ -183,6 +183,11 @@ namespace pacman
         {
 
             mutex.WaitOne();
+            if(this.roundState.Keys.Contains(round))
+            {
+                return;
+            }
+
             foreach (Shared.Action action in actions)
             {
                 PictureBox pictureBox;
