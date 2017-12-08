@@ -23,7 +23,15 @@ namespace Server.RaftCommands
                 {
                     await Task.Run(() =>
                     {
-                        client.End(server.stateMachine.GetTopPlayer());
+                        try
+                        {
+                            client.End(server.stateMachine.GetTopPlayer());
+                        }
+                        catch (Exception ee)
+                        {
+
+                        }
+                        ;
                     });
                 }
 

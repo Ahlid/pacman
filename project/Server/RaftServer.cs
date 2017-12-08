@@ -1,5 +1,6 @@
 ﻿using Shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting;
@@ -96,11 +97,19 @@ namespace Server
         //If mode is set to true it works in test Mode
         public RaftServer(Uri address, int NumPlayers, int RoundIntervalMsec)
         {
+            BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+
             this.Address = address;
             this.NumPlayers = NumPlayers;
             this.RoundIntervalMsec = RoundIntervalMsec;
 
-            this.Channel = new TcpChannel(address.Port);
+            IDictionary props = new Hashtable();
+            props["port"] = address.Port;
+            props["timeout"] = 1000; // in milliseconds
+
+
+            //this.Channel = new TcpChannel(address.Port);
+            this.Channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(this.Channel, false);
             RemotingServices.Marshal(this, "Server", typeof(RaftServer));
         }
