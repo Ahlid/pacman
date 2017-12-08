@@ -851,6 +851,7 @@ namespace Server
            // Console.WriteLine($"{DateTime.Now.ToString("yyyyMMddHHmmssfff")} ON NextRound {this.Address} in state {this.state}");
             if (this.stateMachine.HasGameEnded())
             {
+                this.HasGameStarted = false;
                 Console.WriteLine("  GAME HAS ENDED");
                 Console.WriteLine(this.stateMachine.Stage.GetPlayers().Count > 0);
 
