@@ -179,12 +179,13 @@ namespace pacman
             CurrentSession.Username = username;
 
             IServer server = FindLeader(); //Block until a leader was found
+            CurrentChatRoom = new ChatRoom(CurrentSession);
             JoinResult result = server.Join(username, Address); //This might still fail
             switch (result)
             {
                 case JoinResult.QUEUED:
                     CurrentSession.SessionStatus = Session.Status.QUEUED;
-                    CurrentChatRoom = new ChatRoom(CurrentSession);
+                    
 
                     this.CurrentSession.game.OnPlayHandler += () =>
                     {

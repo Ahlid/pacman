@@ -9,7 +9,7 @@ CreateServer S5 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:300
 
 StartServers 
 
-Wait 5000
+Wait 9000
 StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:50001
 #StartClient C2 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:50002
 #StartClient C3 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:50003
@@ -20,4 +20,6 @@ StartClient C1 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:5000
 #StartClient C6 tcp://127.0.0.1:20001/ProcessCreationService tcp://127.0.0.1:50006
 
 Wait 10000
-#Crash S1
+Crash S1
+
+#

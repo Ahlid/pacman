@@ -84,21 +84,21 @@ namespace pacman
         private static void instructedClient(string PID, Uri clientURL, List<Uri> serverURLs, string instructions)
         {
             Hub hub = new Hub(serverURLs, clientURL, new AutomatedGame(instructions));
-            Form form = new AutomaticStartForm();
+            Form form = new AutomaticStartForm(hub, PID);
+
             hub.OnStart += (stage) =>
             {
-                form.Invoke(new System.Action(() =>
-                {
+                form.Invoke(new System.Action(() => {
                     form.Hide();
                     FormStage formStage = new FormStage(hub, stage);
                     formStage.Show();
-                    hub.CurrentSession.game.Play(0); // force player to play when in auto mode
                 }));
             };
+     
 
             try
             {
-                JoinResult result = hub.Join(PID);
+  
                 Application.Run(form);
             }
             catch (InvalidUsernameException exc)
@@ -112,11 +112,10 @@ namespace pacman
         {
             Hub hub = new Hub(serverURLs, clientURL, new SimpleGame());
 
-            Form form = new AutomaticStartForm();
+            Form form = new AutomaticStartForm(hub, PID);
             hub.OnStart += (stage) =>
             {
-                form.Invoke(new System.Action(() =>
-                {
+                form.Invoke(new System.Action(() => {
                     form.Hide();
                     FormStage formStage = new FormStage(hub, stage);
                     formStage.Show();
@@ -125,7 +124,6 @@ namespace pacman
 
             try
             {
-                JoinResult result = hub.Join(PID);
                 Application.Run(form);
             }
             catch (InvalidUsernameException exc)

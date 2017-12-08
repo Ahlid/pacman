@@ -6,12 +6,3 @@ C:\Users\Ricardo Morais\Documents\pacman\project\Server\bin\Release\Shared.pdb
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.exe
 C:\Users\Ricardo Morais\Documents\pacman\project\Server\obj\Release\Server.pdb
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.exe.config
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.exe
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Server.pdb
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Shared.dll
-C:\Users\pctm\Documents\pacman\project\Server\bin\Release\Shared.pdb
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.csprojResolveAssemblyReference.cache
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.csproj.CoreCompileInputs.cache
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.exe
-C:\Users\pctm\Documents\pacman\project\Server\obj\Release\Server.pdb

@@ -44,6 +44,8 @@ namespace pacman
 
         void worker_DoWork(object sender, DoWorkEventArgs e)
         {
+            if (this.Peers.Count == 0)
+                return;
             this.lastAskedIndex = ++lastAskedIndex % this.Peers.Count;
 
             IClient client = this.Peers[lastAskedIndex];

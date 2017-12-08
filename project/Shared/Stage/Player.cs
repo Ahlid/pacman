@@ -13,7 +13,7 @@ namespace Shared
     {
         public const int WIDTH = 25;
         public const int HEIGHT = 25;
-        public const int SPEED = 6;
+        public const int SPEED = 4;
 
         public string Username { get; set; }
         public Uri Address { get; set; }

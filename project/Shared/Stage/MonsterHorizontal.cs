@@ -14,7 +14,7 @@ namespace Shared
     {
         public const int WIDTH = 30;
         public const int HEIGHT = 30;
-        public const int SPEED = 3;
+        public const int SPEED = 4;
         public Shared.Action.Direction DirectionAction = Shared.Action.Direction.RIGHT;
 
         public Point Speed { get; set; }
