@@ -7,13 +7,36 @@ using System.Threading.Tasks;
 
 namespace Server
 {
+    /// <summary>
+    /// Represents a state machine for the game
+    /// </summary>
     public class GameStateMachine
     {
+        /// <summary>
+        /// The game's stage
+        /// </summary>
         public IStage Stage { get; set; }
+
+        /// <summary>
+        /// The player's move for current round
+        /// </summary>
         public Dictionary<IPlayer, Play> PlayerMoves { get; set; }
+
+        /// <summary>
+        /// Current round
+        /// </summary>
         public int Round { get; set; }
+
+        /// <summary>
+        /// Round's result Actions
+        /// </summary>
         public List<Shared.Action> Actions { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="NumberOfPlayers">Number of players for current game </param>
+        /// <param name="players">The list with the players</param>
         public GameStateMachine(int NumberOfPlayers, List<IPlayer> players)
         {
             this.Stage = new Stage();
@@ -28,6 +51,10 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Computes the next round
+        /// </summary>
+        /// <returns>The actions resulted from this round</returns>
         public List<Shared.Action> NextRound()
         {
             this.Round++;
@@ -37,11 +64,20 @@ namespace Server
             return new List<Shared.Action>(this.Actions);
         }
 
+        /// <summary>
+        /// Set's a player's play for current round
+        /// </summary>
+        /// <param name="player">The player</param>
+        /// <param name="play">Player's play</param>
         public void SetPlay(IPlayer player, Play play)
         {
             PlayerMoves[player] = play;
         }
 
+        /// <summary>
+        /// Gets the current winning player
+        /// </summary>
+        /// <returns>The winning player</returns>
         public IPlayer GetTopPlayer()
         {
             //if there is only one player alive
@@ -57,6 +93,10 @@ namespace Server
             return this.Stage.GetPlayers().OrderBy(p => p.Score).First();
         }
 
+        /// <summary>
+        /// Checks if the game has ended
+        /// </summary>
+        /// <returns>true if yes of false if not</returns>
         public bool HasGameEnded()
         {
             if (this.Stage.GetPlayers().Count > 0) // if players exist on the game 
@@ -70,6 +110,9 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Computes movement
+        /// </summary>
         private void ComputeMovement()
         {
             //Assume that the playerMoves has a play for every play, with default Play.NONE
@@ -95,6 +138,9 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Detecs colisions
+        /// </summary>
         private void DetectCollisions()
         {
             ComputeCollisionsPlayerCoin();
@@ -102,6 +148,9 @@ namespace Server
             ComputeCollisionsPlayerMonster();
         }
 
+        /// <summary>
+        /// Detects coin colision
+        /// </summary>
         private void ComputeCollisionsPlayerCoin()
         {
             foreach (Player player in this.Stage.GetPlayers())
@@ -132,7 +181,9 @@ namespace Server
             }
         }
 
-        // if died after computing then send message to him saying: game over
+        /// <summary>
+        /// detecs wall colision
+        /// </summary>
         private void ComputeCollisionsPlayerWall()
         {
             foreach (Player player in this.Stage.GetPlayers())
@@ -161,6 +212,9 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Detects monster colision
+        /// </summary>
         private void ComputeCollisionsPlayerMonster()
         {
             foreach (Player player in this.Stage.GetPlayers())

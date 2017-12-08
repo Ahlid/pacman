@@ -29,7 +29,7 @@ namespace TEST
         // This is the Raft peer that this server has voted for in *this* term (if any)
         private string votedFor;
 
-        // The log is a list of {term, command} tuples, where the command is an opaque
+        // The Log is a list of {term, command} tuples, where the command is an opaque
         // value which only holds meaning to the replicated state machine running on
         // top of Raft.
         private List<RaftLog> log;
@@ -48,17 +48,17 @@ namespace TEST
         // machine.
         private int commitIndex;
 
-        // The last command in the log to be applied to the state machine.
+        // The last command in the Log to be applied to the state machine.
         private int lastApplied;
 
-        // nextIndex is a guess as to how much of our log (as leader) matches that of
+        // NextIndex is a guess as to how much of our Log (as leader) matches that of
         // each other peer. This is used to determine what entries to send to each peer
         // next.
         private Dictionary<String, int> nextIndex;
 
-        // matchIndex is a measurement of how much of our log (as leader) we know to be
+        // MatchIndex is a measurement of how much of our Log (as leader) we know to be
         // replicated at each other server. This is used to determine when some prefix
-        // of entries in our log from the current term has been replicated to a
+        // of entries in our Log from the current term has been replicated to a
         // majority of servers, and is thus safe to apply.
         private Dictionary<String, int> matchIndex;
 
@@ -116,7 +116,7 @@ namespace TEST
 
         // This function updates the state machine as a result of the command we pass
         // it. In order to build a replicated state machine, we need to call
-        // stateMachine with the same commands, in the same order, on all servers.
+        // StateMachine with the same commands, in the same order, on all servers.
         void StateMachine(RaftCommand command)
         {
             Console.WriteLine("################# COMMAND #############");
@@ -167,7 +167,7 @@ namespace TEST
                 return new Tuple<int, bool>(this.currentTerm, false);
             }
 
-            // check how up-to-date our log is
+            // check how up-to-date our Log is
             int ourLastLogIndex = this.log.Count - 1;
             int ourLastLogTerm = -1;
 
@@ -268,8 +268,8 @@ namespace TEST
             /*
              for i from 0 to length(entries) {
                 index = prevLogIndex + i + 1
-                    if index >= length(log) or log[index].term != entries[i].term {
-                    log = log[:index] ++ entries[i:]
+                    if index >= length(Log) or Log[index].term != entries[i].term {
+                    Log = Log[:index] ++ entries[i:]
                     break
                 }
             }
@@ -462,7 +462,7 @@ namespace TEST
         {
             // NOTE: it may be useful to have separate timers for each peer, so
             // that you can retry AppendEntries to one peer without sending to all
-            // peers.
+            // Peers.
 
             if (state != State.LEADER)
             {

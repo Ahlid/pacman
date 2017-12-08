@@ -5,41 +5,43 @@ using Shared;
 
 namespace Server.RaftCommands
 {
-
+    /// <summary>
+    /// The comman to compute a new round
+    /// </summary>
     [Serializable]
     public class NewRoundCommand : RaftCommand
     {
         public override void Execute(RaftServer server, bool AsLeader)
         {
-          //  Console.WriteLine("number players:" + server.stateMachine.Stage.GetPlayers().Count);
+          //  Console.WriteLine("number players:" + server.StateMachine.Stage.GetPlayers().Count);
 
             foreach (Uri address in server.plays.Keys)
             {
-                IPlayer player = server.stateMachine
+                IPlayer player = server.StateMachine
                     .Stage.GetPlayers().First(p => p.Address.ToString() == address.ToString());
-                server.stateMachine.SetPlay(player, server.plays[address]);
+                server.StateMachine.SetPlay(player, server.plays[address]);
             }
 
             server.plays.Clear();
             if (AsLeader)
             {
              //   Console.WriteLine("EXECUTE ROUND AS LEADER");
-                List<Shared.Action> actionList = server.stateMachine.NextRound();
+                List<Shared.Action> actionList = server.StateMachine.NextRound();
 
                 IClient client;
-                for (int i = server.sessionClients.Count - 1; i >= 0; i--)
+                for (int i = server.SessionClients.Count - 1; i >= 0; i--)
                 {
                     try
                     {
-                        client = server.sessionClients.ElementAt(i);
-                        client.SendRound(actionList, server.playerList, server.stateMachine.Round);
+                        client = server.SessionClients.ElementAt(i);
+                        client.SendRound(actionList, server.PlayerList, server.StateMachine.Round);
                      //   Console.WriteLine(String.Format("Sending stage to client: {0}, at: {1}", client.Username, client.Address));
-                     //   Console.WriteLine(String.Format("Round Nº{0}", server.stateMachine.Round));
+                     //   Console.WriteLine(String.Format("Round Nº{0}", server.StateMachine.Round));
                     }
                     catch (Exception ex)
                     {
                       //  Console.WriteLine("CANT CONTACT CLIENT" + ex);
-                        //server.sessionClients.RemoveAt(i);
+                        //server.SessionClients.RemoveAt(i);
 
 
                         // todo: try to reach the client again. Uma thread à parte. Verificar se faz sentido.

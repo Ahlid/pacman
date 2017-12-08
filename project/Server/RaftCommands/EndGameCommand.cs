@@ -5,6 +5,9 @@ using Shared;
 
 namespace Server.RaftCommands
 {
+    /// <summary>
+    /// The command to end the game
+    /// </summary>
     [Serializable]
     public class EndGameCommand : RaftCommand
     {
@@ -19,13 +22,13 @@ namespace Server.RaftCommands
 
             //sending info to clients
             if (AsLeader)
-                foreach (IClient client in server.sessionClients)
+                foreach (IClient client in server.SessionClients)
                 {
                     await Task.Run(() =>
                     {
                         try
                         {
-                            client.End(server.stateMachine.GetTopPlayer());
+                            client.End(server.StateMachine.GetTopPlayer());
                         }
                         catch (Exception ee)
                         {
@@ -38,12 +41,12 @@ namespace Server.RaftCommands
             lock (server)
             {
 
-                server.sessionClients = new List<IClient>();
+                server.SessionClients = new List<IClient>();
 
                 if (AsLeader)
                 {
                     if (!server.HasGameStarted && !server.GameStartRequest &&
-                        server.pendingClients.Count >= server.NumPlayers)
+                        server.PendingClients.Count >= server.NumPlayers)
                     {
                         StartCommand startCommand = new StartCommand()
                         {

@@ -3,6 +3,9 @@ using Shared;
 
 namespace Server.RaftCommands
 {
+    /// <summary>
+    /// THe command to join a client
+    /// </summary>
     [Serializable]
     public class JoinCommand : RaftCommand
     {
@@ -20,8 +23,8 @@ namespace Server.RaftCommands
                 typeof(IClient),
                 address.ToString() + "Client");
 
-            server.pendingClients.Add(client);
-            Console.WriteLine("ADDDED NOW PENDING: " + server.pendingClients.Count);
+            server.PendingClients.Add(client);
+            Console.WriteLine("ADDDED NOW PENDING: " + server.PendingClients.Count);
 
             if (AsLeader)
             {
@@ -29,11 +32,11 @@ namespace Server.RaftCommands
 
                 //Have enough players
                 if (!server.HasGameStarted && !server.GameStartRequest &&
-                    server.pendingClients.Count >= server.NumPlayers)
+                    server.PendingClients.Count >= server.NumPlayers)
                 {
                     server.GameStartRequest = true; // this is used to make sure no more startgame logs are created before the startgame entry is commited
 
-                    //Make start log
+                    //Make start Log
 
                     StartCommand startCommand = new StartCommand()
                     {
@@ -45,11 +48,11 @@ namespace Server.RaftCommands
                     server.OnCommand(startCommand, out accepted, out commitedAt);
 
                     /*
-                    if (server.peerURIs.Count == 1)
+                    if (server.PeerURIs.Count == 1)
                     {
                         //I'm the only one, I can commit everything
-                        server.commitIndex = server.log.Count - 1;
-                        Task.Run(() => server.StateMachine(server.log[server.commitIndex].Command));
+                        server.CommitIndex = server.Log.Count - 1;
+                        Task.Run(() => server.StateMachine(server.Log[server.CommitIndex].Command));
                     }*/
 
                     //Task.Run(() => server.OnHeartbeatTimerOrSendTrigger());
