@@ -48,6 +48,10 @@ namespace Shared
         /// <param name="winner"></param>
         void End(IPlayer winner);
 
+        /// <summary>
+        /// Set's the peers
+        /// </summary>
+        /// <param name="peers">The other clients in the game</param>
         void SetPeers(Dictionary<string, Uri> peers);
 
         void SetAvailableServers(List<Uri> replicaServersURIsList);
