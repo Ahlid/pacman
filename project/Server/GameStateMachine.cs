@@ -45,14 +45,16 @@ namespace Server
         public IPlayer GetTopPlayer()
         {
             //if there is only one player alive
-            var alivePlayers = this.Stage.GetPlayers().Where(p => p.Alive == true);
+            var alivePlayers = this.Stage.GetPlayers().Where(p => p.Alive);
             if (alivePlayers.Count() == 1)
             {
                 return alivePlayers.First();
             }
-
             //retornar o que tem mais score
-            return alivePlayers.OrderBy(p => p.Score).First();
+            if (alivePlayers.Count() > 1)
+                return alivePlayers.OrderBy(p => p.Score).First();
+
+            return this.Stage.GetPlayers().OrderBy(p => p.Score).First();
         }
 
         public bool HasGameEnded()
@@ -60,7 +62,7 @@ namespace Server
             if (this.Stage.GetPlayers().Count > 0) // if players exist on the game 
             {
                 // check if there are any player alive or if the all the coins have been captured.
-                return !(this.Stage.GetPlayers().Count(p => p.Alive) > 0) || !(this.Stage.GetCoins().Count > 0);
+                return (this.Stage.GetPlayers().Count(p => p.Alive) == 0) || (this.Stage.GetCoins().Count == 0);
             }
             else
             {
@@ -108,8 +110,10 @@ namespace Server
                 {
                     continue;
                 }
-                foreach (Coin coin in this.Stage.GetCoins())
+                for (int i = 0; i < this.Stage.GetCoins().Count; i++)
                 {
+                    ICoin coin = this.Stage.GetCoins()[i];
+
                     bool colliding = player.IsColliding(Player.WIDTH, Player.HEIGHT,
                         coin, Coin.WIDTH, Coin.HEIGHT);
 
@@ -117,6 +121,7 @@ namespace Server
                     {
                         player.Score++;
                         this.Stage.RemoveCoin(coin);
+                        i--;
                         this.Actions.Add(new global::Shared.Action()
                         {
                             action = global::Shared.Action.ActionTaken.REMOVE,
@@ -126,7 +131,7 @@ namespace Server
                 }
             }
         }
- 
+
         // if died after computing then send message to him saying: game over
         private void ComputeCollisionsPlayerWall()
         {
@@ -135,7 +140,7 @@ namespace Server
                 if (!player.Alive)
                 {
                     continue;
-                    
+
                 }
                 foreach (Wall wall in this.Stage.GetWalls())
                 {
@@ -144,7 +149,7 @@ namespace Server
 
                     if (colliding)
                     {
-                        
+
                         player.Alive = false;
                         Actions.Add(new global::Shared.Action()
                         {

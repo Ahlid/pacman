@@ -256,6 +256,7 @@ namespace pacman
 
         void IClient.End(IPlayer winner)
         {
+            MessageBox.Show("END");
             CurrentSession.SessionStatus = Session.Status.ENDED;
             OnGameEnd?.Invoke(winner);
         }
