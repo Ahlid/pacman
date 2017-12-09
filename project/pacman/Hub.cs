@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting;
@@ -9,10 +10,12 @@ using System.Net.Sockets;
 using System.Net;
 using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace pacman
 {
-    public class Hub: MarshalByRefObject, IClient, IChat
+    public class Hub : MarshalByRefObject, IClient, IChat
     {
         //Connection Information
         public Uri Address { get; set; }
@@ -34,7 +37,9 @@ namespace pacman
         //Interface complience
         public string Username { get { return CurrentSession.Username; } }
         public int Round { get { return CurrentSession.Round; } }
-        public List<IClient> Peers { get { return CurrentChatRoom.Peers; }  }
+        public List<IClient> Peers { get { return CurrentChatRoom.Peers; } }
+        public List<Uri> peerURIManager;
+        public IServer leader = null;
 
         //Events
 
@@ -48,20 +53,25 @@ namespace pacman
         public event EventHandler OnDeath;
         public event GameEndEvent OnGameEnd;
 
-        public GetStateHandler getStateHandler { get; set; } 
+        /// <summary>
+        /// The timmer for group mannager
+        /// </summary>
+        private System.Timers.Timer ManagerTimer;
+
+        public GetStateHandler getStateHandler { get; set; }
 
         public Hub(List<Uri> serverURIList, Uri address, IGame game)
-        { 
+        {
             if (serverURIList == null || serverURIList.Count == 0)
             {
                 throw new Exception("The list of servers must be provided and be not empty.");
             }
 
-            if(address == null)
+            if (address == null)
             {
-                address = new Uri("tcp://127.0.0.1:"+ FreeTcpPort().ToString());
+                address = new Uri("tcp://127.0.0.1:" + FreeTcpPort().ToString());
             }
-
+            this.peerURIManager = new List<Uri>();
             this.game = game;
             this.lastKnownLeaderUri = null;
             this.Address = address;
@@ -70,13 +80,20 @@ namespace pacman
 
             CurrentSession = new Session(game, msecPerRound);
 
-            channel = new TcpChannel(address.Port);
+            BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+
+            IDictionary props = new Hashtable();
+            props["port"] = address.Port;
+            props["timeout"] = 500; // in milliseconds
+
+            channel = new TcpChannel(props, null, provider);
+            // channel = new TcpChannel(address.Port);
             ChannelServices.RegisterChannel(channel, false);
 
             RemotingServices.Marshal(this, resource,
                 typeof(Hub));
 
-            foreach(Uri peer in this.serverURIList)
+            foreach (Uri peer in this.serverURIList)
             {
                 IServer server = (IServer)Activator.GetObject(
                     typeof(IServer),
@@ -84,9 +101,62 @@ namespace pacman
 
                 this.servers.Add(peer, server);
             }
+
+
+            ManagerTimer = new System.Timers.Timer(2000);
+            ManagerTimer.Elapsed += OnManagerCheck;
+            ManagerTimer.AutoReset = false;
+            ManagerTimer.Start();
+
+
         }
 
-        public Hub(List<Uri> serverURIList) : this(serverURIList, null, new SimpleGame()) {}
+        public Hub(List<Uri> serverURIList) : this(serverURIList, null, new SimpleGame()) { }
+
+
+        /// <summary>
+        /// Event to trigger on Manager timmer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void OnManagerCheck(object sender, ElapsedEventArgs e)
+        {
+
+            for (int x = 0; x < this.serverURIList.Count; x++)
+            {
+                Uri uri = this.serverURIList[x];
+
+
+                try
+                {
+                    this.servers[uri].Test();
+
+                    if (!this.serverURIList.Contains(uri))
+                    {
+
+                        this.serverURIList.Add(uri);
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    if (this.serverURIList.Contains(uri))
+                    {
+
+                        this.serverURIList.Remove(uri);
+
+                    }
+                }
+
+
+            }
+
+
+
+
+            this.ManagerTimer.Start();
+        }
 
         static int FreeTcpPort()
         {
@@ -131,40 +201,35 @@ namespace pacman
 
         public IServer FindLeader()
         {
-            if (this.lastKnownLeaderUri != null)
+
+            if (this.leader != null)
             {
-                //First test its availability
-                this.lastKnownLeaderUri = AskWhoIsLeader(this.lastKnownLeaderUri);
-                if (this.lastKnownLeaderUri != null)
+                return this.leader;
+            }
+            for (int x = 0; x < this.serverURIList.Count; x++)
+            {
+                Uri serverUri = this.serverURIList[x];
+
+                if (serverUri == null) continue; ;
+                try
                 {
-                    return this.servers[this.lastKnownLeaderUri];
+                    this.lastKnownLeaderUri = AskWhoIsLeader(serverUri);
+                    if (this.lastKnownLeaderUri != null)
+                    {
+                        this.leader = this.servers[this.lastKnownLeaderUri];
+                        return this.servers[this.lastKnownLeaderUri];
+                    }
+
+                }
+                catch (Exception)
+                {
+                    //We need to continue looking for an available leader
+                    continue;
                 }
             }
 
-            //We do not know who is the leader
+            return null;
 
-            do
-            { 
-                foreach(Uri serverUri in this.serverURIList)
-                {
-                    try
-                    {
-                        this.lastKnownLeaderUri = AskWhoIsLeader(serverUri);
-                        if (this.lastKnownLeaderUri != null)
-                        {
-                            return this.servers[this.lastKnownLeaderUri];
-                        }
-
-                    }
-                    catch(Exception)
-                    {
-                        //We need to continue looking for an available leader
-                        continue;
-                    }
-                }
-                //Retry in 20 miliseconds
-                Thread.Sleep(20);
-            }  while(true);
 
         }
 
@@ -185,7 +250,7 @@ namespace pacman
             {
                 case JoinResult.QUEUED:
                     CurrentSession.SessionStatus = Session.Status.QUEUED;
-                    
+
 
                     this.CurrentSession.game.OnPlayHandler += () =>
                     {
@@ -194,13 +259,13 @@ namespace pacman
 
                     break;
             }
-            
+
             return result;
         }
 
         public void SetPlay(Play play)
         {
-            if(CurrentSession == null)
+            if (CurrentSession == null)
             {
                 throw new Exception("The session hasn't started yet.");
             }
@@ -210,8 +275,9 @@ namespace pacman
                 IServer server = FindLeader(); //This will block until we have a leader
                 server.SetPlay(Address, play, CurrentSession.Round); //This might still fail
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                this.leader = null;
                 //We ignore this play since the player will have another oportunity and we have no leader available.                
             }
         }
@@ -241,8 +307,14 @@ namespace pacman
         }
 
         /// client receive from the server the result from the previous round and clients needs to update the game
-        void IClient.SendRound(List<Shared.Action> actions, List<IPlayer> players, int round)
+        void IClient.SendRound(List<Shared.Action> actions, List<IPlayer> players, int round, string leader)
         {
+           
+                this.leader = (IServer)Activator.GetObject(
+                    typeof(IServer),
+                    leader + "Server");
+           
+
             CurrentSession.Round = round;
             OnRoundReceived?.Invoke(actions, players, round);
             CurrentSession.game.Play(round);    // force player to play when is in mode auto
@@ -283,7 +355,7 @@ namespace pacman
 
         public void VectorRecoveryRequest(int[] vetor, string adress)
         {
-            CurrentChatRoom.VectorRecoveryRequest(vetor,adress);
+            CurrentChatRoom.VectorRecoveryRequest(vetor, adress);
         }
 
         public void PublishMessage(string message)
@@ -303,17 +375,24 @@ namespace pacman
         public void SetAvailableServers(List<Uri> serverURIList)
         {
             this.serverURIList = serverURIList;
+
+
+
             foreach (Uri peer in this.serverURIList)
             {
+                this.peerURIManager.Add(peer);
                 IServer server = (IServer)Activator.GetObject(
                     typeof(IServer),
                     this.lastKnownLeaderUri.ToString() + "Server");
 
-                this.servers.Add(peer, server);
+                server.Address = peer;
+                this.servers[peer] = server;
             }
         }
 
-        
-          
+        public string ping()
+        {
+            return "pong";
+        }
     }
 }

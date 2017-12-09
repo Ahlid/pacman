@@ -32,6 +32,7 @@ namespace Server.RaftCommands
                 server.HasGameStarted = true;
                 foreach (IClient client2 in server.SessionClients)
                 {
+                    server.SessionClientsAddress.Add(client2.Address);
                     Console.WriteLine($"Address session players {client2.Address}");
                     IPlayer player = new Player();
                     player.Address = client2.Address;
@@ -42,6 +43,7 @@ namespace Server.RaftCommands
                 }
                 Console.WriteLine("Creating State Machine");
                 server.StateMachine = new GameStateMachine(server.NumPlayers, server.PlayerList);
+
 
                 if (AsLeader)
                 {

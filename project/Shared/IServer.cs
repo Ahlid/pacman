@@ -11,6 +11,7 @@ namespace Shared
     public interface IServer
     {
 
+        Uri Address { get; set; }
         /// <summary>
         /// To join a game
         /// </summary>
@@ -38,5 +39,7 @@ namespace Shared
         /// </summary>
         /// <returns>Returns the addres of the leader</returns>
         Uri GetLeader();
+
+        string Test();
     }
 }

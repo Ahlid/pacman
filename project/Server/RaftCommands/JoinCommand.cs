@@ -45,7 +45,7 @@ namespace Server.RaftCommands
 
                     bool accepted;
                     int commitedAt;
-                    server.OnCommand(startCommand, out accepted, out commitedAt);
+                    server.OnCommand(startCommand);
 
                     /*
                     if (server.PeerURIs.Count == 1)

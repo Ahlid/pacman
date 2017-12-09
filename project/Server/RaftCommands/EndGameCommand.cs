@@ -17,6 +17,7 @@ namespace Server.RaftCommands
             {
                 server.HasGameStarted = false;
                 server.GameStartRequest = false;
+                server.SessionClientsAddress = new List<Uri>();
                 //send end to all clients in game
             }
 
@@ -56,7 +57,7 @@ namespace Server.RaftCommands
                         bool response;
                         int commitAt;
 
-                        server.OnCommand(startCommand, out response, out commitAt);
+                        server.OnCommand(startCommand);
                     }
 
                 }

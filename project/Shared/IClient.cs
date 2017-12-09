@@ -32,7 +32,7 @@ namespace Shared
         /// <param name="actions">Actions taken on the round</param>
         /// <param name="players">Players on game</param>
         /// <param name="round">Round number.</param>
-        void SendRound(List<Action> actions, List<IPlayer> players, int round);
+        void SendRound(List<Action> actions, List<IPlayer> players, int round, string leader);
         /// <summary>
         /// Client receives indication that the hame has started.
         /// </summary>
@@ -55,5 +55,7 @@ namespace Shared
         void SetPeers(Dictionary<string, Uri> peers);
 
         void SetAvailableServers(List<Uri> replicaServersURIsList);
+
+        string ping();
     }
 }

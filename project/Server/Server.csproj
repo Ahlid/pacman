@@ -51,6 +51,7 @@
     <Compile Include="RaftCommands\EndGameCommand.cs" />
     <Compile Include="RaftCommands\JoinCommand.cs" />
     <Compile Include="RaftCommands\NewRoundCommand.cs" />
+    <Compile Include="RaftCommands\SetPlay.cs" />
     <Compile Include="RaftCommands\StartCommand.cs" />
     <Compile Include="RaftLog.cs" />
     <Compile Include="RaftServer.cs" />

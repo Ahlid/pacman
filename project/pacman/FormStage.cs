@@ -185,6 +185,7 @@ namespace pacman
             mutex.WaitOne();
             if(this.roundState.Keys.Contains(round))
             {
+                mutex.ReleaseMutex();
                 return;
             }
 
@@ -263,7 +264,7 @@ namespace pacman
                 this.textboxPlayers.Text = scores;
             }));
 
-            this.roundState.Add(round, GetState());
+            this.roundState[round] = GetState();
             mutex.ReleaseMutex();
         }
 
