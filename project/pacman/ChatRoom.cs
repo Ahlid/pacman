@@ -86,7 +86,8 @@ namespace pacman
 
         public void VectorRecoveryRequest(int[] vetor, string adress)
         {
-            this.vetorClockManager.VectorRecoveryRequest(vetor, adress);
+            if(this.vetorClockManager != null)
+                this.vetorClockManager.VectorRecoveryRequest(vetor, adress);
         }
 
 

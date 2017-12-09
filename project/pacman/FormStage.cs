@@ -181,14 +181,16 @@ namespace pacman
 
         public void ReceiveRound(List<Shared.Action> actions, List<IPlayer> players, int round)
         {
-
+            
             mutex.WaitOne();
-            if(this.roundState.Keys.Contains(round))
+            //This assures that no previous round is received and applied
+            //experimenta
+            if (this.roundState.Keys.Count != 0 && this.roundState.Keys.Max() >= round)
             {
                 mutex.ReleaseMutex();
                 return;
             }
-
+            
             foreach (Shared.Action action in actions)
             {
                 PictureBox pictureBox;
@@ -233,6 +235,11 @@ namespace pacman
                         if (hub.CurrentSession.PlayerId == action.ID)    // This client cant play anymore
                         {
                             timer1.Stop(); // stop receiving inputs
+                            this.Invoke(new System.Action(() =>
+                            {
+                                FormDead f = new FormDead();
+                                f.Show();
+                            }));
                         }
                         break;
 

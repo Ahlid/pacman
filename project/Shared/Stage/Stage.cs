@@ -13,7 +13,7 @@ namespace Shared
     {
         public const int WIDTH = 430;
         public const int HEIGHT = 310;
-        public const int COINS = 30;
+        public const int COINS = 3;
 
         private int nextHorizontalPosition = 0;
         private int nextVerticalPosition = 0;
