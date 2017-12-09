@@ -750,63 +750,69 @@ namespace Server
         public void OnHeartbeatTimerOrSendTrigger(Uri peerUri)
         {
 
-
-            // NOTE: it may be useful to have separate timers for each peer, so
-            // that you can retry AppendEntries to one peer without sending to all
-            // Peers.
-
-
-            if (State != State.LEADER)
-            {
-                return;
-            }
-
             int rfNextIndex;
             List<RaftLog> entries = new List<RaftLog>();
             int prevLogIndex;
             int prevLogTerm;
             int sendTerm;
 
-            rfNextIndex = this.NextIndex[peerUri];
-
-            if (this.NextIndex[peerUri] > this.Log.Count)
+            lock (this)
             {
-                rfNextIndex = this.Log.Count;
-            }
 
-            for (int i = rfNextIndex; i < this.Log.Count; i++)
-            {
-                RaftLog entry = new RaftLog()
+                if (peerUri == null) return;
+
+                // NOTE: it may be useful to have separate timers for each peer, so
+                // that you can retry AppendEntries to one peer without sending to all
+                // Peers.
+
+
+                if (State != State.LEADER)
                 {
-                    Command = this.Log[i].Command,
-                    Term = this.Log[i].Term,
-                    AsLeader = false
-                };
-                entries.Add(entry);
+                    return;
+                }
+
+
+
+                rfNextIndex = this.NextIndex[peerUri];
+
+                if (this.NextIndex[peerUri] > this.Log.Count)
+                {
+                    rfNextIndex = this.Log.Count;
+                }
+
+                for (int i = rfNextIndex; i < this.Log.Count; i++)
+                {
+                    RaftLog entry = new RaftLog()
+                    {
+                        Command = this.Log[i].Command,
+                        Term = this.Log[i].Term,
+                        AsLeader = false
+                    };
+                    entries.Add(entry);
+                }
+
+
+                prevLogIndex = rfNextIndex - 1;
+                prevLogTerm = -1;
+
+                if (prevLogIndex >= 0)
+                {
+                    prevLogTerm = Log[prevLogIndex].Term;
+                }
+                else
+                {
+                    prevLogTerm = this.CurrentTerm;
+                }
+
+                sendTerm = this.CurrentTerm;
+                // NOTE: if length(entries) == 0, you may want to check that we
+                // haven't sent this peer an AppendEntries recently. If we
+                // have, just return.
+
+                // NOTE: if the RPC fails, stop processing for this peer, but
+                // trigger sending AppendEntries again immediately.
+
             }
-
-
-            prevLogIndex = rfNextIndex - 1;
-            prevLogTerm = -1;
-
-            if (prevLogIndex >= 0)
-            {
-                prevLogTerm = Log[prevLogIndex].Term;
-            }
-            else
-            {
-                prevLogTerm = this.CurrentTerm;
-            }
-
-            sendTerm = this.CurrentTerm;
-            // NOTE: if length(entries) == 0, you may want to check that we
-            // haven't sent this peer an AppendEntries recently. If we
-            // have, just return.
-
-            // NOTE: if the RPC fails, stop processing for this peer, but
-            // trigger sending AppendEntries again immediately.
-
-
             Tuple<int, int, int, bool> res;
             try
             {
@@ -987,6 +993,11 @@ namespace Server
             bool accepted;
             int commitedAt;
             RaftCommand command;
+
+            if (this.State != State.LEADER)
+            {
+                return;
+            }
 
             if (!this.HasGameStarted)
             {

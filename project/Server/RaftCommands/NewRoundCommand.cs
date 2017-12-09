@@ -84,9 +84,9 @@ namespace Server.RaftCommands
                     });
                 }
 
-                server.RoundTimer.Start(); //Start the timer
-
             }
+
+            server.RoundTimer.Start(); //Start the timer
         }
     }
 }
