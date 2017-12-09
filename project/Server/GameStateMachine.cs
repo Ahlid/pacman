@@ -88,9 +88,9 @@ namespace Server
             }
             //retornar o que tem mais score
             if (alivePlayers.Count() > 1)
-                return alivePlayers.OrderBy(p => p.Score).First();
+                return alivePlayers.OrderBy(p => p.Score).Last();
 
-            return this.Stage.GetPlayers().OrderBy(p => p.Score).First();
+            return this.Stage.GetPlayers().OrderBy(p => p.Score).Last();
         }
 
         /// <summary>

@@ -27,12 +27,12 @@ namespace pacman
         {
             Application.SetCompatibleTextRenderingDefault(false);
             Application.EnableVisualStyles();
+            
             /*
-
                         if (!Debugger.IsAttached)
                             Debugger.Launch();
                         Debugger.Break();
-                   */
+              */
             try
             {
                 if (args.Length > 0)
@@ -42,7 +42,7 @@ namespace pacman
                         string PID = args[1];
                         Uri clientURL = new Uri(args[2]);
                         List<Uri> serverURLs = new List<Uri>();
-                        foreach(string serverURL in args.Skip(3))
+                        foreach(string serverURL in args.Skip(4))
                         {
                             serverURLs.Add(new Uri(serverURL));
                         }
@@ -85,17 +85,44 @@ namespace pacman
         {
             Hub hub = new Hub(serverURLs, clientURL, new AutomatedGame(instructions));
             Form form = new AutomaticStartForm(hub, PID);
-
+            FormStage formStage = null;
             hub.OnStart += (stage) =>
             {
                 form.Invoke(new System.Action(() => {
                     form.Hide();
-                    FormStage formStage = new FormStage(hub, stage);
+                    formStage = new FormStage(hub, stage);
                     formStage.Show();
+                    hub.CurrentSession.game.Play(0);
                 }));
             };
-     
 
+            hub.OnDeath += () =>
+            {
+                form.Invoke(new System.Action(() =>
+                {
+                    FormDead f = new FormDead();
+                    f.Show();
+                }));
+            };
+            hub.OnGameEnd += (winner) =>
+            {
+                hub.UnregisterChannel(); //unrigester current channel before creating a new one
+                form.Invoke(new System.Action(() =>
+                {
+                    formStage.Hide();
+                    FormEndGame endGame = new FormEndGame(winner);
+                    endGame.PID = PID;
+                    endGame.clientURL = clientURL;
+                    endGame.serverURLs = serverURLs;
+                    endGame.instructions = instructions;
+                    endGame.Show();
+                    //quando um botao for clicado este método tem de ser executado.
+                    endGame.OnPlayAgainInstructable += (_PID, _clientURL, _serverURLs, _instructions) =>
+                    {
+                        instructedClient(_PID, _clientURL, _serverURLs, _instructions);
+                    };
+                }));
+            };
             try
             {
   
@@ -111,14 +138,43 @@ namespace pacman
         private static void notInstructedClient(string PID, Uri clientURL, List<Uri> serverURLs)
         {
             Hub hub = new Hub(serverURLs, clientURL, new SimpleGame());
-
             Form form = new AutomaticStartForm(hub, PID);
+            FormStage formStage = null;
             hub.OnStart += (stage) =>
             {
                 form.Invoke(new System.Action(() => {
                     form.Hide();
-                    FormStage formStage = new FormStage(hub, stage);
+                    formStage = new FormStage(hub, stage);
                     formStage.Show();
+                }));
+            };
+
+            hub.OnDeath += () =>
+            {
+                form.Invoke(new System.Action(() =>
+                {
+                    FormDead f = new FormDead();
+                    f.Show();
+                }));
+            };
+
+            hub.OnGameEnd += (winner) =>
+            {
+                hub.UnregisterChannel(); //unrigester current channel before creating a new one
+                form.Invoke(new System.Action(() =>
+                {
+                    //MessageBox.Show("END");
+                    formStage.Hide();
+                    FormEndGame endGame = new FormEndGame(winner);
+                    endGame.PID = PID;
+                    endGame.clientURL = clientURL;
+                    endGame.serverURLs = serverURLs;
+                    endGame.Show();
+                    //quando um botao for clicado este método tem de ser executado.
+                    endGame.OnPlayAgain += (_PID, _clientURL, _serverURLs) =>
+                    {
+                        notInstructedClient(_PID, _clientURL, _serverURLs);
+                    };
                 }));
             };
 

@@ -57,13 +57,16 @@ namespace ProcessCreationService
                 {
                     Console.WriteLine("PID {0} is down");
                 }
-                else if (processesFrozen[key])
+                else if (processesFrozen.Keys.Contains(key))
                 {
                     Console.WriteLine("PID {0} is frozen");
                 }
                 else
                 {
                     Console.WriteLine("PID {0} is running");
+                    // aqui agora vem a logica d
+                    // as coisas estao implementadas no lado do Server e o Cliente?
+                    //So no cliente acho eu 
                 }
             }
         }

@@ -22,7 +22,24 @@ namespace PuppetMaster.Commands
             IAsyncResult asyncResult;
             string result;
             string filename;
-            foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
+            //foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
+            //{
+            remoteCallLocalState = new localStateDel((processesPCS[parameters[0]]).LocalState);
+            asyncResult = remoteCallLocalState.BeginInvoke(parameters[0], parameters[1], null, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            result = remoteCallLocalState.EndInvoke(asyncResult);
+            Console.WriteLine("LocalState of the process with PID: '{0}': \n" + result + "\n\n");
+
+            filename = String.Format(@"../../output/LocalState-{0}-{1}.txt", parameters[0], parameters[1]);
+                System.IO.File.WriteAllText(filename, result.ToString());
+            //}
+        }
+    }
+}
+
+/*
+ * 
+ * foreach (KeyValuePair<string, IProcessCreationService> entry in processesPCS)
             {
                 remoteCallLocalState = new localStateDel((entry.Value).LocalState);
                 asyncResult = remoteCallLocalState.BeginInvoke(entry.Key, parameters[1], null, null);
@@ -33,6 +50,5 @@ namespace PuppetMaster.Commands
                 filename = String.Format(@"../../output/LocalState-{0}-{1}.txt", entry.Key, parameters[1]);
                 System.IO.File.WriteAllText(filename, result.ToString());
             }
-        }
-    }
-}
+
+    */

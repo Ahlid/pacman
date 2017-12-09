@@ -41,11 +41,12 @@ namespace pacman
         public delegate void StartEventHandler(IStage e);
         public delegate void RoundActionsEventHandler(List<Shared.Action> actions, List<IPlayer> players, int round);
         public delegate void GameEndEvent(IPlayer e);
+        public delegate void PlayerDiedEvent();
         public delegate string GetStateHandler(int round);
 
         public event StartEventHandler OnStart;
         public event RoundActionsEventHandler OnRoundReceived;
-        public event EventHandler OnDeath;
+        public event PlayerDiedEvent OnDeath;
         public event GameEndEvent OnGameEnd;
 
         public GetStateHandler getStateHandler { get; set; } 
@@ -232,6 +233,11 @@ namespace pacman
             }
         }
 
+        public void UnregisterChannel()
+        {
+            ChannelServices.UnregisterChannel(this.channel);
+        }
+        
         //IClient Interface 
 
         void IClient.Start(IStage stage)
@@ -250,13 +256,14 @@ namespace pacman
 
         void IClient.Died()
         {
+            MessageBox.Show("DIED");
             CurrentSession.SessionStatus = Session.Status.DIED;
-            OnDeath?.Invoke(this, null);
+            OnDeath?.Invoke();
         }
 
         void IClient.End(IPlayer winner)
         {
-            MessageBox.Show("END");
+            //MessageBox.Show("END");
             CurrentSession.SessionStatus = Session.Status.ENDED;
             OnGameEnd?.Invoke(winner);
         }

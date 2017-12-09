@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Shared;
 
 namespace pacman
@@ -26,25 +27,31 @@ namespace pacman
         public void Play(int round)
         {
             // preciso do numero da ronda 
-            if(instructions.Length < nextMove)
+            if(instructions.Length > nextMove)
             {
                 string[] pairInstructions = instructions[nextMove++].Split(','); // [0] -> round, [1] -> move
-                this.Move = getPlay(pairInstructions[1]); 
+                if(pairInstructions[0] != "")
+                {
+                    Play mv = getPlay(pairInstructions[1]);
+                    this.Move = mv;
+                }
+            }else
+            {
+                this.Move = Shared.Play.NONE;
             }
-            this.Move = Shared.Play.NONE;
         }
 
         private Play getPlay(string move)
         {
             switch (move)
             {
-                case "Up":
+                case "UP":
                     return Shared.Play.UP;
-                case "Down":
+                case "DOWN":
                     return Shared.Play.DOWN;
-                case "Left":
+                case "LEFT":
                     return Shared.Play.LEFT;
-                case "Right":
+                case "RIGHT":
                     return Shared.Play.RIGHT;
                 default:
                     return Shared.Play.NONE;
