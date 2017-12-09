@@ -1069,12 +1069,12 @@ namespace Server
 
             if (this.State != State.LEADER)
             {
-                throw new Exception("The server is currently not a leader");
+                return;
             }
 
             if (this.StateMachine == null || !this.HasGameStarted)
             {
-                throw new Exception("Game hasn't started yet");
+                return;
             }
 
             this.OnCommand(new SetPlay() { Address = address, Play = play });
